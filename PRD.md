@@ -12,6 +12,13 @@ This is a sophisticated analytics platform that requires multiple interconnected
 
 ## Essential Features
 
+### GRID API Integration
+- **Functionality**: Direct integration with GRID's esports data API to fetch real Cloud9 match data, player statistics, and live game information
+- **Purpose**: Replace mock data with authentic esports analytics from official tournament and team data
+- **Trigger**: User configures GRID API key on initial setup or from settings
+- **Progression**: Enter API key → Validate credentials → Fetch Cloud9 roster → Retrieve recent matches → Cache data locally → Auto-refresh every 5 minutes → Display connection status
+- **Success criteria**: Successful authentication, data retrieval within 3 seconds, graceful fallback to cached/mock data on failure, clear error messaging
+
 ### Live Match Tracking with Real-Time KDA Updates
 - **Functionality**: Real-time monitoring of ongoing matches with live updates to player KDA (Kills/Deaths/Assists), CS (Creep Score), gold, and objective control
 - **Purpose**: Enable coaches to track performance as it happens and identify in-game patterns for immediate strategic adjustments

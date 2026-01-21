@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -7,23 +7,41 @@ import { PlayerCard } from '@/components/PlayerCard'
 import { StrategicImpactView } from '@/components/StrategicImpactView'
 import { PlayerAnalyticsView } from '@/components/PlayerAnalyticsView'
 import { LiveMatchTracker } from '@/components/LiveMatchTracker'
+import { GridApiSetup } from '@/components/GridApiSetup'
+import { DataSourceIndicator } from '@/components/DataSourceIndicator'
 import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair } from '@phosphor-icons/react'
 import { PLAYERS, INSIGHTS, STRATEGIC_IMPACTS, getPlayerAnalytics, MATCHES, MISTAKES, generateAIInsight } from '@/lib/mockData'
 import { useLiveMatch } from '@/hooks/use-live-match'
+import { useGridData } from '@/hooks/use-grid-data'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import type { Player, Match } from '@/lib/types'
 
 function App() {
+    const gridData = useGridData()
     const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null)
-    const [selectedMatch, setSelectedMatch] = useState(MATCHES[0].id)
+    const [selectedMatch, setSelectedMatch] = useState<string>('')
     const [aiInsight, setAiInsight] = useState<string>('')
     const [isGeneratingInsight, setIsGeneratingInsight] = useState(false)
     const { liveMatch, toggleTracking } = useLiveMatch()
 
+    const players: Player[] = gridData.players.length > 0 ? gridData.players : PLAYERS
+    const matches: Match[] = gridData.matches.length > 0 ? gridData.matches : MATCHES
+    
+    useEffect(() => {
+        if (matches.length > 0 && !selectedMatch) {
+            setSelectedMatch(matches[0].id)
+        }
+    }, [matches, selectedMatch])
+
     const handleGenerateAIInsight = async () => {
         setIsGeneratingInsight(true)
-        const match = MATCHES.find(m => m.id === selectedMatch)!
+        const match = matches.find(m => m.id === selectedMatch)
+        if (!match) {
+            setIsGeneratingInsight(false)
+            return
+        }
         const matchMistakes = MISTAKES.filter(m => m.matchId === selectedMatch)
         
         toast.info('AI analyzing match data...')
@@ -36,8 +54,10 @@ function App() {
     const selectedPlayerAnalytics = selectedPlayer ? getPlayerAnalytics(selectedPlayer) : null
 
     const teamStats = {
-        avgWinRate: Math.round(PLAYERS.reduce((sum, p) => sum + p.winRate, 0) / PLAYERS.length),
-        totalGames: PLAYERS[0].gamesPlayed,
+        avgWinRate: players.length > 0 
+            ? Math.round(players.reduce((sum, p) => sum + p.winRate, 0) / players.length)
+            : 0,
+        totalGames: players.length > 0 ? players[0].gamesPlayed : 0,
         totalMistakes: MISTAKES.length,
         criticalInsights: INSIGHTS.filter(i => i.severity === 'critical').length
     }
@@ -68,8 +88,23 @@ function App() {
                                         <Cpu size={28} weight="duotone" className="text-primary-foreground" />
                                     </div>
                                     <div>
-                                        <h1 className="text-3xl font-bold tracking-tight">Assistant Coach</h1>
-                                        <p className="text-sm text-muted-foreground">Cloud9 Esports Analytics Platform</p>
+                                        <div className="flex items-center gap-2">
+                                            <h1 className="text-3xl font-bold tracking-tight">Assistant Coach</h1>
+                                            {gridData.isInitialized && (
+                                                <span className="px-2 py-1 text-xs font-semibold uppercase tracking-wide rounded-full bg-success/20 text-success border border-success/40">
+                                                    Live Data
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <p className="text-sm text-muted-foreground">Cloud9 Esports Analytics Platform</p>
+                                            <span className="text-muted-foreground">·</span>
+                                            <DataSourceIndicator
+                                                isLiveData={gridData.isInitialized}
+                                                hasCachedData={gridData.hasCachedData && !gridData.isInitialized}
+                                                isLoading={gridData.isLoading}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
@@ -87,6 +122,19 @@ function App() {
                     </header>
 
                     <main className="container mx-auto px-6 py-8">
+                        <div className="mb-8">
+                            <GridApiSetup
+                                isInitialized={gridData.isInitialized}
+                                hasApiKey={gridData.apiKey.length > 0}
+                                isLoading={gridData.isLoading}
+                                error={gridData.error}
+                                onInitialize={gridData.initializeApi}
+                                onFetchData={gridData.fetchData}
+                                onClearKey={gridData.clearApiKey}
+                                hasCachedData={gridData.hasCachedData}
+                            />
+                        </div>
+
                         <div className="grid lg:grid-cols-4 gap-6 mb-8">
                             <Card className="glow-border">
                                 <CardHeader className="pb-3">
@@ -202,7 +250,7 @@ function App() {
                                                             <SelectValue />
                                                         </SelectTrigger>
                                                         <SelectContent>
-                                                            {MATCHES.map(match => (
+                                                            {matches.map(match => (
                                                                 <SelectItem key={match.id} value={match.id}>
                                                                     {match.date} - vs {match.opponent} ({match.result.toUpperCase()})
                                                                 </SelectItem>
@@ -247,7 +295,7 @@ function App() {
                                 <div>
                                     <h2 className="text-2xl font-semibold mb-6">Team Roster</h2>
                                     <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-                                        {PLAYERS.map(player => (
+                                        {players.map(player => (
                                             <PlayerCard
                                                 key={player.id}
                                                 player={player}
@@ -287,7 +335,7 @@ function App() {
 
                             <TabsContent value="players" className="space-y-6">
                                 <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
-                                    {PLAYERS.map(player => (
+                                    {players.map(player => (
                                         <PlayerCard
                                             key={player.id}
                                             player={player}
