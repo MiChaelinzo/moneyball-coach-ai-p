@@ -1,5 +1,314 @@
+import { useState } from 'react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { InsightCard } from '@/components/InsightCard'
+import { PlayerCard } from '@/components/PlayerCard'
+import { StrategicImpactView } from '@/components/StrategicImpactView'
+import { PlayerAnalyticsView } from '@/components/PlayerAnalyticsView'
+import { ChartBar, Users, Target, Cpu, Sparkle } from '@phosphor-icons/react'
+import { PLAYERS, INSIGHTS, STRATEGIC_IMPACTS, getPlayerAnalytics, MATCHES, MISTAKES, generateAIInsight } from '@/lib/mockData'
+import { motion } from 'framer-motion'
+import { toast } from 'sonner'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+
 function App() {
-    return <div></div>
+    const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null)
+    const [selectedMatch, setSelectedMatch] = useState(MATCHES[0].id)
+    const [aiInsight, setAiInsight] = useState<string>('')
+    const [isGeneratingInsight, setIsGeneratingInsight] = useState(false)
+
+    const handleGenerateAIInsight = async () => {
+        setIsGeneratingInsight(true)
+        const match = MATCHES.find(m => m.id === selectedMatch)!
+        const matchMistakes = MISTAKES.filter(m => m.matchId === selectedMatch)
+        
+        toast.info('AI analyzing match data...')
+        const insight = await generateAIInsight(match, matchMistakes)
+        setAiInsight(insight)
+        setIsGeneratingInsight(false)
+        toast.success('Analysis complete!')
+    }
+
+    const selectedPlayerAnalytics = selectedPlayer ? getPlayerAnalytics(selectedPlayer) : null
+
+    const teamStats = {
+        avgWinRate: Math.round(PLAYERS.reduce((sum, p) => sum + p.winRate, 0) / PLAYERS.length),
+        totalGames: PLAYERS[0].gamesPlayed,
+        totalMistakes: MISTAKES.length,
+        criticalInsights: INSIGHTS.filter(i => i.severity === 'critical').length
+    }
+
+    return (
+        <div className="min-h-screen bg-background text-foreground">
+            <div className="relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5" />
+                <div 
+                    className="absolute inset-0 opacity-30"
+                    style={{
+                        backgroundImage: `repeating-linear-gradient(
+                            0deg,
+                            transparent,
+                            transparent 2px,
+                            oklch(0.72 0.16 195 / 0.03) 2px,
+                            oklch(0.72 0.16 195 / 0.03) 4px
+                        )`
+                    }}
+                />
+                
+                <div className="relative">
+                    <header className="border-b border-border/50 backdrop-blur-sm bg-background/80">
+                        <div className="container mx-auto px-6 py-6">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                                        <Cpu size={28} weight="duotone" className="text-primary-foreground" />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-3xl font-bold tracking-tight">Assistant Coach</h1>
+                                        <p className="text-sm text-muted-foreground">Cloud9 Esports Analytics Platform</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="text-right">
+                                        <div className="font-mono text-2xl font-bold text-success">
+                                            {teamStats.avgWinRate}%
+                                        </div>
+                                        <div className="text-xs text-muted-foreground uppercase tracking-wide">
+                                            Team Win Rate
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="container mx-auto px-6 py-8">
+                        <div className="grid lg:grid-cols-4 gap-6 mb-8">
+                            <Card className="glow-border">
+                                <CardHeader className="pb-3">
+                                    <CardTitle className="text-sm uppercase tracking-wide text-muted-foreground">
+                                        Total Games
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="font-mono text-3xl font-bold text-foreground">
+                                        {teamStats.totalGames}
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card className="glow-border-warning">
+                                <CardHeader className="pb-3">
+                                    <CardTitle className="text-sm uppercase tracking-wide text-muted-foreground">
+                                        Tracked Mistakes
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="font-mono text-3xl font-bold text-warning">
+                                        {teamStats.totalMistakes}
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card className="glow-border-destructive">
+                                <CardHeader className="pb-3">
+                                    <CardTitle className="text-sm uppercase tracking-wide text-muted-foreground">
+                                        Critical Insights
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="font-mono text-3xl font-bold text-destructive">
+                                        {teamStats.criticalInsights}
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card className="glow-border-success">
+                                <CardHeader className="pb-3">
+                                    <CardTitle className="text-sm uppercase tracking-wide text-muted-foreground">
+                                        Players Analyzed
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="font-mono text-3xl font-bold text-success">
+                                        {PLAYERS.length}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        <Tabs defaultValue="dashboard" className="space-y-8">
+                            <TabsList className="grid w-full max-w-2xl grid-cols-4 mx-auto">
+                                <TabsTrigger value="dashboard" className="flex items-center gap-2">
+                                    <ChartBar size={18} weight="duotone" />
+                                    <span className="hidden sm:inline">Dashboard</span>
+                                </TabsTrigger>
+                                <TabsTrigger value="insights" className="flex items-center gap-2">
+                                    <Sparkle size={18} weight="duotone" />
+                                    <span className="hidden sm:inline">Insights</span>
+                                </TabsTrigger>
+                                <TabsTrigger value="players" className="flex items-center gap-2">
+                                    <Users size={18} weight="duotone" />
+                                    <span className="hidden sm:inline">Players</span>
+                                </TabsTrigger>
+                                <TabsTrigger value="strategic" className="flex items-center gap-2">
+                                    <Target size={18} weight="duotone" />
+                                    <span className="hidden sm:inline">Strategic</span>
+                                </TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="dashboard" className="space-y-8">
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.5 }}
+                                >
+                                    <Card className="glow-border bg-gradient-to-br from-primary/10 to-accent/5">
+                                        <CardHeader>
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-2 rounded-lg bg-primary/20">
+                                                        <Cpu size={24} weight="duotone" className="text-primary" />
+                                                    </div>
+                                                    <div>
+                                                        <CardTitle className="text-xl">AI-Powered Match Analysis</CardTitle>
+                                                        <p className="text-sm text-muted-foreground">
+                                                            Generate intelligent insights from match data
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <div className="flex items-end gap-4">
+                                                <div className="flex-1">
+                                                    <label className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2 block">
+                                                        Select Match
+                                                    </label>
+                                                    <Select value={selectedMatch} onValueChange={setSelectedMatch}>
+                                                        <SelectTrigger>
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {MATCHES.map(match => (
+                                                                <SelectItem key={match.id} value={match.id}>
+                                                                    {match.date} - vs {match.opponent} ({match.result.toUpperCase()})
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <Button 
+                                                    onClick={handleGenerateAIInsight}
+                                                    disabled={isGeneratingInsight}
+                                                    className="gap-2"
+                                                >
+                                                    <Cpu size={18} weight="duotone" />
+                                                    {isGeneratingInsight ? 'Analyzing...' : 'Generate Analysis'}
+                                                </Button>
+                                            </div>
+
+                                            {aiInsight && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: 'auto' }}
+                                                    transition={{ duration: 0.3 }}
+                                                    className="p-4 bg-primary/10 border border-primary/30 rounded-lg"
+                                                >
+                                                    <div className="flex items-start gap-3">
+                                                        <Sparkle size={20} weight="duotone" className="text-primary mt-1 flex-shrink-0" />
+                                                        <div>
+                                                            <div className="text-sm font-semibold text-primary uppercase tracking-wide mb-2">
+                                                                AI Insight
+                                                            </div>
+                                                            <p className="text-sm leading-relaxed text-foreground">
+                                                                {aiInsight}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+
+                                <div>
+                                    <h2 className="text-2xl font-semibold mb-6">Team Roster</h2>
+                                    <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                                        {PLAYERS.map(player => (
+                                            <PlayerCard
+                                                key={player.id}
+                                                player={player}
+                                                isSelected={selectedPlayer === player.id}
+                                                onClick={() => setSelectedPlayer(player.id)}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {selectedPlayerAnalytics && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.5 }}
+                                    >
+                                        <PlayerAnalyticsView analytics={selectedPlayerAnalytics} />
+                                    </motion.div>
+                                )}
+                            </TabsContent>
+
+                            <TabsContent value="insights" className="space-y-6">
+                                <div className="flex items-center justify-between mb-6">
+                                    <div>
+                                        <h2 className="text-2xl font-semibold">AI-Generated Insights</h2>
+                                        <p className="text-sm text-muted-foreground">
+                                            Pattern recognition and strategic recommendations
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="grid gap-6">
+                                    {INSIGHTS.map((insight, index) => (
+                                        <InsightCard key={insight.id} insight={insight} index={index} />
+                                    ))}
+                                </div>
+                            </TabsContent>
+
+                            <TabsContent value="players" className="space-y-6">
+                                <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
+                                    {PLAYERS.map(player => (
+                                        <PlayerCard
+                                            key={player.id}
+                                            player={player}
+                                            isSelected={selectedPlayer === player.id}
+                                            onClick={() => setSelectedPlayer(player.id)}
+                                        />
+                                    ))}
+                                </div>
+
+                                {selectedPlayerAnalytics ? (
+                                    <PlayerAnalyticsView analytics={selectedPlayerAnalytics} />
+                                ) : (
+                                    <Card className="glow-border">
+                                        <CardContent className="py-12 text-center">
+                                            <Users size={48} weight="duotone" className="text-muted-foreground mx-auto mb-4" />
+                                            <p className="text-muted-foreground">
+                                                Select a player to view detailed analytics
+                                            </p>
+                                        </CardContent>
+                                    </Card>
+                                )}
+                            </TabsContent>
+
+                            <TabsContent value="strategic">
+                                <StrategicImpactView impacts={STRATEGIC_IMPACTS} />
+                            </TabsContent>
+                        </Tabs>
+                    </main>
+                </div>
+            </div>
+        </div>
+    )
 }
 
 export default App
