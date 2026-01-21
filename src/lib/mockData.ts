@@ -1,4 +1,4 @@
-import type { Player, Mistake, Match, Insight, StrategicImpact, PlayerAnalytics } from './types'
+import type { Player, Mistake, Match, Insight, StrategicImpact, PlayerAnalytics, LiveMatch, LiveMatchPlayer } from './types'
 
 export const PLAYERS: Player[] = [
   { id: '1', name: 'Fudge', role: 'Top', kda: 3.2, winRate: 58, gamesPlayed: 24 },
@@ -327,5 +327,120 @@ Provide a concise 2-3 sentence strategic insight connecting these individual mis
   } catch (error) {
     console.error('AI insight generation failed:', error)
     return 'Analysis in progress. Pattern recognition systems are processing match data to identify strategic correlations.'
+  }
+}
+
+export function createInitialLiveMatch(): LiveMatch {
+  const champions = ['Aatrox', 'Lee Sin', 'Orianna', 'Jinx', 'Thresh']
+  
+  return {
+    id: 'live-1',
+    isActive: false,
+    opponent: 'Team Liquid',
+    gameTime: 0,
+    teamGold: 2500,
+    enemyGold: 2500,
+    objectives: {
+      dragons: 0,
+      barons: 0,
+      towers: 0
+    },
+    enemyObjectives: {
+      dragons: 0,
+      barons: 0,
+      towers: 0
+    },
+    players: PLAYERS.map((player, index) => ({
+      id: player.id,
+      name: player.name,
+      role: player.role,
+      kills: 0,
+      deaths: 0,
+      assists: 0,
+      cs: 0,
+      gold: 500,
+      champion: champions[index]
+    }))
+  }
+}
+
+export function simulateLiveMatchUpdate(currentMatch: LiveMatch): LiveMatch {
+  const updatedPlayers: LiveMatchPlayer[] = currentMatch.players.map(player => {
+    const baseKills = player.kills
+    const baseDeaths = player.deaths
+    const baseAssists = player.assists
+    
+    const killChance = Math.random()
+    const deathChance = Math.random()
+    const assistChance = Math.random()
+    
+    let newKills = baseKills
+    let newDeaths = baseDeaths
+    let newAssists = baseAssists
+    
+    if (killChance > 0.92) {
+      newKills += 1
+      newAssists += Math.random() > 0.5 ? 1 : 0
+    }
+    
+    if (deathChance > 0.94) {
+      newDeaths += 1
+    }
+    
+    if (assistChance > 0.85 && newKills === baseKills) {
+      newAssists += 1
+    }
+    
+    const csGain = Math.floor(Math.random() * 3) + 1
+    const goldGain = csGain * 20 + (newKills > baseKills ? 300 : 0) + (newAssists > baseAssists ? 150 : 0)
+    
+    return {
+      ...player,
+      kills: newKills,
+      deaths: newDeaths,
+      assists: newAssists,
+      cs: player.cs + csGain,
+      gold: player.gold + goldGain
+    }
+  })
+  
+  const totalTeamGold = updatedPlayers.reduce((sum, p) => sum + p.gold, 0)
+  const enemyGoldGain = Math.floor(Math.random() * 1000) + 500
+  
+  const objectives = { ...currentMatch.objectives }
+  const enemyObjectives = { ...currentMatch.enemyObjectives }
+  
+  if (currentMatch.gameTime > 300 && currentMatch.gameTime % 120 === 0) {
+    if (Math.random() > 0.5) {
+      objectives.dragons += 1
+    } else {
+      enemyObjectives.dragons += 1
+    }
+  }
+  
+  if (currentMatch.gameTime > 1200 && Math.random() > 0.97) {
+    if (Math.random() > 0.5) {
+      objectives.barons += 1
+    } else {
+      enemyObjectives.barons += 1
+    }
+  }
+  
+  if (Math.random() > 0.95) {
+    if (Math.random() > 0.5) {
+      objectives.towers += 1
+    } else {
+      enemyObjectives.towers += 1
+    }
+  }
+  
+  return {
+    ...currentMatch,
+    gameTime: currentMatch.gameTime + 1,
+    teamGold: totalTeamGold,
+    enemyGold: currentMatch.enemyGold + enemyGoldGain,
+    objectives,
+    enemyObjectives,
+    players: updatedPlayers
   }
 }

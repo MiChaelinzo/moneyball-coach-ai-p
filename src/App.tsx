@@ -6,8 +6,10 @@ import { InsightCard } from '@/components/InsightCard'
 import { PlayerCard } from '@/components/PlayerCard'
 import { StrategicImpactView } from '@/components/StrategicImpactView'
 import { PlayerAnalyticsView } from '@/components/PlayerAnalyticsView'
-import { ChartBar, Users, Target, Cpu, Sparkle } from '@phosphor-icons/react'
+import { LiveMatchTracker } from '@/components/LiveMatchTracker'
+import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair } from '@phosphor-icons/react'
 import { PLAYERS, INSIGHTS, STRATEGIC_IMPACTS, getPlayerAnalytics, MATCHES, MISTAKES, generateAIInsight } from '@/lib/mockData'
+import { useLiveMatch } from '@/hooks/use-live-match'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -17,6 +19,7 @@ function App() {
     const [selectedMatch, setSelectedMatch] = useState(MATCHES[0].id)
     const [aiInsight, setAiInsight] = useState<string>('')
     const [isGeneratingInsight, setIsGeneratingInsight] = useState(false)
+    const { liveMatch, toggleTracking } = useLiveMatch()
 
     const handleGenerateAIInsight = async () => {
         setIsGeneratingInsight(true)
@@ -139,7 +142,11 @@ function App() {
                         </div>
 
                         <Tabs defaultValue="dashboard" className="space-y-8">
-                            <TabsList className="grid w-full max-w-2xl grid-cols-4 mx-auto">
+                            <TabsList className="grid w-full max-w-2xl grid-cols-5 mx-auto">
+                                <TabsTrigger value="live" className="flex items-center gap-2">
+                                    <Crosshair size={18} weight="duotone" />
+                                    <span className="hidden sm:inline">Live</span>
+                                </TabsTrigger>
                                 <TabsTrigger value="dashboard" className="flex items-center gap-2">
                                     <ChartBar size={18} weight="duotone" />
                                     <span className="hidden sm:inline">Dashboard</span>
@@ -157,6 +164,10 @@ function App() {
                                     <span className="hidden sm:inline">Strategic</span>
                                 </TabsTrigger>
                             </TabsList>
+
+                            <TabsContent value="live" className="space-y-6">
+                                <LiveMatchTracker match={liveMatch} onToggleTracking={toggleTracking} />
+                            </TabsContent>
 
                             <TabsContent value="dashboard" className="space-y-8">
                                 <motion.div

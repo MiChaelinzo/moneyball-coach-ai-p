@@ -74,3 +74,35 @@ export interface PlayerAnalytics {
     objectiveContribution: number
   }
 }
+
+export interface LiveMatchPlayer {
+  id: string
+  name: string
+  role: string
+  kills: number
+  deaths: number
+  assists: number
+  cs: number
+  gold: number
+  champion: string
+}
+
+export interface LiveMatch {
+  id: string
+  isActive: boolean
+  opponent: string
+  gameTime: number
+  teamGold: number
+  enemyGold: number
+  objectives: {
+    dragons: number
+    barons: number
+    towers: number
+  }
+  enemyObjectives: {
+    dragons: number
+    barons: number
+    towers: number
+  }
+  players: LiveMatchPlayer[]
+}

@@ -12,6 +12,13 @@ This is a sophisticated analytics platform that requires multiple interconnected
 
 ## Essential Features
 
+### Live Match Tracking with Real-Time KDA Updates
+- **Functionality**: Real-time monitoring of ongoing matches with live updates to player KDA (Kills/Deaths/Assists), CS (Creep Score), gold, and objective control
+- **Purpose**: Enable coaches to track performance as it happens and identify in-game patterns for immediate strategic adjustments
+- **Trigger**: Coach starts live tracking mode for an active match
+- **Progression**: Start tracking → System polls match data every second → Player stats update with visual animations → KDA changes highlight in real-time → Objectives tracked live → Gold differential monitored → Coach can pause/resume tracking
+- **Success criteria**: Stats update smoothly with <1s latency, visual feedback clearly highlights stat changes, no data loss during updates
+
 ### AI-Powered Match Analysis
 - **Functionality**: Analyzes historical match data to identify recurring patterns in player mistakes and their strategic impact
 - **Purpose**: Transforms raw match data into coaching insights that connect micro-level errors to macro-level outcomes
