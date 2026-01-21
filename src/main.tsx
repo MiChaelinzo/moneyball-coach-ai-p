@@ -12,7 +12,9 @@ import "./index.css"
 
 createRoot(document.getElementById('root')!).render(
   <ErrorBoundary FallbackComponent={ErrorFallback}>
-    <App />
-    <Toaster position="top-right" theme="dark" />
+    <>
+      <App />
+      <Toaster position="top-right" theme="dark" />
+    </>
    </ErrorBoundary>
 )

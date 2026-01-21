@@ -303,12 +303,19 @@ export async function generateAIInsight(matchData: Match, mistakes: Mistake[]): 
       `- ${m.playerName} (${m.category}): ${m.description} - Impact: ${m.impact}, Outcome: ${m.outcome}`
     ).join('\n')
     
-    const prompt = `You are an esports analytics AI assistant analyzing League of Legends match data.
+    const matchResult = matchData.result
+    const opponent = matchData.opponent
+    const duration = Math.floor(matchData.duration / 60)
+    const dragons = matchData.objectives.dragons
+    const barons = matchData.objectives.barons
+    const towers = matchData.objectives.towers
+    
+    const prompt = (window.spark.llmPrompt as any)`You are an esports analytics AI assistant analyzing League of Legends match data.
 
-Match Result: ${matchData.result}
-Opponent: ${matchData.opponent}
-Duration: ${Math.floor(matchData.duration / 60)} minutes
-Objectives: ${matchData.objectives.dragons} dragons, ${matchData.objectives.barons} barons, ${matchData.objectives.towers} towers
+Match Result: ${matchResult}
+Opponent: ${opponent}
+Duration: ${duration} minutes
+Objectives: ${dragons} dragons, ${barons} barons, ${towers} towers
 
 Key Mistakes:
 ${mistakesList}
@@ -318,6 +325,7 @@ Provide a concise 2-3 sentence strategic insight connecting these individual mis
     const insight = await window.spark.llm(prompt, 'gpt-4o-mini')
     return insight
   } catch (error) {
+    console.error('AI insight generation failed:', error)
     return 'Analysis in progress. Pattern recognition systems are processing match data to identify strategic correlations.'
   }
 }
