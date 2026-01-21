@@ -9,7 +9,8 @@ import { PlayerAnalyticsView } from '@/components/PlayerAnalyticsView'
 import { LiveMatchTracker } from '@/components/LiveMatchTracker'
 import { GridApiSetup } from '@/components/GridApiSetup'
 import { DataSourceIndicator } from '@/components/DataSourceIndicator'
-import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair } from '@phosphor-icons/react'
+import { MultiMatchAnalysisView } from '@/components/MultiMatchAnalysisView'
+import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine } from '@phosphor-icons/react'
 import { PLAYERS, INSIGHTS, STRATEGIC_IMPACTS, getPlayerAnalytics, MATCHES, MISTAKES, generateAIInsight } from '@/lib/mockData'
 import { useLiveMatch } from '@/hooks/use-live-match'
 import { useGridData } from '@/hooks/use-grid-data'
@@ -190,7 +191,7 @@ function App() {
                         </div>
 
                         <Tabs defaultValue="dashboard" className="space-y-8">
-                            <TabsList className="grid w-full max-w-2xl grid-cols-5 mx-auto">
+                            <TabsList className="grid w-full max-w-3xl grid-cols-6 mx-auto">
                                 <TabsTrigger value="live" className="flex items-center gap-2">
                                     <Crosshair size={18} weight="duotone" />
                                     <span className="hidden sm:inline">Live</span>
@@ -198,6 +199,10 @@ function App() {
                                 <TabsTrigger value="dashboard" className="flex items-center gap-2">
                                     <ChartBar size={18} weight="duotone" />
                                     <span className="hidden sm:inline">Dashboard</span>
+                                </TabsTrigger>
+                                <TabsTrigger value="trends" className="flex items-center gap-2">
+                                    <ChartLine size={18} weight="duotone" />
+                                    <span className="hidden sm:inline">Trends</span>
                                 </TabsTrigger>
                                 <TabsTrigger value="insights" className="flex items-center gap-2">
                                     <Sparkle size={18} weight="duotone" />
@@ -215,6 +220,14 @@ function App() {
 
                             <TabsContent value="live" className="space-y-6">
                                 <LiveMatchTracker match={liveMatch} onToggleTracking={toggleTracking} />
+                            </TabsContent>
+
+                            <TabsContent value="trends" className="space-y-6">
+                                <MultiMatchAnalysisView
+                                    matches={matches}
+                                    mistakes={MISTAKES}
+                                    players={players}
+                                />
                             </TabsContent>
 
                             <TabsContent value="dashboard" className="space-y-8">

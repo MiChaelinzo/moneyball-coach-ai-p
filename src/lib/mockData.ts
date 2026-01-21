@@ -49,6 +49,30 @@ export const MATCHES: Match[] = [
     duration: 2789,
     objectives: { dragons: 2, barons: 0, towers: 5 }
   },
+  {
+    id: 'm6',
+    date: '2024-01-10',
+    opponent: 'Dignitas',
+    result: 'win',
+    duration: 2456,
+    objectives: { dragons: 3, barons: 1, towers: 10 }
+  },
+  {
+    id: 'm7',
+    date: '2024-01-09',
+    opponent: 'Golden Guardians',
+    result: 'win',
+    duration: 2098,
+    objectives: { dragons: 4, barons: 1, towers: 9 }
+  },
+  {
+    id: 'm8',
+    date: '2024-01-08',
+    opponent: 'Immortals',
+    result: 'loss',
+    duration: 2834,
+    objectives: { dragons: 1, barons: 0, towers: 3 }
+  },
 ]
 
 export const MISTAKES: Mistake[] = [
@@ -147,6 +171,78 @@ export const MISTAKES: Mistake[] = [
     matchId: 'm1',
     gameTime: 1020,
     outcome: 'Team disengaged safely, no casualties'
+  },
+  {
+    id: 'mk9',
+    playerId: '2',
+    playerName: 'Blaber',
+    category: 'positioning',
+    description: 'Invaded enemy jungle at level 2 without lane priority',
+    timestamp: '2024-01-08T16:05:00',
+    impact: 'critical',
+    matchId: 'm8',
+    gameTime: 180,
+    outcome: 'First blood given, lost jungle camps, enemy jungler snowballed'
+  },
+  {
+    id: 'mk10',
+    playerId: '3',
+    playerName: 'Jensen',
+    category: 'communication',
+    description: 'Failed to call missing enemy mid laner during roam',
+    timestamp: '2024-01-08T16:15:00',
+    impact: 'high',
+    matchId: 'm8',
+    gameTime: 480,
+    outcome: 'Bot lane ganked, ADC died, lost tower plates'
+  },
+  {
+    id: 'mk11',
+    playerId: '1',
+    playerName: 'Fudge',
+    category: 'mechanics',
+    description: 'Missed flash timing in crucial team fight escape',
+    timestamp: '2024-01-10T14:25:00',
+    impact: 'medium',
+    matchId: 'm6',
+    gameTime: 1245,
+    outcome: 'Died but team won 4v4 fight afterward'
+  },
+  {
+    id: 'mk12',
+    playerId: '4',
+    playerName: 'Berserker',
+    category: 'positioning',
+    description: 'Overextended in lane without ward coverage',
+    timestamp: '2024-01-09T15:30:00',
+    impact: 'low',
+    matchId: 'm7',
+    gameTime: 645,
+    outcome: 'Used flash defensively, no death but pressure lost'
+  },
+  {
+    id: 'mk13',
+    playerId: '5',
+    playerName: 'Zven',
+    category: 'macro',
+    description: 'Stayed in base too long after respawn, missed objective setup',
+    timestamp: '2024-01-10T14:40:00',
+    impact: 'medium',
+    matchId: 'm6',
+    gameTime: 1680,
+    outcome: 'Team delayed dragon take, almost contested'
+  },
+  {
+    id: 'mk14',
+    playerId: '2',
+    playerName: 'Blaber',
+    category: 'decision-making',
+    description: 'Attempted solo baron when team was too far away',
+    timestamp: '2024-01-08T16:45:00',
+    impact: 'critical',
+    matchId: 'm8',
+    gameTime: 1920,
+    outcome: 'Caught and killed, enemy team secured baron, lost game'
   },
 ]
 

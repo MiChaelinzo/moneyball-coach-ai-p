@@ -27,11 +27,11 @@ This is a sophisticated analytics platform that requires multiple interconnected
 - **Success criteria**: Stats update smoothly with <1s latency, visual feedback clearly highlights stat changes, no data loss during updates
 
 ### AI-Powered Match Analysis
-- **Functionality**: Analyzes historical match data to identify recurring patterns in player mistakes and their strategic impact
+- **Functionality**: Analyzes historical match data to identify recurring patterns in player mistakes and their strategic impact. Now includes multi-match trend analysis to identify long-term patterns across multiple games.
 - **Purpose**: Transforms raw match data into coaching insights that connect micro-level errors to macro-level outcomes
-- **Trigger**: User uploads match data or selects from historical matches
-- **Progression**: Select match → AI processes data → System identifies patterns → Display categorized insights with impact metrics → Generate recommendations
-- **Success criteria**: AI successfully identifies at least 3-5 meaningful patterns per match with clear impact correlations
+- **Trigger**: User uploads match data or selects from historical matches, or accesses the Trends tab for comprehensive multi-match analysis
+- **Progression**: Select match(es) → AI processes data → System identifies patterns → Display categorized insights with impact metrics → Generate recommendations → Track trends over time
+- **Success criteria**: AI successfully identifies at least 3-5 meaningful patterns per match with clear impact correlations, and reveals long-term trends across multiple matches
 
 ### Individual Player Performance Tracking
 - **Functionality**: Deep-dive analytics on specific players showing recurring mistake patterns, improvement trends, and comparative metrics
@@ -48,18 +48,25 @@ This is a sophisticated analytics platform that requires multiple interconnected
 - **Success criteria**: Dashboard presents clear causal relationships between player actions and strategic outcomes
 
 ### Pattern Recognition & Recommendations
-- **Functionality**: AI identifies recurring patterns across multiple matches and generates prioritized coaching recommendations
-- **Purpose**: Move beyond reactive analysis to proactive strategic planning
-- **Trigger**: System continuously analyzes accumulated match data in background
-- **Progression**: System detects pattern → Calculates frequency and impact → Generates recommendation → Prioritizes by impact potential → Presents to coach with supporting data
-- **Success criteria**: Recommendations are specific, actionable, and backed by quantitative evidence
+- **Functionality**: AI identifies recurring patterns across multiple matches and generates prioritized coaching recommendations. Includes correlation detection between different mistake categories and game outcomes.
+- **Purpose**: Move beyond reactive analysis to proactive strategic planning with data-driven insights
+- **Trigger**: System continuously analyzes accumulated match data in background, or user accesses the Trends tab
+- **Progression**: System detects pattern → Calculates frequency and impact → Generates recommendation → Prioritizes by impact potential → Presents to coach with supporting data → Shows historical trend visualization
+- **Success criteria**: Recommendations are specific, actionable, and backed by quantitative evidence with clear correlation metrics
 
 ### Comparative Analytics
-- **Functionality**: Compare player/team performance against league averages, historical benchmarks, or specific opponents
+- **Functionality**: Compare player/team performance against league averages, historical benchmarks, or specific opponents. Includes long-term trend tracking showing improvement or decline over time.
 - **Purpose**: Contextualize performance and identify competitive advantages or vulnerabilities
-- **Trigger**: Coach selects comparison mode and defines parameters
-- **Progression**: Select comparison type → Choose baseline (league avg, opponent, historical) → System calculates differentials → Display comparative visualizations → Highlight significant deviations
-- **Success criteria**: Clear visualization of performance gaps with statistical significance indicators
+- **Trigger**: Coach selects comparison mode and defines parameters, or views the Trends tab for automatic multi-match analysis
+- **Progression**: Select comparison type → Choose baseline (league avg, opponent, historical) → System calculates differentials → Display comparative visualizations → Highlight significant deviations → Show trend direction (improving/declining/stable)
+- **Success criteria**: Clear visualization of performance gaps with statistical significance indicators and actionable trend insights
+
+### Multi-Match Trend Analysis (NEW)
+- **Functionality**: Comprehensive analysis across multiple matches identifying long-term patterns, player improvement trajectories, category trends, and pattern correlations
+- **Purpose**: Reveal strategic insights that only emerge over time, helping coaches make data-driven long-term decisions
+- **Trigger**: User accesses dedicated Trends tab in the main navigation
+- **Progression**: Load matches → Analyze across timeframe → Generate overall team trends → Calculate per-player improvement rates → Identify category trends (increasing/decreasing/stable) → Detect correlations between mistake types and outcomes → Generate AI summary → Display interactive visualizations with historical data
+- **Success criteria**: System successfully analyzes 5+ matches, identifies at least 2-3 major trends, shows clear trend direction for each player, and generates actionable long-term recommendations
 
 ## Edge Case Handling
 - **Incomplete match data**: Display partial analysis with confidence indicators for each insight based on data completeness
