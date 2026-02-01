@@ -878,10 +878,10 @@ export async function fetchOrganizations(limit: number = 5): Promise<Organizatio
   }
 }
 
-export async function fetchTeams(limit: number = 5): Promise<Team[]> {
+export async function fetchTeams(limit: number = 50): Promise<Team[]> {
   const query = `
-    query GetTeams($first: Int!) {
-      teams(first: $first, after: null) {
+    query GetTeams($first: Int!, $after: String) {
+      teams(first: $first, after: $after) {
         totalCount
         pageInfo {
           hasPreviousPage
@@ -913,21 +913,141 @@ export async function fetchTeams(limit: number = 5): Promise<Team[]> {
 
   try {
     console.log(`Fetching ${limit} teams...`)
-    const data = await gridFetch(query, { first: limit })
-    const teams = data.teams?.edges || []
-    console.log(`Received ${teams.length} teams`)
-    console.log('Total teams available:', data.teams?.totalCount || 0)
+    const allTeams: Team[] = []
+    let hasNextPage = true
+    let after: string | null = null
+    let fetchedCount = 0
     
-    return teams.map((edge: any) => ({
-      id: edge.node.id,
-      name: edge.node.name,
-      colorPrimary: edge.node.colorPrimary || '#000000',
-      colorSecondary: edge.node.colorSecondary || '#ffffff',
-      logoUrl: edge.node.logoUrl,
-      externalLinks: edge.node.externalLinks || [],
-    }))
+    while (hasNextPage && fetchedCount < limit) {
+      const batchSize = Math.min(50, limit - fetchedCount)
+      const data = await gridFetch(query, { first: batchSize, after })
+      const teams = data.teams?.edges || []
+      
+      if (teams.length === 0) break
+      
+      const mappedTeams = teams.map((edge: any) => ({
+        id: edge.node.id,
+        name: edge.node.name,
+        colorPrimary: edge.node.colorPrimary || '#000000',
+        colorSecondary: edge.node.colorSecondary || '#ffffff',
+        logoUrl: edge.node.logoUrl,
+        externalLinks: edge.node.externalLinks || [],
+      }))
+      
+      allTeams.push(...mappedTeams)
+      fetchedCount += teams.length
+      
+      hasNextPage = data.teams?.pageInfo?.hasNextPage || false
+      after = data.teams?.pageInfo?.endCursor || null
+      
+      if (!hasNextPage) break
+    }
+    
+    console.log(`Received ${allTeams.length} teams total`)
+    
+    const naTeams = ['Cloud9', 'Team Liquid', 'FlyQuest', '100 Thieves', 'TSM', 'Evil Geniuses', 
+                     'Dignitas', 'Golden Guardians', 'Immortals', 'NRG', 'Sentinels', 'OpTic', 
+                     'FaZe Clan', 'Complexity', 'LOUD', 'KRÜ', 'Leviatán', 'MIBR', 'FURIA']
+    
+    const priorityGames = ['VALORANT', 'League of Legends', 'Counter-Strike']
+    
+    const prioritizedTeams = allTeams.sort((a, b) => {
+      const aIsNA = naTeams.some(na => a.name.toLowerCase().includes(na.toLowerCase()))
+      const bIsNA = naTeams.some(na => b.name.toLowerCase().includes(na.toLowerCase()))
+      
+      const aHasPriorityGame = a.externalLinks?.some(link => 
+        priorityGames.some(game => link.dataProvider.name.toLowerCase().includes(game.toLowerCase()))
+      )
+      const bHasPriorityGame = b.externalLinks?.some(link => 
+        priorityGames.some(game => link.dataProvider.name.toLowerCase().includes(game.toLowerCase()))
+      )
+      
+      if (aIsNA && !bIsNA) return -1
+      if (!aIsNA && bIsNA) return 1
+      
+      if (aHasPriorityGame && !bHasPriorityGame) return -1
+      if (!aHasPriorityGame && bHasPriorityGame) return 1
+      
+      return 0
+    })
+    
+    return prioritizedTeams
   } catch (error) {
     console.error('Failed to fetch teams:', error)
+    throw error
+  }
+}
+
+export async function fetchTeamsByGame(gameTitle: 'lol' | 'valorant' | 'cs2', limit: number = 50): Promise<Team[]> {
+  const titleIdMap = {
+    'lol': 3,
+    'valorant': 6,
+    'cs2': 27,
+  }
+  
+  const titleId = titleIdMap[gameTitle]
+  
+  const query = `
+    query GetSeriesForGame {
+      allSeries(
+        first: 50
+        filter: {
+          titleId: ${titleId}
+          types: ESPORTS
+        }
+        orderBy: StartTimeScheduled
+        orderDirection: DESC
+      ) {
+        edges {
+          node {
+            teams {
+              baseInfo {
+                id
+                name
+              }
+            }
+          }
+        }
+      }
+    }
+  `
+  
+  try {
+    console.log(`Fetching teams for ${gameTitle}...`)
+    const data = await gridFetch(query)
+    const series = data.allSeries?.edges || []
+    
+    const teamMap = new Map<string, { id: string; name: string }>()
+    
+    series.forEach((edge: any) => {
+      edge.node.teams?.forEach((team: any) => {
+        if (team.baseInfo?.id && team.baseInfo?.name) {
+          teamMap.set(team.baseInfo.id, {
+            id: team.baseInfo.id,
+            name: team.baseInfo.name,
+          })
+        }
+      })
+    })
+    
+    const uniqueTeams = Array.from(teamMap.values())
+    console.log(`Found ${uniqueTeams.length} unique teams for ${gameTitle}`)
+    
+    const detailedTeams = await Promise.all(
+      uniqueTeams.slice(0, limit).map(async (team) => {
+        try {
+          const fullTeam = await fetchTeam(team.id)
+          return fullTeam
+        } catch (error) {
+          console.error(`Failed to fetch details for team ${team.id}:`, error)
+          return null
+        }
+      })
+    )
+    
+    return detailedTeams.filter((team): team is Team => team !== null)
+  } catch (error) {
+    console.error(`Failed to fetch teams for ${gameTitle}:`, error)
     throw error
   }
 }

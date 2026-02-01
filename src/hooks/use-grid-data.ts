@@ -104,7 +104,7 @@ export function useGridData() {
         fetchCloud9Players(),
         fetchCloud9Matches(10),
         fetchCloud9Tournaments(20),
-        fetchTeams(10),
+        fetchTeams(150),
       ])
 
       console.log('Step 2: Enriching players with statistics...')
