@@ -96,6 +96,13 @@ This is a sophisticated analytics platform that requires multiple interconnected
 - **Progression**: Access Series tab → Browse upcoming DOTA 2 series (optional) → Select or enter series ID → Click "Start Tracking" → System polls GRID Series State API every 3 seconds → Display series overview (format, team scores, status) → Show active games with player details → View live KDA stats, net worth, gold, and map positions → Monitor team scores and game progress → Receive warnings for permission errors or invalid series → Stop tracking or reset to select new series
 - **Success criteria**: Successfully connects to GRID Series State API, polls data every 3 seconds without overwhelming the API, displays real-time player stats with <3s latency, handles permission errors gracefully with clear messaging, presents upcoming series from Central Data API for easy selection, and visualizes player positions and economic stats with smooth updates
 
+### Analytics Export & Reporting (NEW)
+- **Functionality**: Comprehensive export system allowing coaches to save analytics reports in multiple formats (PDF and CSV). Supports team-wide analytics exports, individual player reports, strategic impact analyses, multi-match trend reports, and mistake heatmap data. PDF exports include professional formatting with charts, tables, and visual branding. CSV exports provide raw data for further analysis in external tools like Excel.
+- **Purpose**: Enable coaches to share insights with team management, create coaching materials, archive historical analyses, and integrate data with external analytics tools
+- **Trigger**: User clicks "Export" button available in header and throughout key analytics views (Dashboard, Players, Insights, Strategic Impact, Trends, Heatmap)
+- **Progression**: Navigate to desired view → Configure filters/selections → Click Export button → Choose format (PDF or CSV) → System generates report with current data → PDF opens in new window ready to print → CSV downloads automatically → Toast notification confirms success → Reports include timestamp and comprehensive data
+- **Success criteria**: Export generation completes within 2 seconds, PDF reports are print-ready with professional formatting, CSV files are Excel-compatible with proper escaping, all current filters and selections are preserved in export, reports include generation timestamp and metadata, file naming follows consistent pattern (e.g., team-analytics-2024-01-15.csv)
+
 ## Edge Case Handling
 - **Incomplete match data**: Display partial analysis with confidence indicators for each insight based on data completeness
 - **First-time player analysis**: Show limited historical context but focus on single-match deep dive with provisional insights

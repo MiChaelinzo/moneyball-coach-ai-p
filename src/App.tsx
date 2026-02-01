@@ -21,6 +21,7 @@ import { OrganizationView } from '@/components/OrganizationView'
 import { TeamsView } from '@/components/TeamsView'
 import { SeriesStateTracker } from '@/components/SeriesStateTracker'
 import { StatisticsView } from '@/components/StatisticsView'
+import { ExportButton } from '@/components/ExportButton'
 import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise, MapPin, Trophy, ListBullets, CalendarBlank, GameController, ChartLineUp } from '@phosphor-icons/react'
 import { PLAYERS, INSIGHTS, STRATEGIC_IMPACTS, getPlayerAnalytics, MATCHES, MISTAKES, generateAIInsight } from '@/lib/mockData'
 import { useLiveMatch } from '@/hooks/use-live-match'
@@ -29,6 +30,13 @@ import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { Player, Match } from '@/lib/types'
+import { 
+    exportTeamAnalytics, 
+    exportPlayerAnalytics,
+    type ExportFormat,
+    type TeamAnalyticsExport,
+    type PlayerAnalyticsExport
+} from '@/lib/exportUtils'
 
 function App() {
     const gridData = useGridData()
@@ -81,6 +89,42 @@ function App() {
         setAiInsight(insight)
         setIsGeneratingInsight(false)
         toast.success('Analysis complete!')
+    }
+
+    const handleExportTeamAnalytics = (format: ExportFormat) => {
+        const exportData: TeamAnalyticsExport = {
+            players,
+            matches,
+            mistakes: MISTAKES,
+            insights: INSIGHTS,
+            strategicImpacts: STRATEGIC_IMPACTS,
+            teams: gridData.teams,
+            generatedAt: new Date().toLocaleString(),
+            reportTitle: `${gridData.organization?.name || 'Cloud9'} Team Analytics Report`
+        }
+        exportTeamAnalytics(exportData, format)
+    }
+
+    const handleExportPlayerAnalytics = (format: ExportFormat) => {
+        if (!selectedPlayer || !selectedPlayerAnalytics) {
+            toast.error('Please select a player first')
+            return
+        }
+
+        const player = players.find(p => p.id === selectedPlayer)
+        if (!player) return
+
+        const playerMistakes = MISTAKES.filter(m => m.playerId === selectedPlayer)
+        const playerMatches = matches.slice(0, 10)
+
+        const exportData: PlayerAnalyticsExport = {
+            player,
+            analytics: selectedPlayerAnalytics,
+            recentMatches: playerMatches,
+            mistakes: playerMistakes,
+            generatedAt: new Date().toLocaleString()
+        }
+        exportPlayerAnalytics(exportData, format)
     }
 
     const selectedPlayerAnalytics = selectedPlayer ? getPlayerAnalytics(selectedPlayer) : null
@@ -142,6 +186,11 @@ function App() {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
+                                    <ExportButton
+                                        onExport={handleExportTeamAnalytics}
+                                        label="Export Report"
+                                        variant="default"
+                                    />
                                     <div className="text-right">
                                         <div className="font-mono text-2xl font-bold text-success">
                                             {teamStats.avgWinRate}%
@@ -460,7 +509,21 @@ function App() {
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ duration: 0.5 }}
+                                        className="space-y-4"
                                     >
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <h3 className="text-xl font-semibold">Player Analytics</h3>
+                                                <p className="text-sm text-muted-foreground">
+                                                    Detailed performance breakdown
+                                                </p>
+                                            </div>
+                                            <ExportButton
+                                                onExport={handleExportPlayerAnalytics}
+                                                label="Export Player Report"
+                                                variant="outline"
+                                            />
+                                        </div>
                                         <PlayerAnalyticsView analytics={selectedPlayerAnalytics} />
                                     </motion.div>
                                 )}
@@ -474,6 +537,11 @@ function App() {
                                             Pattern recognition and strategic recommendations
                                         </p>
                                     </div>
+                                    <ExportButton
+                                        onExport={handleExportTeamAnalytics}
+                                        label="Export Insights"
+                                        variant="outline"
+                                    />
                                 </div>
                                 <div className="grid gap-6">
                                     {INSIGHTS.map((insight, index) => (
@@ -483,6 +551,21 @@ function App() {
                             </TabsContent>
 
                             <TabsContent value="players" className="space-y-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h2 className="text-2xl font-semibold">Player Analytics</h2>
+                                        <p className="text-sm text-muted-foreground">
+                                            Select a player to view detailed performance metrics
+                                        </p>
+                                    </div>
+                                    <ExportButton
+                                        onExport={handleExportPlayerAnalytics}
+                                        label="Export Player Report"
+                                        variant="outline"
+                                        disabled={!selectedPlayer}
+                                    />
+                                </div>
+                                
                                 <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
                                     {players.map(player => (
                                         <PlayerCard

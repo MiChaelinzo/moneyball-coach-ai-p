@@ -2,15 +2,108 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import type { StrategicImpact } from '@/lib/types'
 import { Target, TrendDown, Clock, Warning } from '@phosphor-icons/react'
+import { ExportButton } from './ExportButton'
+import { exportStrategicImpactsToCSV, downloadFile, type ExportFormat } from '@/lib/exportUtils'
 
 interface StrategicImpactViewProps {
   impacts: StrategicImpact[]
+}
+
+function generateStrategicImpactPDF(impacts: StrategicImpact[]): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #1a1a1a;
+      line-height: 1.6;
+      padding: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #00c8ff;
+      border-bottom: 3px solid #00c8ff;
+      padding-bottom: 10px;
+      margin-bottom: 30px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    th {
+      background-color: #00c8ff;
+      color: white;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Strategic Impact Analysis</h1>
+  <p>Generated: ${new Date().toLocaleString()}</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Mistake Category</th>
+        <th>Occurrences</th>
+        <th>Avg Time to Obj Loss</th>
+        <th>Win Rate Impact</th>
+        <th>Objectives Lost</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${impacts.map(i => `
+        <tr>
+          <td><strong>${i.mistakeCategory}</strong></td>
+          <td>${i.occurrences}</td>
+          <td>${i.avgTimeToObjectiveLoss}s</td>
+          <td>${i.winRateImpact.toFixed(1)}%</td>
+          <td>${i.objectivesLost}</td>
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>
+</body>
+</html>
+  `
 }
 
 export function StrategicImpactView({ impacts }: StrategicImpactViewProps) {
   const sortedImpacts = [...impacts].sort((a, b) => 
     Math.abs(b.winRateImpact) - Math.abs(a.winRateImpact)
   )
+
+  const handleExport = (format: ExportFormat) => {
+    if (format === 'csv') {
+      const csv = exportStrategicImpactsToCSV(sortedImpacts)
+      const timestamp = new Date().toISOString().split('T')[0]
+      downloadFile(csv, `strategic-impact-analysis-${timestamp}.csv`, 'text/csv')
+    } else if (format === 'pdf') {
+      const html = generateStrategicImpactPDF(sortedImpacts)
+      const printWindow = window.open('', '_blank')
+      if (printWindow) {
+        printWindow.document.write(html)
+        printWindow.document.close()
+        printWindow.focus()
+        setTimeout(() => {
+          printWindow.print()
+        }, 250)
+      }
+    }
+  }
 
   const categoryIcons: Record<string, any> = {
     positioning: Target,
@@ -30,16 +123,23 @@ export function StrategicImpactView({ impacts }: StrategicImpactViewProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
-          <TrendDown size={20} weight="duotone" className="text-primary" />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+            <TrendDown size={20} weight="duotone" className="text-primary" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-semibold">Strategic Impact Analysis</h2>
+            <p className="text-sm text-muted-foreground">
+              How individual mistakes cascade into macro-level outcomes
+            </p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-2xl font-semibold">Strategic Impact Analysis</h2>
-          <p className="text-sm text-muted-foreground">
-            How individual mistakes cascade into macro-level outcomes
-          </p>
-        </div>
+        <ExportButton
+          onExport={handleExport}
+          label="Export Analysis"
+          variant="outline"
+        />
       </div>
 
       <div className="grid gap-4">

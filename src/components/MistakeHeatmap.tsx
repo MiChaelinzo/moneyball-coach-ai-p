@@ -6,6 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { MapPin, Clock, Warning, Crosshair } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { Mistake } from '@/lib/types'
+import { ExportButton } from './ExportButton'
+import { exportMistakesToCSV, downloadFile, type ExportFormat } from '@/lib/exportUtils'
 
 interface MistakeHeatmapProps {
   mistakes: Mistake[]
@@ -50,6 +52,67 @@ export function MistakeHeatmap({ mistakes }: MistakeHeatmapProps) {
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
   const [impactFilter, setImpactFilter] = useState<string>('all')
   const [hoveredPoint, setHoveredPoint] = useState<HeatmapPoint | null>(null)
+
+  const handleExport = (format: ExportFormat) => {
+    const timestamp = new Date().toISOString().split('T')[0]
+    
+    if (format === 'csv') {
+      const csv = exportMistakesToCSV(filteredMistakes)
+      downloadFile(csv, `mistake-heatmap-${timestamp}.csv`, 'text/csv')
+    } else if (format === 'pdf') {
+      const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: 'Space Grotesk', sans-serif; padding: 40px; }
+    h1 { color: #00c8ff; border-bottom: 3px solid #00c8ff; padding-bottom: 10px; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th { background-color: #00c8ff; color: white; padding: 12px; text-align: left; }
+    td { padding: 10px 12px; border-bottom: 1px solid #e0e0e0; }
+  </style>
+</head>
+<body>
+  <h1>Mistake Heatmap Analysis</h1>
+  <p>Generated: ${new Date().toLocaleString()}</p>
+  <p>Total Mistakes: ${filteredMistakes.length}</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Player</th>
+        <th>Category</th>
+        <th>Impact</th>
+        <th>Zone</th>
+        <th>Game Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${filteredMistakes.map(m => `
+        <tr>
+          <td>${m.playerName}</td>
+          <td>${m.category}</td>
+          <td>${m.impact}</td>
+          <td>${m.mapPosition?.zone || 'N/A'}</td>
+          <td>${formatGameTime(m.gameTime)}</td>
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>
+</body>
+</html>
+      `
+      const printWindow = window.open('', '_blank')
+      if (printWindow) {
+        printWindow.document.write(html)
+        printWindow.document.close()
+        printWindow.focus()
+        setTimeout(() => {
+          printWindow.print()
+        }, 250)
+      }
+    }
+  }
 
   const maxGameTime = useMemo(() => {
     return Math.max(...mistakes.map(m => m.gameTime), 3000)
@@ -120,9 +183,17 @@ export function MistakeHeatmap({ mistakes }: MistakeHeatmapProps) {
               </p>
             </div>
           </div>
-          <Badge variant="outline" className="font-mono">
-            {filteredMistakes.length} mistakes
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="font-mono">
+              {filteredMistakes.length} mistakes
+            </Badge>
+            <ExportButton
+              onExport={handleExport}
+              label="Export"
+              variant="outline"
+              size="sm"
+            />
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-6">

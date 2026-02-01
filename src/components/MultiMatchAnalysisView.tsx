@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { TrendInsightCard } from './TrendInsightCard'
+import { ExportButton } from './ExportButton'
 import { 
   Brain, 
   TrendUp, 
@@ -22,11 +23,94 @@ import {
   generateMultiMatchAIInsight,
   type MultiMatchAnalysis 
 } from '@/lib/trendAnalysis'
+import { exportMatchesToCSV, exportMistakesToCSV, downloadFile, type ExportFormat } from '@/lib/exportUtils'
 
 interface MultiMatchAnalysisViewProps {
   matches: Match[]
   mistakes: Mistake[]
   players: Player[]
+}
+
+function generateTrendAnalysisPDF(matches: Match[], mistakes: Mistake[], analysis: MultiMatchAnalysis | null): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #1a1a1a;
+      line-height: 1.6;
+      padding: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #00c8ff;
+      border-bottom: 3px solid #00c8ff;
+      padding-bottom: 10px;
+      margin-bottom: 30px;
+    }
+    h2 {
+      color: #333;
+      margin-top: 30px;
+      border-left: 4px solid #00c8ff;
+      padding-left: 15px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    th {
+      background-color: #00c8ff;
+      color: white;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Multi-Match Trend Analysis</h1>
+  <p>Generated: ${new Date().toLocaleString()}</p>
+  <p>Analysis Period: ${matches.length} matches</p>
+  
+  <h2>Match Results</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Opponent</th>
+        <th>Result</th>
+        <th>Duration</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${matches.slice(0, 20).map(m => `
+        <tr>
+          <td>${m.date}</td>
+          <td>${m.opponent}</td>
+          <td>${m.result.toUpperCase()}</td>
+          <td>${Math.round(m.duration / 60)} min</td>
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>
+  
+  <h2>Mistake Summary</h2>
+  <p>Total Mistakes Tracked: ${mistakes.length}</p>
+</body>
+</html>
+  `
 }
 
 export function MultiMatchAnalysisView({ matches, mistakes, players }: MultiMatchAnalysisViewProps) {
@@ -62,6 +146,34 @@ export function MultiMatchAnalysisView({ matches, mistakes, players }: MultiMatc
     toast.success('Long-term analysis complete!')
   }
 
+  const handleExport = (format: ExportFormat) => {
+    const timestamp = new Date().toISOString().split('T')[0]
+    
+    if (format === 'csv') {
+      const sections: string[] = []
+      sections.push('MULTI-MATCH TREND ANALYSIS')
+      sections.push(`Generated: ${new Date().toLocaleString()}\n`)
+      sections.push('MATCH HISTORY')
+      sections.push(exportMatchesToCSV(matches))
+      sections.push('\nMISTAKE TRENDS')
+      sections.push(exportMistakesToCSV(mistakes))
+      
+      const csv = sections.join('\n')
+      downloadFile(csv, `multi-match-analysis-${timestamp}.csv`, 'text/csv')
+    } else if (format === 'pdf') {
+      const html = generateTrendAnalysisPDF(matches, mistakes, analysis)
+      const printWindow = window.open('', '_blank')
+      if (printWindow) {
+        printWindow.document.write(html)
+        printWindow.document.close()
+        printWindow.focus()
+        setTimeout(() => {
+          printWindow.print()
+        }, 250)
+      }
+    }
+  }
+
   if (isAnalyzing) {
     return (
       <Card className="glow-border">
@@ -89,6 +201,20 @@ export function MultiMatchAnalysisView({ matches, mistakes, players }: MultiMatc
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-2xl font-semibold">Multi-Match Trend Analysis</h2>
+          <p className="text-sm text-muted-foreground">
+            Comprehensive analysis across {matches.length} matches
+          </p>
+        </div>
+        <ExportButton
+          onExport={handleExport}
+          label="Export Analysis"
+          variant="outline"
+        />
+      </div>
+      
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -102,9 +228,9 @@ export function MultiMatchAnalysisView({ matches, mistakes, players }: MultiMatc
                   <Brain size={24} weight="duotone" className="text-primary" />
                 </div>
                 <div>
-                  <CardTitle className="text-xl">Multi-Match Trend Analysis</CardTitle>
+                  <CardTitle className="text-xl">Long-Term Insights</CardTitle>
                   <CardDescription>
-                    Comprehensive analysis of {analysis.totalMatches} matches • {analysis.timeframe}
+                    Analysis of {analysis.totalMatches} matches • {analysis.timeframe}
                   </CardDescription>
                 </div>
               </div>
