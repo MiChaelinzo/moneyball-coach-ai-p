@@ -817,33 +817,54 @@ export interface Organization {
 
 export async function fetchCloud9Organization(): Promise<Organization | null> {
   const query = `
-    query GetOrganization($id: ID!) {
-      organization(id: $id) {
-        id
-        name
-        teams {
-          name
+    query GetOrganizations($first: Int!) {
+      organizations(first: $first) {
+        edges {
+          node {
+            id
+            name
+            teams {
+              name
+            }
+          }
         }
       }
     }
   `
 
   try {
-    console.log('Fetching Cloud9 organization (ID: 1)...')
-    const data = await gridFetch(query, { id: "1" })
+    console.log('Fetching organizations to find Cloud9...')
+    const data = await gridFetch(query, { first: 20 })
+    const organizations = data.organizations?.edges || []
+    console.log(`Received ${organizations.length} organizations`)
     
-    if (!data.organization) {
-      console.warn('No organization found for ID 1')
+    const cloud9Org = organizations.find((edge: any) => 
+      edge.node.name.toLowerCase().includes('cloud9') || 
+      edge.node.name.toLowerCase().includes('c9')
+    )
+    
+    if (!cloud9Org) {
+      console.warn('Cloud9 organization not found, returning first available organization')
+      if (organizations.length > 0) {
+        const firstOrg = organizations[0].node
+        console.log(`Using organization: ${firstOrg.name} (ID: ${firstOrg.id})`)
+        console.log(`Teams found: ${firstOrg.teams?.length || 0}`)
+        return {
+          id: firstOrg.id,
+          name: firstOrg.name,
+          teams: firstOrg.teams || [],
+        }
+      }
       return null
     }
 
-    console.log(`Organization: ${data.organization.name}`)
-    console.log(`Teams found: ${data.organization.teams?.length || 0}`)
+    console.log(`Organization: ${cloud9Org.node.name} (ID: ${cloud9Org.node.id})`)
+    console.log(`Teams found: ${cloud9Org.node.teams?.length || 0}`)
     
     return {
-      id: data.organization.id,
-      name: data.organization.name,
-      teams: data.organization.teams || [],
+      id: cloud9Org.node.id,
+      name: cloud9Org.node.name,
+      teams: cloud9Org.node.teams || [],
     }
   } catch (error) {
     console.error('Failed to fetch Cloud9 organization:', error)
