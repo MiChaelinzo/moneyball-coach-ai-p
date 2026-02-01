@@ -12,7 +12,8 @@ import { GridApiSetup } from '@/components/GridApiSetup'
 import { DataSourceIndicator } from '@/components/DataSourceIndicator'
 import { MultiMatchAnalysisView } from '@/components/MultiMatchAnalysisView'
 import { GridApiTestPanel } from '@/components/GridApiTestPanel'
-import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine } from '@phosphor-icons/react'
+import { MatchReplayManager } from '@/components/MatchReplayManager'
+import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise } from '@phosphor-icons/react'
 import { PLAYERS, INSIGHTS, STRATEGIC_IMPACTS, getPlayerAnalytics, MATCHES, MISTAKES, generateAIInsight } from '@/lib/mockData'
 import { useLiveMatch } from '@/hooks/use-live-match'
 import { useGridData } from '@/hooks/use-grid-data'
@@ -222,10 +223,14 @@ function App() {
                         </div>
 
                         <Tabs defaultValue="dashboard" className="space-y-8">
-                            <TabsList className="grid w-full max-w-3xl grid-cols-6 mx-auto">
+                            <TabsList className="grid w-full max-w-4xl grid-cols-7 mx-auto">
                                 <TabsTrigger value="live" className="flex items-center gap-2">
                                     <Crosshair size={18} weight="duotone" />
                                     <span className="hidden sm:inline">Live</span>
+                                </TabsTrigger>
+                                <TabsTrigger value="replay" className="flex items-center gap-2">
+                                    <ClockCounterClockwise size={18} weight="duotone" />
+                                    <span className="hidden sm:inline">Replay</span>
                                 </TabsTrigger>
                                 <TabsTrigger value="dashboard" className="flex items-center gap-2">
                                     <ChartBar size={18} weight="duotone" />
@@ -264,6 +269,13 @@ function App() {
                                     onToggleTracking={toggleTracking}
                                     onReset={resetMatch}
                                     isUsingGridData={isUsingGridData}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="replay" className="space-y-6">
+                                <MatchReplayManager
+                                    matches={matches}
+                                    mistakes={MISTAKES}
                                 />
                             </TabsContent>
 

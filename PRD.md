@@ -61,12 +61,19 @@ This is a sophisticated analytics platform that requires multiple interconnected
 - **Progression**: Select comparison type → Choose baseline (league avg, opponent, historical) → System calculates differentials → Display comparative visualizations → Highlight significant deviations → Show trend direction (improving/declining/stable)
 - **Success criteria**: Clear visualization of performance gaps with statistical significance indicators and actionable trend insights
 
-### Multi-Match Trend Analysis (NEW)
+### Multi-Match Trend Analysis
 - **Functionality**: Comprehensive analysis across multiple matches identifying long-term patterns, player improvement trajectories, category trends, and pattern correlations
 - **Purpose**: Reveal strategic insights that only emerge over time, helping coaches make data-driven long-term decisions
 - **Trigger**: User accesses dedicated Trends tab in the main navigation
 - **Progression**: Load matches → Analyze across timeframe → Generate overall team trends → Calculate per-player improvement rates → Identify category trends (increasing/decreasing/stable) → Detect correlations between mistake types and outcomes → Generate AI summary → Display interactive visualizations with historical data
 - **Success criteria**: System successfully analyzes 5+ matches, identifies at least 2-3 major trends, shows clear trend direction for each player, and generates actionable long-term recommendations
+
+### Match History Replay System (NEW)
+- **Functionality**: Comprehensive replay system for reviewing past matches with timeline scrubbing, event markers, and synchronized game state visualization. Users can play, pause, skip, and scrub through match timelines while viewing player stats, objectives, and critical events in real-time synchronization.
+- **Purpose**: Enable coaches to review games at their own pace, identify exact moments when key events occurred, and analyze the cascading effects of individual plays on overall game state
+- **Trigger**: User selects "Replay" tab and chooses a match from the history list
+- **Progression**: Browse match history → Filter by result (all/wins/losses) → Select match → View match summary with stats → Click "Watch Replay" → Replay loads with full timeline → Use playback controls (play/pause/skip/speed) → Scrub timeline to specific moments → Jump to key moments via markers → Review player stats at any timestamp → Analyze events and mistakes in context → Return to match list or select another match
+- **Success criteria**: Smooth timeline scrubbing with <100ms response, synchronized updates across all stats displays, clear visual markers for key moments (objectives, mistakes, kills), playback speed controls (0.5x - 4x), ability to jump to any point in the timeline instantly, and event details displayed contextually with game state
 
 ## Edge Case Handling
 - **Incomplete match data**: Display partial analysis with confidence indicators for each insight based on data completeness
