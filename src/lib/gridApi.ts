@@ -1,5 +1,5 @@
 import axios, { AxiosResponse, AxiosError } from 'axios'
-import type { Player, Match, LiveMatch, LiveMatchPlayer, Tournament } from './types'
+import type { Player, Match, LiveMatch, LiveMatchPlayer, Tournament, Team } from './types'
 
 const GRID_API_BASE = 'https://api-op.grid.gg/central-data/graphql'
 const DEFAULT_API_KEY = 'GacqICJfwHbtteMEbQ8mUVztiBHCuKuzijh7m4N8'
@@ -903,5 +903,103 @@ export async function fetchOrganizations(limit: number = 5): Promise<Organizatio
   } catch (error) {
     console.error('Failed to fetch organizations:', error)
     throw error
+  }
+}
+
+export async function fetchTeams(limit: number = 5): Promise<Team[]> {
+  const query = `
+    query GetTeams($first: Int!) {
+      teams(first: $first, after: null) {
+        totalCount
+        pageInfo {
+          hasPreviousPage
+          hasNextPage
+          startCursor
+          endCursor
+        }
+        edges {
+          cursor
+          node {
+            id
+            name
+            colorPrimary
+            colorSecondary
+            logoUrl
+            externalLinks {
+              dataProvider {
+                name
+              }
+              externalEntity {
+                id
+              }
+            }
+          }
+        }
+      }
+    }
+  `
+
+  try {
+    console.log(`Fetching ${limit} teams...`)
+    const data = await gridFetch(query, { first: limit })
+    const teams = data.teams?.edges || []
+    console.log(`Received ${teams.length} teams`)
+    console.log('Total teams available:', data.teams?.totalCount || 0)
+    
+    return teams.map((edge: any) => ({
+      id: edge.node.id,
+      name: edge.node.name,
+      colorPrimary: edge.node.colorPrimary || '#000000',
+      colorSecondary: edge.node.colorSecondary || '#ffffff',
+      logoUrl: edge.node.logoUrl,
+      externalLinks: edge.node.externalLinks || [],
+    }))
+  } catch (error) {
+    console.error('Failed to fetch teams:', error)
+    throw error
+  }
+}
+
+export async function fetchTeam(teamId: string): Promise<Team | null> {
+  const query = `
+    query GetTeam($id: ID!) {
+      team(id: $id) {
+        id
+        name
+        colorPrimary
+        colorSecondary
+        logoUrl
+        externalLinks {
+          dataProvider {
+            name
+          }
+          externalEntity {
+            id
+          }
+        }
+      }
+    }
+  `
+
+  try {
+    console.log(`Fetching team ${teamId}...`)
+    const data = await gridFetch(query, { id: teamId })
+    
+    if (!data.team) {
+      console.warn(`No team found for ID ${teamId}`)
+      return null
+    }
+
+    return {
+      id: data.team.id,
+      name: data.team.name,
+      colorPrimary: data.team.colorPrimary || '#000000',
+      colorSecondary: data.team.colorSecondary || '#ffffff',
+      logoUrl: data.team.logoUrl,
+      externalLinks: data.team.externalLinks || [],
+    }
+  } catch (error) {
+    console.error(`Failed to fetch team ${teamId}:`, error)
+    return null
   }
 }

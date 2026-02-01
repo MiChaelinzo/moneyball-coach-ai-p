@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { toast } from 'sonner'
-import type { Player, Match, Tournament } from '@/lib/types'
+import type { Player, Match, Tournament, Team } from '@/lib/types'
 import {
   initializeGridApi,
   isGridApiInitialized,
@@ -10,6 +10,7 @@ import {
   fetchCloud9Tournaments,
   enrichPlayersWithStats,
   fetchCloud9Organization,
+  fetchTeams,
   type Organization,
 } from '@/lib/gridApi'
 
@@ -18,6 +19,7 @@ interface GridDataState {
   matches: Match[]
   tournaments: Tournament[]
   organization: Organization | null
+  teams: Team[]
   isLoading: boolean
   error: string | null
   isInitialized: boolean
@@ -31,6 +33,7 @@ export function useGridData() {
   const [cachedMatches, setCachedMatches] = useKV<Match[]>('grid-cached-matches', [])
   const [cachedTournaments, setCachedTournaments] = useKV<Tournament[]>('grid-cached-tournaments', [])
   const [cachedOrganization, setCachedOrganization] = useKV<Organization | null>('grid-cached-organization', null)
+  const [cachedTeams, setCachedTeams] = useKV<Team[]>('grid-cached-teams', [])
   const [lastFetchTime, setLastFetchTime] = useKV<number>('grid-last-fetch', 0)
   
   const [state, setState] = useState<GridDataState>({
@@ -38,6 +41,7 @@ export function useGridData() {
     matches: cachedMatches || [],
     tournaments: cachedTournaments || [],
     organization: cachedOrganization || null,
+    teams: cachedTeams || [],
     isLoading: false,
     error: null,
     isInitialized: isGridApiInitialized(),
@@ -81,6 +85,7 @@ export function useGridData() {
         matches: cachedMatches || [],
         tournaments: cachedTournaments || [],
         organization: cachedOrganization || null,
+        teams: cachedTeams || [],
         isLoading: false,
         error: null,
       }))
@@ -93,12 +98,13 @@ export function useGridData() {
     toast.info('Fetching Cloud9 data from GRID API...')
 
     try {
-      console.log('Step 1: Fetching organization, players, matches, and tournaments in parallel...')
-      const [organization, players, matches, tournaments] = await Promise.all([
+      console.log('Step 1: Fetching organization, players, matches, tournaments, and teams in parallel...')
+      const [organization, players, matches, tournaments, teams] = await Promise.all([
         fetchCloud9Organization(),
         fetchCloud9Players(),
         fetchCloud9Matches(10),
         fetchCloud9Tournaments(20),
+        fetchTeams(10),
       ])
 
       console.log('Step 2: Enriching players with statistics...')
@@ -109,6 +115,7 @@ export function useGridData() {
       setCachedPlayers(enrichedPlayers)
       setCachedMatches(matches)
       setCachedTournaments(tournaments)
+      setCachedTeams(teams)
       setLastFetchTime(now)
 
       console.log('Step 4: Updating state...')
@@ -117,6 +124,7 @@ export function useGridData() {
         matches,
         tournaments,
         organization,
+        teams,
         isLoading: false,
         error: null,
         isInitialized: true,
@@ -124,11 +132,12 @@ export function useGridData() {
 
       console.log('=== GRID API Data Fetch Complete ===')
       console.log('Organization:', organization?.name || 'N/A')
-      console.log('Teams:', organization?.teams?.length || 0)
+      console.log('Teams:', teams.length)
+      console.log('Org Teams:', organization?.teams?.length || 0)
       console.log('Players:', enrichedPlayers.length)
       console.log('Matches:', matches.length)
       console.log('Tournaments:', tournaments.length)
-      toast.success(`Loaded ${organization?.name || 'organization'} data: ${enrichedPlayers.length} players, ${matches.length} matches`)
+      toast.success(`Loaded ${organization?.name || 'organization'} data: ${enrichedPlayers.length} players, ${matches.length} matches, ${teams.length} teams`)
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch data from GRID API'
       console.error('=== GRID API Data Fetch Failed ===')
@@ -143,10 +152,11 @@ export function useGridData() {
         matches: cachedMatches || [],
         tournaments: cachedTournaments || [],
         organization: cachedOrganization || null,
+        teams: cachedTeams || [],
       }))
       toast.error(`Failed to fetch data: ${errorMessage}`)
     }
-  }, [lastFetchTime, cachedPlayers, cachedMatches, cachedTournaments, cachedOrganization, setCachedPlayers, setCachedMatches, setCachedTournaments, setCachedOrganization, setLastFetchTime])
+  }, [lastFetchTime, cachedPlayers, cachedMatches, cachedTournaments, cachedOrganization, cachedTeams, setCachedPlayers, setCachedMatches, setCachedTournaments, setCachedOrganization, setCachedTeams, setLastFetchTime])
 
   const clearApiKey = useCallback(() => {
     setApiKey(DEFAULT_API_KEY)
@@ -176,10 +186,11 @@ export function useGridData() {
         matches: cachedMatches || [],
         tournaments: cachedTournaments || [],
         organization: cachedOrganization || null,
+        teams: cachedTeams || [],
         isInitialized: true,
       }))
     }
-  }, [cachedPlayers, cachedMatches, cachedTournaments, cachedOrganization])
+  }, [cachedPlayers, cachedMatches, cachedTournaments, cachedOrganization, cachedTeams])
 
   return {
     ...state,

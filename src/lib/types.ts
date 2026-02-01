@@ -130,3 +130,19 @@ export interface Tournament {
   endDate?: string
   teams?: string[]
 }
+
+export interface Team {
+  id: string
+  name: string
+  colorPrimary: string
+  colorSecondary: string
+  logoUrl?: string
+  externalLinks?: Array<{
+    dataProvider: {
+      name: string
+    }
+    externalEntity: {
+      id: string
+    }
+  }>
+}

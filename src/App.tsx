@@ -18,6 +18,7 @@ import { TournamentsView } from '@/components/TournamentsView'
 import { SeriesFormatsView } from '@/components/SeriesFormatsView'
 import { UpcomingSeriesView } from '@/components/UpcomingSeriesView'
 import { OrganizationView } from '@/components/OrganizationView'
+import { TeamsView } from '@/components/TeamsView'
 import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise, MapPin, Trophy, ListBullets, CalendarBlank } from '@phosphor-icons/react'
 import { PLAYERS, INSIGHTS, STRATEGIC_IMPACTS, getPlayerAnalytics, MATCHES, MISTAKES, generateAIInsight } from '@/lib/mockData'
 import { useLiveMatch } from '@/hooks/use-live-match'
@@ -171,6 +172,7 @@ function App() {
                                 matches={matches}
                                 tournaments={gridData.tournaments}
                                 organization={gridData.organization}
+                                teams={gridData.teams}
                                 isLoading={gridData.isLoading}
                                 error={gridData.error}
                                 isInitialized={gridData.isInitialized}
@@ -237,6 +239,10 @@ function App() {
                                     <Cpu size={16} weight="duotone" />
                                     <span className="hidden sm:inline">Org</span>
                                 </TabsTrigger>
+                                <TabsTrigger value="teams" className="flex items-center gap-1.5 px-2">
+                                    <Trophy size={16} weight="duotone" />
+                                    <span className="hidden sm:inline">Teams</span>
+                                </TabsTrigger>
                                 <TabsTrigger value="live" className="flex items-center gap-1.5 px-2">
                                     <Crosshair size={16} weight="duotone" />
                                     <span className="hidden sm:inline">Live</span>
@@ -286,6 +292,13 @@ function App() {
                             <TabsContent value="organization" className="space-y-6">
                                 <OrganizationView 
                                     organization={gridData.organization} 
+                                    isLoading={gridData.isLoading}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="teams" className="space-y-6">
+                                <TeamsView 
+                                    teams={gridData.teams} 
                                     isLoading={gridData.isLoading}
                                 />
                             </TabsContent>

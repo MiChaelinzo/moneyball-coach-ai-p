@@ -3,9 +3,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Flask, ArrowsClockwise, Check, X, Database, Buildings } from '@phosphor-icons/react'
+import { Flask, ArrowsClockwise, Check, X, Database, Buildings, Trophy } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'
-import type { Player, Match, Tournament } from '@/lib/types'
+import type { Player, Match, Tournament, Team } from '@/lib/types'
 import type { Organization } from '@/lib/gridApi'
 
 interface GridApiTestPanelProps {
@@ -14,6 +14,7 @@ interface GridApiTestPanelProps {
   matches: Match[]
   tournaments: Tournament[]
   organization: Organization | null
+  teams: Team[]
   isLoading: boolean
   error: string | null
   isInitialized: boolean
@@ -25,6 +26,7 @@ export function GridApiTestPanel({
   matches,
   tournaments,
   organization,
+  teams,
   isLoading, 
   error,
   isInitialized 
@@ -79,7 +81,7 @@ export function GridApiTestPanel({
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid md:grid-cols-5 gap-4">
+        <div className="grid md:grid-cols-6 gap-4">
           <Card className={`border-2 ${isInitialized ? 'border-success/40 bg-success/5' : 'border-muted'}`}>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between mb-2">
@@ -110,6 +112,18 @@ export function GridApiTestPanel({
                   {organization.teams.length} teams
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          <Card className={`border-2 ${teams.length > 0 ? 'border-primary/40 bg-primary/5' : 'border-muted'}`}>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-semibold text-muted-foreground">Teams</span>
+                <Trophy size={20} weight="duotone" className="text-primary" />
+              </div>
+              <div className="font-mono text-2xl font-bold text-primary">
+                {teams.length}
+              </div>
             </CardContent>
           </Card>
 
@@ -245,6 +259,47 @@ export function GridApiTestPanel({
                     </div>
                     <div className="text-xs text-muted-foreground line-clamp-2 mt-1">
                       {tournament.name}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {teams.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-3"
+          >
+            <div className="flex items-center justify-between">
+              <h4 className="font-semibold text-sm uppercase tracking-wide">Teams from GRID</h4>
+              <Badge variant="secondary">{teams.length} found</Badge>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+              {teams.slice(0, 10).map(team => (
+                <Card key={team.id} className="bg-card/50 border" style={{ borderColor: team.colorPrimary + '40' }}>
+                  <CardContent className="p-3">
+                    {team.logoUrl && (
+                      <div className="w-10 h-10 mb-2 mx-auto">
+                        <img src={team.logoUrl} alt={team.name} className="w-full h-full object-contain" />
+                      </div>
+                    )}
+                    <div className="font-semibold text-sm text-center line-clamp-1">
+                      {team.name}
+                    </div>
+                    <div className="flex gap-1 mt-2 justify-center">
+                      <div 
+                        className="w-3 h-3 rounded-full" 
+                        style={{ backgroundColor: team.colorPrimary }}
+                        title="Primary color"
+                      />
+                      <div 
+                        className="w-3 h-3 rounded-full" 
+                        style={{ backgroundColor: team.colorSecondary }}
+                        title="Secondary color"
+                      />
                     </div>
                   </CardContent>
                 </Card>
