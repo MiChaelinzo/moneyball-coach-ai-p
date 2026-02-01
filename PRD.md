@@ -20,11 +20,11 @@ This is a sophisticated analytics platform that requires multiple interconnected
 - **Success criteria**: Automatic authentication on load, data retrieval within 3 seconds, graceful fallback to cached/mock data on failure, clear error messaging
 
 ### Live Match Tracking with Real-Time KDA Updates
-- **Functionality**: Real-time monitoring of ongoing matches with live updates to player KDA (Kills/Deaths/Assists), CS (Creep Score), gold, and objective control
+- **Functionality**: Real-time monitoring of ongoing Cloud9 matches with automatic game detection, live updates to player KDA (Kills/Deaths/Assists), CS (Creep Score), gold, and objective control. Features automatic polling of GRID API for live game data with seamless fallback to simulation mode.
 - **Purpose**: Enable coaches to track performance as it happens and identify in-game patterns for immediate strategic adjustments
-- **Trigger**: Coach starts live tracking mode for an active match
-- **Progression**: Start tracking → System polls match data every second → Player stats update with visual animations → KDA changes highlight in real-time → Objectives tracked live → Gold differential monitored → Coach can pause/resume tracking
-- **Success criteria**: Stats update smoothly with <1s latency, visual feedback clearly highlights stat changes, no data loss during updates
+- **Trigger**: Auto-detection when live Cloud9 matches begin (when enabled), or manual game selection from available matches
+- **Progression**: Enable auto-detect → System checks for live Cloud9 games every 30 seconds → When match detected, automatically connect → Poll GRID API every 5 seconds for stats → Display real-time updates with smooth animations → KDA changes highlight with color → Track objectives and gold differentials → Coach can pause/resume/reset tracking → Switch between GRID data and simulation modes
+- **Success criteria**: Automatic match detection within 30 seconds of game start, smooth stat updates with <5s latency, visual feedback clearly highlights stat changes, graceful fallback to simulation when GRID data unavailable, clear indicators showing data source (GRID API vs Simulation)
 
 ### AI-Powered Match Analysis
 - **Functionality**: Analyzes historical match data to identify recurring patterns in player mistakes and their strategic impact. Now includes multi-match trend analysis to identify long-term patterns across multiple games.

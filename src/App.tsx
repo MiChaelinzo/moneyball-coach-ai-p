@@ -7,6 +7,7 @@ import { PlayerCard } from '@/components/PlayerCard'
 import { StrategicImpactView } from '@/components/StrategicImpactView'
 import { PlayerAnalyticsView } from '@/components/PlayerAnalyticsView'
 import { LiveMatchTracker } from '@/components/LiveMatchTracker'
+import { LiveGameSelector } from '@/components/LiveGameSelector'
 import { GridApiSetup } from '@/components/GridApiSetup'
 import { DataSourceIndicator } from '@/components/DataSourceIndicator'
 import { MultiMatchAnalysisView } from '@/components/MultiMatchAnalysisView'
@@ -27,7 +28,17 @@ function App() {
     const [aiInsight, setAiInsight] = useState<string>('')
     const [isGeneratingInsight, setIsGeneratingInsight] = useState(false)
     const [hasAutoFetched, setHasAutoFetched] = useState(false)
-    const { liveMatch, toggleTracking } = useLiveMatch()
+    const { 
+        liveMatch, 
+        toggleTracking, 
+        setGridGame, 
+        resetMatch,
+        autoDetectEnabled,
+        toggleAutoDetect,
+        checkForLiveGames,
+        isCheckingForGames,
+        isUsingGridData,
+    } = useLiveMatch()
 
     const players: Player[] = gridData.players.length > 0 ? gridData.players : PLAYERS
     const matches: Match[] = gridData.matches.length > 0 ? gridData.matches : MATCHES
@@ -239,7 +250,21 @@ function App() {
                             </TabsList>
 
                             <TabsContent value="live" className="space-y-6">
-                                <LiveMatchTracker match={liveMatch} onToggleTracking={toggleTracking} />
+                                <LiveGameSelector
+                                    onSelectGame={(gameId, opponent) => setGridGame(gameId, opponent)}
+                                    autoDetectEnabled={autoDetectEnabled}
+                                    onToggleAutoDetect={toggleAutoDetect}
+                                    isCheckingForGames={isCheckingForGames}
+                                    onCheckForGames={checkForLiveGames}
+                                    currentGameId={liveMatch.id}
+                                    isUsingGridData={isUsingGridData}
+                                />
+                                <LiveMatchTracker 
+                                    match={liveMatch} 
+                                    onToggleTracking={toggleTracking}
+                                    onReset={resetMatch}
+                                    isUsingGridData={isUsingGridData}
+                                />
                             </TabsContent>
 
                             <TabsContent value="trends" className="space-y-6">

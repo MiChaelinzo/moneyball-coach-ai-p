@@ -207,20 +207,210 @@ export async function fetchCloud9Matches(limit: number = 10): Promise<Match[]> {
   }
 }
 
+interface LiveGameState {
+  id: string
+  state: string
+  statsAvailable: boolean
+}
+
+interface LiveSeriesData {
+  id: string
+  state: string
+  games: LiveGameState[]
+  teams: Array<{
+    id: string
+    name: string
+    score: number
+  }>
+  title: {
+    id: string
+    name: string
+  }
+}
+
+export async function fetchOngoingCloud9Games(): Promise<LiveSeriesData[]> {
+  const query = `
+    query GetOngoingCloud9Games {
+      allSeries(
+        first: 10
+        filter: {
+          teams: "Cloud9"
+          states: [UNSTARTED, RUNNING]
+        }
+        orderBy: StartTimeScheduled
+        orderDirection: DESC
+      ) {
+        edges {
+          node {
+            id
+            state
+            title {
+              id
+              name
+            }
+            teams {
+              id
+              name
+              score
+            }
+            games {
+              id
+              state
+              statsAvailable
+            }
+          }
+        }
+      }
+    }
+  `
+
+  try {
+    console.log('Checking for ongoing Cloud9 games...')
+    const data = await gridFetch(query)
+    const series = data.allSeries?.edges || []
+    
+    const liveSeries = series
+      .map((edge: any) => edge.node)
+      .filter((s: any) => s.state === 'RUNNING' || s.games?.some((g: any) => g.state === 'RUNNING'))
+    
+    console.log(`Found ${liveSeries.length} ongoing Cloud9 series`)
+    return liveSeries
+  } catch (error) {
+    console.error('Failed to fetch ongoing Cloud9 games:', error)
+    throw error
+  }
+}
+
+export async function fetchLiveGameStats(gameId: string): Promise<any> {
+  const query = `
+    query GetLiveGameStats($gameId: ID!) {
+      game(id: $gameId) {
+        id
+        state
+        statsAvailable
+        participants {
+          id
+          name
+          role
+          team {
+            id
+            name
+          }
+          champion {
+            id
+            name
+          }
+          kills
+          deaths
+          assists
+          totalGold
+          totalMinionsKilled
+          neutralMinionsKilled
+        }
+        teams {
+          id
+          name
+          totalGold
+          dragonKills
+          baronKills
+          towerKills
+          inhibitorKills
+        }
+      }
+    }
+  `
+
+  try {
+    console.log(`Fetching live stats for game ${gameId}...`)
+    const data = await gridFetch(query, { gameId })
+    
+    if (!data.game) {
+      console.warn(`No game data found for ID ${gameId}`)
+      return null
+    }
+    
+    return data.game
+  } catch (error) {
+    console.error(`Failed to fetch live game stats for ${gameId}:`, error)
+    return null
+  }
+}
+
 export async function fetchLiveMatchData(gameId: string): Promise<Partial<LiveMatch> | null> {
   try {
-    console.log(`Live match tracking not yet implemented for game ${gameId}`)
-    return null
+    const gameStats = await fetchLiveGameStats(gameId)
+    
+    if (!gameStats || !gameStats.participants) {
+      console.log('No live game stats available yet')
+      return null
+    }
+
+    const cloud9Team = gameStats.teams?.find((t: any) => t.name === 'Cloud9')
+    const opponentTeam = gameStats.teams?.find((t: any) => t.name !== 'Cloud9')
+    
+    if (!cloud9Team) {
+      console.warn('Cloud9 team not found in game data')
+      return null
+    }
+
+    const cloud9Participants = gameStats.participants.filter(
+      (p: any) => p.team?.name === 'Cloud9'
+    )
+
+    if (cloud9Participants.length === 0) {
+      console.warn('No Cloud9 participants found')
+      return null
+    }
+
+    const players: LiveMatchPlayer[] = cloud9Participants.map((p: any) => ({
+      id: p.id?.toString() || `player-${p.name}`,
+      name: p.name || 'Unknown',
+      role: p.role || 'Unknown',
+      kills: p.kills || 0,
+      deaths: p.deaths || 0,
+      assists: p.assists || 0,
+      cs: (p.totalMinionsKilled || 0) + (p.neutralMinionsKilled || 0),
+      gold: p.totalGold || 0,
+      champion: p.champion?.name || 'Unknown',
+    }))
+
+    return {
+      opponent: opponentTeam?.name || 'Unknown',
+      teamGold: cloud9Team.totalGold || 0,
+      enemyGold: opponentTeam?.totalGold || 0,
+      objectives: {
+        dragons: cloud9Team.dragonKills || 0,
+        barons: cloud9Team.baronKills || 0,
+        towers: cloud9Team.towerKills || 0,
+      },
+      enemyObjectives: {
+        dragons: opponentTeam?.dragonKills || 0,
+        barons: opponentTeam?.baronKills || 0,
+        towers: opponentTeam?.towerKills || 0,
+      },
+      players,
+    }
   } catch (error) {
     console.error('Failed to fetch live match data:', error)
     return null
   }
 }
 
-export async function fetchRecentCloud9Games(limit: number = 5): Promise<string[]> {
+export async function fetchRecentCloud9Games(limit: number = 5): Promise<Array<{ id: string; opponent: string; state: string }>> {
   try {
-    console.log('Fetching recent Cloud9 game IDs')
-    return []
+    console.log('Fetching recent Cloud9 game IDs for live tracking...')
+    const series = await fetchOngoingCloud9Games()
+    
+    const games = series.flatMap((s) => 
+      s.games.map((g) => ({
+        id: g.id,
+        opponent: s.teams.find(t => t.name !== 'Cloud9')?.name || 'Unknown',
+        state: g.state,
+      }))
+    )
+    
+    console.log(`Found ${games.length} Cloud9 games`)
+    return games.slice(0, limit)
   } catch (error) {
     console.error('Failed to fetch recent Cloud9 games:', error)
     return []

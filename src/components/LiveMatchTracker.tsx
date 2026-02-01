@@ -9,9 +9,11 @@ import { Play, Pause, Trophy, Skull, Crosshair, Coins, Sword, Shield } from '@ph
 interface LiveMatchTrackerProps {
   match: LiveMatch
   onToggleTracking: () => void
+  onReset?: () => void
+  isUsingGridData?: boolean
 }
 
-export function LiveMatchTracker({ match, onToggleTracking }: LiveMatchTrackerProps) {
+export function LiveMatchTracker({ match, onToggleTracking, onReset, isUsingGridData }: LiveMatchTrackerProps) {
   const [prevStats, setPrevStats] = useState<Record<string, { kills: number; deaths: number; assists: number }>>({})
 
   useEffect(() => {
@@ -71,29 +73,51 @@ export function LiveMatchTracker({ match, onToggleTracking }: LiveMatchTrackerPr
                 <Badge variant={match.isActive ? 'default' : 'secondary'} className="font-mono">
                   {match.isActive ? 'LIVE' : 'PAUSED'}
                 </Badge>
+                {isUsingGridData && (
+                  <Badge variant="outline" className="bg-primary/20 text-primary border-primary/40 text-xs">
+                    GRID API
+                  </Badge>
+                )}
+                {!isUsingGridData && match.isActive && (
+                  <Badge variant="outline" className="bg-muted text-muted-foreground border-muted-foreground/40 text-xs">
+                    SIMULATED
+                  </Badge>
+                )}
                 <span className="font-mono text-lg font-semibold text-primary">
                   {formatTime(match.gameTime)}
                 </span>
               </div>
             </div>
           </div>
-          <Button
-            onClick={onToggleTracking}
-            variant={match.isActive ? 'destructive' : 'default'}
-            className="gap-2"
-          >
-            {match.isActive ? (
-              <>
-                <Pause size={18} weight="fill" />
-                Pause
-              </>
-            ) : (
-              <>
-                <Play size={18} weight="fill" />
-                Resume
-              </>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={onToggleTracking}
+              variant={match.isActive ? 'destructive' : 'default'}
+              className="gap-2"
+            >
+              {match.isActive ? (
+                <>
+                  <Pause size={18} weight="fill" />
+                  Pause
+                </>
+              ) : (
+                <>
+                  <Play size={18} weight="fill" />
+                  Resume
+                </>
+              )}
+            </Button>
+            {onReset && (
+              <Button
+                onClick={onReset}
+                variant="outline"
+                size="icon"
+                title="Reset Match"
+              >
+                <Crosshair size={18} weight="duotone" />
+              </Button>
             )}
-          </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
