@@ -9,12 +9,15 @@ import {
   fetchCloud9Matches,
   fetchCloud9Tournaments,
   enrichPlayersWithStats,
+  fetchCloud9Organization,
+  type Organization,
 } from '@/lib/gridApi'
 
 interface GridDataState {
   players: Player[]
   matches: Match[]
   tournaments: Tournament[]
+  organization: Organization | null
   isLoading: boolean
   error: string | null
   isInitialized: boolean
@@ -27,12 +30,14 @@ export function useGridData() {
   const [cachedPlayers, setCachedPlayers] = useKV<Player[]>('grid-cached-players', [])
   const [cachedMatches, setCachedMatches] = useKV<Match[]>('grid-cached-matches', [])
   const [cachedTournaments, setCachedTournaments] = useKV<Tournament[]>('grid-cached-tournaments', [])
+  const [cachedOrganization, setCachedOrganization] = useKV<Organization | null>('grid-cached-organization', null)
   const [lastFetchTime, setLastFetchTime] = useKV<number>('grid-last-fetch', 0)
   
   const [state, setState] = useState<GridDataState>({
     players: cachedPlayers || [],
     matches: cachedMatches || [],
     tournaments: cachedTournaments || [],
+    organization: cachedOrganization || null,
     isLoading: false,
     error: null,
     isInitialized: isGridApiInitialized(),
@@ -75,6 +80,7 @@ export function useGridData() {
         players: cachedPlayers,
         matches: cachedMatches || [],
         tournaments: cachedTournaments || [],
+        organization: cachedOrganization || null,
         isLoading: false,
         error: null,
       }))
@@ -87,8 +93,9 @@ export function useGridData() {
     toast.info('Fetching Cloud9 data from GRID API...')
 
     try {
-      console.log('Step 1: Fetching players, matches, and tournaments in parallel...')
-      const [players, matches, tournaments] = await Promise.all([
+      console.log('Step 1: Fetching organization, players, matches, and tournaments in parallel...')
+      const [organization, players, matches, tournaments] = await Promise.all([
+        fetchCloud9Organization(),
         fetchCloud9Players(),
         fetchCloud9Matches(10),
         fetchCloud9Tournaments(20),
@@ -98,6 +105,7 @@ export function useGridData() {
       const enrichedPlayers = await enrichPlayersWithStats(players)
 
       console.log('Step 3: Caching data...')
+      setCachedOrganization(organization)
       setCachedPlayers(enrichedPlayers)
       setCachedMatches(matches)
       setCachedTournaments(tournaments)
@@ -108,16 +116,19 @@ export function useGridData() {
         players: enrichedPlayers,
         matches,
         tournaments,
+        organization,
         isLoading: false,
         error: null,
         isInitialized: true,
       })
 
       console.log('=== GRID API Data Fetch Complete ===')
+      console.log('Organization:', organization?.name || 'N/A')
+      console.log('Teams:', organization?.teams?.length || 0)
       console.log('Players:', enrichedPlayers.length)
       console.log('Matches:', matches.length)
       console.log('Tournaments:', tournaments.length)
-      toast.success(`Loaded ${enrichedPlayers.length} players, ${matches.length} matches, and ${tournaments.length} tournaments`)
+      toast.success(`Loaded ${organization?.name || 'organization'} data: ${enrichedPlayers.length} players, ${matches.length} matches`)
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch data from GRID API'
       console.error('=== GRID API Data Fetch Failed ===')
@@ -131,10 +142,11 @@ export function useGridData() {
         players: cachedPlayers || [],
         matches: cachedMatches || [],
         tournaments: cachedTournaments || [],
+        organization: cachedOrganization || null,
       }))
       toast.error(`Failed to fetch data: ${errorMessage}`)
     }
-  }, [lastFetchTime, cachedPlayers, cachedMatches, cachedTournaments, setCachedPlayers, setCachedMatches, setCachedTournaments, setLastFetchTime])
+  }, [lastFetchTime, cachedPlayers, cachedMatches, cachedTournaments, cachedOrganization, setCachedPlayers, setCachedMatches, setCachedTournaments, setCachedOrganization, setLastFetchTime])
 
   const clearApiKey = useCallback(() => {
     setApiKey(DEFAULT_API_KEY)
@@ -163,10 +175,11 @@ export function useGridData() {
         players: cachedPlayers,
         matches: cachedMatches || [],
         tournaments: cachedTournaments || [],
+        organization: cachedOrganization || null,
         isInitialized: true,
       }))
     }
-  }, [cachedPlayers, cachedMatches, cachedTournaments])
+  }, [cachedPlayers, cachedMatches, cachedTournaments, cachedOrganization])
 
   return {
     ...state,

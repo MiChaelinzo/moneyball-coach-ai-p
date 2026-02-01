@@ -17,6 +17,7 @@ import { MistakeHeatmap } from '@/components/MistakeHeatmap'
 import { TournamentsView } from '@/components/TournamentsView'
 import { SeriesFormatsView } from '@/components/SeriesFormatsView'
 import { UpcomingSeriesView } from '@/components/UpcomingSeriesView'
+import { OrganizationView } from '@/components/OrganizationView'
 import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise, MapPin, Trophy, ListBullets, CalendarBlank } from '@phosphor-icons/react'
 import { PLAYERS, INSIGHTS, STRATEGIC_IMPACTS, getPlayerAnalytics, MATCHES, MISTAKES, generateAIInsight } from '@/lib/mockData'
 import { useLiveMatch } from '@/hooks/use-live-match'
@@ -125,7 +126,9 @@ function App() {
                                             )}
                                         </div>
                                         <div className="flex items-center gap-3">
-                                            <p className="text-sm text-muted-foreground">Cloud9 Esports Analytics Platform</p>
+                                            <p className="text-sm text-muted-foreground">
+                                                {gridData.organization?.name || 'Cloud9'} Esports Analytics Platform
+                                            </p>
                                             <span className="text-muted-foreground">·</span>
                                             <DataSourceIndicator
                                                 isLiveData={gridData.isInitialized}
@@ -167,6 +170,7 @@ function App() {
                                 players={players}
                                 matches={matches}
                                 tournaments={gridData.tournaments}
+                                organization={gridData.organization}
                                 isLoading={gridData.isLoading}
                                 error={gridData.error}
                                 isInitialized={gridData.isInitialized}
@@ -228,7 +232,11 @@ function App() {
                         </div>
 
                         <Tabs defaultValue="dashboard" className="space-y-8">
-                            <TabsList className="grid w-full max-w-6xl grid-cols-11 mx-auto text-xs">
+                            <TabsList className="grid w-full max-w-6xl grid-cols-12 mx-auto text-xs">
+                                <TabsTrigger value="organization" className="flex items-center gap-1.5 px-2">
+                                    <Cpu size={16} weight="duotone" />
+                                    <span className="hidden sm:inline">Org</span>
+                                </TabsTrigger>
                                 <TabsTrigger value="live" className="flex items-center gap-1.5 px-2">
                                     <Crosshair size={16} weight="duotone" />
                                     <span className="hidden sm:inline">Live</span>
@@ -274,6 +282,13 @@ function App() {
                                     <span className="hidden sm:inline">Strategic</span>
                                 </TabsTrigger>
                             </TabsList>
+
+                            <TabsContent value="organization" className="space-y-6">
+                                <OrganizationView 
+                                    organization={gridData.organization} 
+                                    isLoading={gridData.isLoading}
+                                />
+                            </TabsContent>
 
                             <TabsContent value="live" className="space-y-6">
                                 <LiveGameSelector

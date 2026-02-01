@@ -3,15 +3,17 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Flask, ArrowsClockwise, Check, X, Database } from '@phosphor-icons/react'
+import { Flask, ArrowsClockwise, Check, X, Database, Buildings } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { Player, Match, Tournament } from '@/lib/types'
+import type { Organization } from '@/lib/gridApi'
 
 interface GridApiTestPanelProps {
   onTestFetch: () => Promise<void>
   players: Player[]
   matches: Match[]
   tournaments: Tournament[]
+  organization: Organization | null
   isLoading: boolean
   error: string | null
   isInitialized: boolean
@@ -21,7 +23,8 @@ export function GridApiTestPanel({
   onTestFetch, 
   players, 
   matches,
-  tournaments, 
+  tournaments,
+  organization,
   isLoading, 
   error,
   isInitialized 
@@ -76,7 +79,7 @@ export function GridApiTestPanel({
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid md:grid-cols-4 gap-4">
+        <div className="grid md:grid-cols-5 gap-4">
           <Card className={`border-2 ${isInitialized ? 'border-success/40 bg-success/5' : 'border-muted'}`}>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between mb-2">
@@ -87,43 +90,60 @@ export function GridApiTestPanel({
                   <X size={20} weight="bold" className="text-muted-foreground" />
                 )}
               </div>
-              <div className="font-mono text-2xl font-bold">
-                {isInitialized ? 'Connected' : 'Not Connected'}
+              <div className="font-mono text-lg font-bold">
+                {isInitialized ? 'Connected' : 'Disconnected'}
               </div>
             </CardContent>
           </Card>
 
-          <Card className={`border-2 ${players.length > 0 ? 'border-primary/40 bg-primary/5' : 'border-muted'}`}>
+          <Card className={`border-2 ${organization ? 'border-primary/40 bg-primary/5' : 'border-muted'}`}>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-semibold text-muted-foreground">Organization</span>
+                <Buildings size={20} weight="duotone" className="text-primary" />
+              </div>
+              <div className="font-mono text-lg font-bold text-primary">
+                {organization?.name || 'N/A'}
+              </div>
+              {organization && (
+                <div className="text-xs text-muted-foreground mt-1">
+                  {organization.teams.length} teams
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className={`border-2 ${players.length > 0 ? 'border-accent/40 bg-accent/5' : 'border-muted'}`}>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-semibold text-muted-foreground">Players</span>
-                <Database size={20} weight="duotone" className="text-primary" />
+                <Database size={20} weight="duotone" className="text-accent" />
               </div>
-              <div className="font-mono text-2xl font-bold text-primary">
+              <div className="font-mono text-2xl font-bold text-accent">
                 {players.length}
               </div>
             </CardContent>
           </Card>
 
-          <Card className={`border-2 ${matches.length > 0 ? 'border-accent/40 bg-accent/5' : 'border-muted'}`}>
+          <Card className={`border-2 ${matches.length > 0 ? 'border-warning/40 bg-warning/5' : 'border-muted'}`}>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-semibold text-muted-foreground">Matches</span>
-                <Database size={20} weight="duotone" className="text-accent" />
+                <Database size={20} weight="duotone" className="text-warning" />
               </div>
-              <div className="font-mono text-2xl font-bold text-accent">
+              <div className="font-mono text-2xl font-bold text-warning">
                 {matches.length}
               </div>
             </CardContent>
           </Card>
 
-          <Card className={`border-2 ${tournaments.length > 0 ? 'border-warning/40 bg-warning/5' : 'border-muted'}`}>
+          <Card className={`border-2 ${tournaments.length > 0 ? 'border-success/40 bg-success/5' : 'border-muted'}`}>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-semibold text-muted-foreground">Tournaments</span>
-                <Database size={20} weight="duotone" className="text-warning" />
+                <Database size={20} weight="duotone" className="text-success" />
               </div>
-              <div className="font-mono text-2xl font-bold text-warning">
+              <div className="font-mono text-2xl font-bold text-success">
                 {tournaments.length}
               </div>
             </CardContent>

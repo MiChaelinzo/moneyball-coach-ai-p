@@ -806,3 +806,81 @@ export async function fetchSeriesInTimeRange(
     throw error
   }
 }
+
+export interface Organization {
+  id: string
+  name: string
+  teams: Array<{
+    name: string
+  }>
+}
+
+export async function fetchCloud9Organization(): Promise<Organization | null> {
+  const query = `
+    query GetOrganization($id: ID!) {
+      organization(id: $id) {
+        id
+        name
+        teams {
+          name
+        }
+      }
+    }
+  `
+
+  try {
+    console.log('Fetching Cloud9 organization (ID: 1)...')
+    const data = await gridFetch(query, { id: "1" })
+    
+    if (!data.organization) {
+      console.warn('No organization found for ID 1')
+      return null
+    }
+
+    console.log(`Organization: ${data.organization.name}`)
+    console.log(`Teams found: ${data.organization.teams?.length || 0}`)
+    
+    return {
+      id: data.organization.id,
+      name: data.organization.name,
+      teams: data.organization.teams || [],
+    }
+  } catch (error) {
+    console.error('Failed to fetch Cloud9 organization:', error)
+    return null
+  }
+}
+
+export async function fetchOrganizations(limit: number = 5): Promise<Organization[]> {
+  const query = `
+    query GetOrganizations($first: Int!) {
+      organizations(first: $first) {
+        edges {
+          node {
+            id
+            name
+            teams {
+              name
+            }
+          }
+        }
+      }
+    }
+  `
+
+  try {
+    console.log(`Fetching ${limit} organizations...`)
+    const data = await gridFetch(query, { first: limit })
+    const organizations = data.organizations?.edges || []
+    console.log(`Received ${organizations.length} organizations`)
+    
+    return organizations.map((edge: any) => ({
+      id: edge.node.id,
+      name: edge.node.name,
+      teams: edge.node.teams || [],
+    }))
+  } catch (error) {
+    console.error('Failed to fetch organizations:', error)
+    throw error
+  }
+}
