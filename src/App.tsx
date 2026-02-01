@@ -25,8 +25,10 @@ import { StatisticsView } from '@/components/StatisticsView'
 import { CrossTitleComparisonView } from '@/components/CrossTitleComparisonView'
 import { TitleRecommendationView } from '@/components/TitleRecommendationView'
 import { ExportButton } from '@/components/ExportButton'
+import { BatchBiographyEnricher } from '@/components/BatchBiographyEnricher'
 import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise, MapPin, Trophy, ListBullets, CalendarBlank, GameController, ChartLineUp, ArrowsLeftRight, Lightbulb } from '@phosphor-icons/react'
 import { PLAYERS, INSIGHTS, STRATEGIC_IMPACTS, getPlayerAnalytics, MATCHES, MISTAKES, generateAIInsight } from '@/lib/mockData'
+import { mergeEnrichedData } from '@/lib/biographyEnrichment'
 import { useLiveMatch } from '@/hooks/use-live-match'
 import { useGridData } from '@/hooks/use-grid-data'
 import { motion } from 'framer-motion'
@@ -49,6 +51,7 @@ function App() {
     const [isGeneratingInsight, setIsGeneratingInsight] = useState(false)
     const [hasAutoFetched, setHasAutoFetched] = useState(false)
     const [titleFilter, setTitleFilter] = useState<string>('All')
+    const [enrichedPlayers, setEnrichedPlayers] = useState<Player[]>([])
     const { 
         liveMatch, 
         toggleTracking, 
@@ -61,12 +64,25 @@ function App() {
         isUsingGridData,
     } = useLiveMatch()
 
-    const players: Player[] = gridData.players.length > 0 ? gridData.players : PLAYERS
+    const players: Player[] = enrichedPlayers.length > 0 
+        ? enrichedPlayers 
+        : (gridData.players.length > 0 ? gridData.players : PLAYERS)
     const matches: Match[] = gridData.matches.length > 0 ? gridData.matches : MATCHES
     
     const filteredPlayers = titleFilter === 'All' 
         ? players 
         : players.filter(p => p.title === titleFilter)
+    
+    useEffect(() => {
+        const loadEnrichedData = async () => {
+            const basePlayers = gridData.players.length > 0 ? gridData.players : PLAYERS
+            const merged = await mergeEnrichedData(basePlayers)
+            if (merged.some(p => p.biography || (p.careerHistory && p.careerHistory.length > 0))) {
+                setEnrichedPlayers(merged)
+            }
+        }
+        loadEnrichedData()
+    }, [gridData.players])
     
     useEffect(() => {
         if (gridData.isInitialized && !hasAutoFetched && !gridData.hasCachedData) {
@@ -133,6 +149,11 @@ function App() {
             generatedAt: new Date().toLocaleString()
         }
         exportPlayerAnalytics(exportData, format)
+    }
+
+    const handleEnrichmentComplete = (updatedPlayers: Player[]) => {
+        setEnrichedPlayers(updatedPlayers)
+        toast.success('Player biographies have been updated!')
     }
 
     const selectedPlayerAnalytics = selectedPlayer ? getPlayerAnalytics(selectedPlayer) : null
@@ -444,6 +465,11 @@ function App() {
                             </TabsContent>
 
                             <TabsContent value="dashboard" className="space-y-8">
+                                <BatchBiographyEnricher 
+                                    players={players}
+                                    onEnrichmentComplete={handleEnrichmentComplete}
+                                />
+
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -628,6 +654,11 @@ function App() {
                                         />
                                     </div>
                                 </div>
+
+                                <BatchBiographyEnricher 
+                                    players={players}
+                                    onEnrichmentComplete={handleEnrichmentComplete}
+                                />
                                 
                                 <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
                                     {filteredPlayers.map(player => (
