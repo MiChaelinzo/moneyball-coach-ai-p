@@ -28,6 +28,29 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
   const [isLoadingPlayer, setIsLoadingPlayer] = useState(false)
   const [isLoadingTeam, setIsLoadingTeam] = useState(false)
   const [seriesFilter, setSeriesFilter] = useState<'all' | 'last3'>('all')
+  const [aggregateStats, setAggregateStats] = useState<{
+    totalPlayers: number
+    totalTeams: number
+    avgGamesPerPlayer: number
+    avgWinRate: number
+  }>({ totalPlayers: 0, totalTeams: 0, avgGamesPerPlayer: 0, avgWinRate: 0 })
+
+  useEffect(() => {
+    if (players.length > 0) {
+      const totalGames = players.reduce((sum, p) => sum + (p.gamesPlayed || 0), 0)
+      const avgGames = players.length > 0 ? totalGames / players.length : 0
+      const avgWin = players.length > 0 
+        ? players.reduce((sum, p) => sum + (p.winRate || 0), 0) / players.length 
+        : 0
+      
+      setAggregateStats({
+        totalPlayers: players.length,
+        totalTeams: teams.length,
+        avgGamesPerPlayer: Math.round(avgGames),
+        avgWinRate: Math.round(avgWin),
+      })
+    }
+  }, [players, teams])
 
   const handleFetchPlayerStats = async () => {
     if (!selectedPlayer) return
@@ -93,13 +116,19 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
 
   useEffect(() => {
     if (selectedPlayer && !playerStats && !isLoadingPlayer && players.length > 0) {
-      handleFetchPlayerStats()
+      const timer = setTimeout(() => {
+        handleFetchPlayerStats()
+      }, 500)
+      return () => clearTimeout(timer)
     }
   }, [selectedPlayer, players.length])
 
   useEffect(() => {
     if (selectedTeam && !teamStats && !isLoadingTeam && teams.length > 0) {
-      handleFetchTeamStats()
+      const timer = setTimeout(() => {
+        handleFetchTeamStats()
+      }, 500)
+      return () => clearTimeout(timer)
     }
   }, [selectedTeam, teams.length])
 
@@ -107,9 +136,25 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
     const winData = stats.game.wins.find(w => w.value === true)
     const lossData = stats.game.wins.find(w => w.value === false)
     const segment = stats.segment[0]
+    const kda = segment && segment.deaths.avg > 0 
+      ? (stats.series.kills.avg / segment.deaths.avg).toFixed(2)
+      : stats.series.kills.avg.toFixed(2)
 
     return (
       <div className="space-y-6">
+        <div className="p-4 bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/30 rounded-lg">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+            <span className="text-xs font-semibold uppercase tracking-wide text-primary">
+              Real-Time Statistics from GRID API
+            </span>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Statistics pulled directly from GRID's Statistics Feed API. 
+            {seriesFilter === 'last3' ? ' Showing data from last 3 matches.' : ' Showing all available data.'}
+          </p>
+        </div>
+
         <div className="grid md:grid-cols-4 gap-4">
           <Card className="glow-border">
             <CardHeader className="pb-3">
@@ -147,6 +192,9 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
               <div className="font-mono text-3xl font-bold text-primary">
                 {stats.series.kills.avg.toFixed(1)}
               </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                per series
+              </div>
             </CardContent>
           </Card>
 
@@ -159,6 +207,25 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
             <CardContent>
               <div className="font-mono text-3xl font-bold text-destructive">
                 {segment ? segment.deaths.avg.toFixed(1) : 0}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                per {segment?.type || 'segment'}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="glow-border">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-xs uppercase tracking-wide text-muted-foreground">
+                KDA Ratio
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="font-mono text-3xl font-bold text-primary">
+                {kda}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                kill/death ratio
               </div>
             </CardContent>
           </Card>
@@ -290,9 +357,25 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
     const winData = stats.game.wins.find(w => w.value === true)
     const lossData = stats.game.wins.find(w => w.value === false)
     const segment = stats.segment[0]
+    const kda = segment && segment.deaths.avg > 0 
+      ? (stats.series.kills.avg / segment.deaths.avg).toFixed(2)
+      : stats.series.kills.avg.toFixed(2)
 
     return (
       <div className="space-y-6">
+        <div className="p-4 bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/30 rounded-lg">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+            <span className="text-xs font-semibold uppercase tracking-wide text-primary">
+              Real-Time Statistics from GRID API
+            </span>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Team statistics pulled directly from GRID's Statistics Feed API. 
+            {seriesFilter === 'last3' ? ' Showing data from last 3 matches.' : ' Showing all available data.'}
+          </p>
+        </div>
+
         <div className="grid md:grid-cols-4 gap-4">
           <Card className="glow-border">
             <CardHeader className="pb-3">
@@ -330,6 +413,9 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
               <div className="font-mono text-3xl font-bold text-primary">
                 {stats.series.kills.avg.toFixed(1)}
               </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                per series
+              </div>
             </CardContent>
           </Card>
 
@@ -342,6 +428,25 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
             <CardContent>
               <div className="font-mono text-3xl font-bold text-destructive">
                 {segment ? segment.deaths.avg.toFixed(1) : 0}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                per {segment?.type || 'segment'}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="glow-border">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-xs uppercase tracking-wide text-muted-foreground">
+                Team KDA
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="font-mono text-3xl font-bold text-primary">
+                {kda}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                kill/death ratio
               </div>
             </CardContent>
           </Card>
@@ -420,19 +525,239 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-semibold mb-1">Detailed Statistics</h2>
-        <p className="text-sm text-muted-foreground">
-          Real-time player and team statistics from GRID API
-        </p>
-        {players.length === 0 && teams.length === 0 && (
-          <div className="mt-2 p-3 bg-warning/10 border border-warning/30 rounded-lg">
-            <p className="text-sm text-warning">
-              No players or teams available. Initialize GRID API and fetch data first.
-            </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h2 className="text-2xl font-semibold mb-1">Detailed Statistics</h2>
+          <p className="text-sm text-muted-foreground">
+            Real-time player and team statistics from GRID API
+          </p>
+          {players.length === 0 && teams.length === 0 && (
+            <div className="mt-2 p-3 bg-warning/10 border border-warning/30 rounded-lg">
+              <p className="text-sm text-warning">
+                No players or teams available. Initialize GRID API and fetch data first.
+              </p>
+            </div>
+          )}
+        </div>
+        {(players.length > 0 || teams.length > 0) && (
+          <div className="flex items-center gap-2 px-3 py-2 bg-primary/10 border border-primary/30 rounded-lg">
+            <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+            <span className="text-xs font-semibold uppercase tracking-wide text-primary">
+              Live Data Available
+            </span>
           </div>
         )}
       </div>
+
+      {(players.length > 0 || teams.length > 0) && (
+        <div className="grid md:grid-cols-4 gap-4">
+          <Card className="glow-border">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-xs uppercase tracking-wide text-muted-foreground flex items-center gap-2">
+                <User size={14} weight="duotone" />
+                Total Players
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="font-mono text-3xl font-bold text-foreground">
+                {aggregateStats.totalPlayers}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="glow-border">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-xs uppercase tracking-wide text-muted-foreground flex items-center gap-2">
+                <Users size={14} weight="duotone" />
+                Total Teams
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="font-mono text-3xl font-bold text-foreground">
+                {aggregateStats.totalTeams}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="glow-border-success">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-xs uppercase tracking-wide text-muted-foreground flex items-center gap-2">
+                <TrendUp size={14} weight="duotone" />
+                Avg Win Rate
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="font-mono text-3xl font-bold text-success">
+                {aggregateStats.avgWinRate}%
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="glow-border">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-xs uppercase tracking-wide text-muted-foreground flex items-center gap-2">
+                <ChartBar size={14} weight="duotone" />
+                Avg Games
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="font-mono text-3xl font-bold text-primary">
+                {aggregateStats.avgGamesPerPlayer}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {(players.length > 0 || teams.length > 0) && (
+        <Card className="glow-border">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ChartBar size={20} weight="duotone" className="text-primary" />
+              Team Roster Overview
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Quick statistics for all players from GRID data
+            </p>
+          </CardHeader>
+          <CardContent>
+            {players.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-3 px-4 text-xs uppercase tracking-wide text-muted-foreground font-semibold">
+                        Player
+                      </th>
+                      <th className="text-left py-3 px-4 text-xs uppercase tracking-wide text-muted-foreground font-semibold">
+                        Role
+                      </th>
+                      <th className="text-center py-3 px-4 text-xs uppercase tracking-wide text-muted-foreground font-semibold">
+                        Games
+                      </th>
+                      <th className="text-center py-3 px-4 text-xs uppercase tracking-wide text-muted-foreground font-semibold">
+                        Win Rate
+                      </th>
+                      <th className="text-center py-3 px-4 text-xs uppercase tracking-wide text-muted-foreground font-semibold">
+                        KDA
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {players.map((player) => (
+                      <tr 
+                        key={player.id} 
+                        className="border-b border-border/50 hover:bg-accent/5 transition-colors cursor-pointer"
+                        onClick={() => {
+                          setSelectedPlayer(player.id)
+                          const playerTabTrigger = document.querySelector('[value="player"]') as HTMLElement
+                          playerTabTrigger?.click()
+                        }}
+                      >
+                        <td className="py-3 px-4">
+                          <div className="font-semibold text-foreground">{player.name}</div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <Badge variant="outline" className="font-mono text-xs">
+                            {player.role}
+                          </Badge>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <span className="font-mono text-sm">{player.gamesPlayed || 0}</span>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <Badge 
+                            className="font-mono"
+                            style={{
+                              backgroundColor: `oklch(${player.winRate > 50 ? '0.68 0.18 145' : '0.60 0.22 25'} / 0.2)`,
+                              color: player.winRate > 50 ? 'oklch(0.68 0.18 145)' : 'oklch(0.60 0.22 25)',
+                              borderColor: player.winRate > 50 ? 'oklch(0.68 0.18 145 / 0.4)' : 'oklch(0.60 0.22 25 / 0.4)',
+                            }}
+                          >
+                            {player.winRate || 0}%
+                          </Badge>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <span className="font-mono text-sm font-semibold text-primary">
+                            {player.kda?.toFixed(2) || '0.00'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="py-8 text-center text-muted-foreground text-sm">
+                No player data available. Fetch data from GRID API first.
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {teams.length > 0 && (
+        <Card className="glow-border">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users size={20} weight="duotone" className="text-primary" />
+              Teams Overview
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              All teams fetched from GRID API
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {teams.slice(0, 20).map((team) => (
+                <div
+                  key={team.id}
+                  onClick={() => {
+                    setSelectedTeam(team.id)
+                    const teamTabTrigger = document.querySelector('[value="team"]') as HTMLElement
+                    teamTabTrigger?.click()
+                  }}
+                  className="p-4 border border-border rounded-lg hover:border-primary/50 hover:bg-accent/5 transition-all cursor-pointer group"
+                >
+                  <div className="flex items-center gap-3">
+                    {team.logoUrl && (
+                      <img 
+                        src={team.logoUrl} 
+                        alt={team.name}
+                        className="w-10 h-10 rounded object-contain"
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-sm text-foreground truncate group-hover:text-primary transition-colors">
+                        {team.name}
+                      </div>
+                      <div className="flex items-center gap-2 mt-1">
+                        {team.colorPrimary && (
+                          <div 
+                            className="w-3 h-3 rounded-full border border-border"
+                            style={{ backgroundColor: team.colorPrimary }}
+                          />
+                        )}
+                        {team.colorSecondary && (
+                          <div 
+                            className="w-3 h-3 rounded-full border border-border"
+                            style={{ backgroundColor: team.colorSecondary }}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {teams.length > 20 && (
+              <div className="mt-4 pt-4 border-t border-border text-center text-sm text-muted-foreground">
+                Showing 20 of {teams.length} teams
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <Tabs defaultValue="player" className="space-y-6">
         <TabsList className="grid w-full max-w-md grid-cols-2">
