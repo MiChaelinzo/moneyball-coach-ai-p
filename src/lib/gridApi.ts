@@ -78,8 +78,6 @@ export async function fetchCloud9Players(): Promise<Player[]> {
           node {
             id
             nickname
-            firstName
-            lastName
             title {
               name
             }
@@ -111,7 +109,7 @@ export async function fetchCloud9Players(): Promise<Player[]> {
       const player = edge.node
       return {
         id: player.id.toString(),
-        name: player.nickname || player.firstName || 'Unknown',
+        name: player.nickname || 'Unknown',
         role: roles[index % roles.length],
         kda: 0,
         winRate: 0,
