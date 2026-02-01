@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
 import { 
   Play, 
   Pause, 
@@ -13,12 +14,17 @@ import {
   Warning,
   Trophy,
   Crosshair,
-  ChartLine
+  ChartLine,
+  SpeakerHigh,
+  SpeakerSlash,
+  Microphone
 } from '@phosphor-icons/react'
 import type { MatchReplay, ReplaySnapshot } from '@/lib/replayData'
 import { formatGameTime, getSnapshotAtTime } from '@/lib/replayData'
+import { MatchNarrator } from '@/lib/narrator'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
 
 interface MatchReplayViewerProps {
   replay: MatchReplay
@@ -29,12 +35,45 @@ export function MatchReplayViewer({ replay }: MatchReplayViewerProps) {
   const [isPlaying, setIsPlaying] = useState(false)
   const [playbackSpeed, setPlaybackSpeed] = useState(1)
   const [currentSnapshot, setCurrentSnapshot] = useState<ReplaySnapshot>(replay.snapshots[0])
+  const [previousSnapshot, setPreviousSnapshot] = useState<ReplaySnapshot | null>(null)
+  const [narratorEnabled, setNarratorEnabled] = useState(false)
+  const [narratorVolume, setNarratorVolume] = useState(0.8)
+  const [currentNarration, setCurrentNarration] = useState<string | null>(null)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const narratorRef = useRef<MatchNarrator>(new MatchNarrator())
 
   useEffect(() => {
     const snapshot = getSnapshotAtTime(replay, currentTime)
+    setPreviousSnapshot(currentSnapshot)
     setCurrentSnapshot(snapshot)
-  }, [currentTime, replay])
+
+    if (narratorEnabled && isPlaying) {
+      const narrator = narratorRef.current
+      const scripts = narrator.generateNarration(snapshot, previousSnapshot, currentTime)
+      
+      if (scripts.length > 0) {
+        narrator.queueNarration(scripts)
+        setCurrentNarration(scripts[0].text)
+        
+        setTimeout(() => {
+          setCurrentNarration(null)
+        }, 5000)
+      }
+    }
+  }, [currentTime, replay, narratorEnabled, isPlaying])
+
+  useEffect(() => {
+    const narrator = narratorRef.current
+    narrator.setEnabled(narratorEnabled)
+    narrator.setVolume(narratorVolume)
+    
+    if (!narratorEnabled) {
+      setCurrentNarration(null)
+    } else if (!narrator.isAvailable()) {
+      toast.error('Voice narration is not available in your browser')
+      setNarratorEnabled(false)
+    }
+  }, [narratorEnabled, narratorVolume])
 
   useEffect(() => {
     if (isPlaying) {
@@ -63,12 +102,22 @@ export function MatchReplayViewer({ replay }: MatchReplayViewerProps) {
   }, [isPlaying, playbackSpeed, replay.duration])
 
   const handlePlayPause = () => {
-    setIsPlaying(!isPlaying)
+    const newPlayingState = !isPlaying
+    setIsPlaying(newPlayingState)
+    
+    if (newPlayingState && narratorEnabled) {
+      toast.success('Voice narration enabled', {
+        description: 'Key moments will be narrated automatically',
+        icon: <Microphone size={16} />
+      })
+    }
   }
 
   const handleTimeChange = (value: number[]) => {
     setCurrentTime(value[0])
     setIsPlaying(false)
+    narratorRef.current.stop()
+    setCurrentNarration(null)
   }
 
   const handleSkipForward = () => {
@@ -82,18 +131,35 @@ export function MatchReplayViewer({ replay }: MatchReplayViewerProps) {
   const handleRestart = () => {
     setCurrentTime(0)
     setIsPlaying(false)
+    narratorRef.current.stop()
+    setCurrentNarration(null)
   }
 
   const jumpToKeyMoment = (timestamp: number) => {
     setCurrentTime(timestamp)
     setIsPlaying(false)
+    narratorRef.current.stop()
+    setCurrentNarration(null)
   }
 
   const cyclePlaybackSpeed = () => {
     const speeds = [0.5, 1, 2, 4]
     const currentIndex = speeds.indexOf(playbackSpeed)
     const nextIndex = (currentIndex + 1) % speeds.length
-    setPlaybackSpeed(speeds[nextIndex])
+    const newSpeed = speeds[nextIndex]
+    setPlaybackSpeed(newSpeed)
+    narratorRef.current.setRate(newSpeed)
+  }
+
+  const toggleNarrator = () => {
+    const newState = !narratorEnabled
+    setNarratorEnabled(newState)
+    
+    if (newState) {
+      toast.success('Voice narration enabled')
+    } else {
+      toast.info('Voice narration disabled')
+    }
   }
 
   const goldDiffPercent = currentSnapshot.goldDiff / Math.max(currentSnapshot.teamGold, 1) * 100
@@ -124,6 +190,37 @@ export function MatchReplayViewer({ replay }: MatchReplayViewerProps) {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
+          <AnimatePresence>
+            {currentNarration && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="p-4 bg-primary/20 border border-primary/40 rounded-lg"
+              >
+                <div className="flex items-start gap-3">
+                  <Microphone size={20} weight="duotone" className="text-primary mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <div className="text-xs font-semibold text-primary uppercase tracking-wide mb-1">
+                      Live Narration
+                    </div>
+                    <p className="text-sm leading-relaxed text-foreground">
+                      {currentNarration}
+                    </p>
+                  </div>
+                  {narratorRef.current.isSpeaking() && (
+                    <motion.div
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ repeat: Infinity, duration: 1.5 }}
+                    >
+                      <SpeakerHigh size={20} className="text-primary" />
+                    </motion.div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <div className="relative h-3 bg-muted rounded-full overflow-hidden">
             <div 
               className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-accent transition-all duration-300"
@@ -210,6 +307,65 @@ export function MatchReplayViewer({ replay }: MatchReplayViewerProps) {
             >
               <span className="text-xs font-bold">{playbackSpeed}x</span>
             </Button>
+          </div>
+
+          <div className="border-t border-border pt-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                {narratorEnabled ? (
+                  <SpeakerHigh size={20} className="text-primary" weight="duotone" />
+                ) : (
+                  <SpeakerSlash size={20} className="text-muted-foreground" weight="duotone" />
+                )}
+                <div>
+                  <div className="text-sm font-semibold">Voice-Over Narration</div>
+                  <div className="text-xs text-muted-foreground">
+                    AI-powered commentary on key moments
+                  </div>
+                </div>
+              </div>
+              <Switch
+                checked={narratorEnabled}
+                onCheckedChange={toggleNarrator}
+              />
+            </div>
+
+            {narratorEnabled && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="space-y-3"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                      Narration Volume
+                    </label>
+                    <span className="text-xs font-mono text-muted-foreground">
+                      {Math.round(narratorVolume * 100)}%
+                    </span>
+                  </div>
+                  <Slider
+                    value={[narratorVolume]}
+                    min={0}
+                    max={1}
+                    step={0.1}
+                    onValueChange={(v) => setNarratorVolume(v[0])}
+                    className="cursor-pointer"
+                  />
+                </div>
+                
+                <div className="p-3 bg-muted/50 rounded-lg">
+                  <div className="flex items-start gap-2 text-xs text-muted-foreground">
+                    <Microphone size={14} className="mt-0.5 flex-shrink-0" />
+                    <p className="leading-relaxed">
+                      The narrator will automatically describe objectives, critical mistakes, and game state changes during playback.
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </div>
         </CardContent>
       </Card>
