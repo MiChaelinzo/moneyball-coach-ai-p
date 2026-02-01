@@ -10,6 +10,7 @@ import { LiveMatchTracker } from '@/components/LiveMatchTracker'
 import { GridApiSetup } from '@/components/GridApiSetup'
 import { DataSourceIndicator } from '@/components/DataSourceIndicator'
 import { MultiMatchAnalysisView } from '@/components/MultiMatchAnalysisView'
+import { GridApiTestPanel } from '@/components/GridApiTestPanel'
 import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine } from '@phosphor-icons/react'
 import { PLAYERS, INSIGHTS, STRATEGIC_IMPACTS, getPlayerAnalytics, MATCHES, MISTAKES, generateAIInsight } from '@/lib/mockData'
 import { useLiveMatch } from '@/hooks/use-live-match'
@@ -133,7 +134,7 @@ function App() {
                     </header>
 
                     <main className="container mx-auto px-6 py-8">
-                        <div className="mb-8">
+                        <div className="mb-8 space-y-6">
                             <GridApiSetup
                                 isInitialized={gridData.isInitialized}
                                 hasApiKey={gridData.apiKey.length > 0}
@@ -143,6 +144,15 @@ function App() {
                                 onFetchData={gridData.fetchData}
                                 onClearKey={gridData.clearApiKey}
                                 hasCachedData={gridData.hasCachedData}
+                            />
+
+                            <GridApiTestPanel
+                                onTestFetch={async () => await gridData.fetchData(true)}
+                                players={players}
+                                matches={matches}
+                                isLoading={gridData.isLoading}
+                                error={gridData.error}
+                                isInitialized={gridData.isInitialized}
                             />
                         </div>
 

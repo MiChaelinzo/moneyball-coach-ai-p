@@ -22,6 +22,8 @@ async function gridFetch(query: string, variables: Record<string, any> = {}) {
     throw new Error('GRID API not initialized. Please call initializeGridApi() with your API key.')
   }
 
+  console.log('GRID API Request:', { endpoint: GRID_API_BASE, hasApiKey: !!gridConfig.apiKey })
+
   const response = await fetch(GRID_API_BASE, {
     method: 'POST',
     headers: {
@@ -34,8 +36,12 @@ async function gridFetch(query: string, variables: Record<string, any> = {}) {
     }),
   })
 
+  console.log('GRID API Response Status:', response.status, response.statusText)
+
   if (!response.ok) {
-    throw new Error(`GRID API error: ${response.statusText}`)
+    const errorText = await response.text()
+    console.error('GRID API Error Response:', errorText)
+    throw new Error(`GRID API error (${response.status}): ${response.statusText}`)
   }
 
   const data = await response.json()
@@ -44,6 +50,8 @@ async function gridFetch(query: string, variables: Record<string, any> = {}) {
     console.error('GRID API GraphQL errors:', data.errors)
     throw new Error(`GRID API GraphQL error: ${data.errors[0]?.message || 'Unknown error'}`)
   }
+
+  console.log('GRID API Success:', Object.keys(data.data || {}))
 
   return data.data
 }
@@ -76,13 +84,19 @@ export async function fetchCloud9Players(): Promise<Player[]> {
   `
 
   try {
+    console.log('Fetching Cloud9 players...')
     const data = await gridFetch(query)
+    console.log('Cloud9 team data received:', data.allTeam?.nodes?.length || 0, 'teams')
+    
     const cloud9Team = data.allTeam?.nodes?.[0]
     
     if (!cloud9Team?.playersInTeams?.nodes) {
-      console.warn('No Cloud9 players found in GRID API')
+      console.warn('No Cloud9 players found in GRID API response')
+      console.log('Response structure:', JSON.stringify(data, null, 2))
       return []
     }
+
+    console.log('Found', cloud9Team.playersInTeams.nodes.length, 'Cloud9 players')
 
     const positionMap: Record<string, string> = {
       'TOP': 'Top',
@@ -92,7 +106,7 @@ export async function fetchCloud9Players(): Promise<Player[]> {
       'SUPPORT': 'Support',
     }
 
-    return cloud9Team.playersInTeams.nodes.map((pit: any, index: number) => ({
+    const players = cloud9Team.playersInTeams.nodes.map((pit: any, index: number) => ({
       id: pit.player.id.toString(),
       name: pit.player.nickname || pit.player.firstName || 'Unknown',
       role: positionMap[pit.position] || pit.position,
@@ -100,6 +114,9 @@ export async function fetchCloud9Players(): Promise<Player[]> {
       winRate: 0,
       gamesPlayed: 0,
     }))
+
+    console.log('Processed players:', players.map(p => p.name).join(', '))
+    return players
   } catch (error) {
     console.error('Failed to fetch Cloud9 players:', error)
     throw error
@@ -218,8 +235,10 @@ export async function fetchCloud9Matches(limit: number = 10): Promise<Match[]> {
   `
 
   try {
+    console.log('Fetching Cloud9 matches, limit:', limit)
     const data = await gridFetch(query, { limit })
     const games = data.allGame?.nodes || []
+    console.log('Received', games.length, 'Cloud9 matches')
 
     return games.map((game: any) => {
       const cloud9Team = game.teams?.nodes?.find((t: any) => t.name === 'Cloud9')
@@ -382,10 +401,14 @@ export async function fetchRecentCloud9Games(limit: number = 5): Promise<string[
 }
 
 export async function enrichPlayersWithStats(players: Player[]): Promise<Player[]> {
+  console.log('Enriching', players.length, 'players with stats...')
+  
   const enrichedPlayers = await Promise.all(
     players.map(async (player) => {
       try {
+        console.log(`Fetching stats for ${player.name} (ID: ${player.id})`)
         const stats = await fetchPlayerStats(player.id)
+        console.log(`Stats for ${player.name}:`, stats)
         return {
           ...player,
           ...stats,
@@ -397,5 +420,6 @@ export async function enrichPlayersWithStats(players: Player[]): Promise<Player[
     })
   )
 
+  console.log('Player enrichment complete')
   return enrichedPlayers
 }
