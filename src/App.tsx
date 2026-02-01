@@ -20,7 +20,8 @@ import { UpcomingSeriesView } from '@/components/UpcomingSeriesView'
 import { OrganizationView } from '@/components/OrganizationView'
 import { TeamsView } from '@/components/TeamsView'
 import { SeriesStateTracker } from '@/components/SeriesStateTracker'
-import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise, MapPin, Trophy, ListBullets, CalendarBlank, GameController } from '@phosphor-icons/react'
+import { StatisticsView } from '@/components/StatisticsView'
+import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise, MapPin, Trophy, ListBullets, CalendarBlank, GameController, ChartLineUp } from '@phosphor-icons/react'
 import { PLAYERS, INSIGHTS, STRATEGIC_IMPACTS, getPlayerAnalytics, MATCHES, MISTAKES, generateAIInsight } from '@/lib/mockData'
 import { useLiveMatch } from '@/hooks/use-live-match'
 import { useGridData } from '@/hooks/use-grid-data'
@@ -235,7 +236,7 @@ function App() {
                         </div>
 
                         <Tabs defaultValue="dashboard" className="space-y-8">
-                            <TabsList className="grid w-full max-w-6xl grid-cols-13 mx-auto text-xs">
+                            <TabsList className="grid w-full max-w-6xl grid-cols-14 mx-auto text-xs">
                                 <TabsTrigger value="organization" className="flex items-center gap-1.5 px-2">
                                     <Cpu size={16} weight="duotone" />
                                     <span className="hidden sm:inline">Org</span>
@@ -243,6 +244,10 @@ function App() {
                                 <TabsTrigger value="teams" className="flex items-center gap-1.5 px-2">
                                     <Trophy size={16} weight="duotone" />
                                     <span className="hidden sm:inline">Teams</span>
+                                </TabsTrigger>
+                                <TabsTrigger value="statistics" className="flex items-center gap-1.5 px-2">
+                                    <ChartLineUp size={16} weight="duotone" />
+                                    <span className="hidden sm:inline">Stats</span>
                                 </TabsTrigger>
                                 <TabsTrigger value="live" className="flex items-center gap-1.5 px-2">
                                     <Crosshair size={16} weight="duotone" />
@@ -305,6 +310,14 @@ function App() {
                                 <TeamsView 
                                     teams={gridData.teams} 
                                     isLoading={gridData.isLoading}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="statistics" className="space-y-6">
+                                <StatisticsView
+                                    players={players}
+                                    teams={gridData.teams}
+                                    matches={matches}
                                 />
                             </TabsContent>
 

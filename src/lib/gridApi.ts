@@ -2,6 +2,7 @@ import axios, { AxiosResponse, AxiosError } from 'axios'
 import type { Player, Match, LiveMatch, LiveMatchPlayer, Tournament, Team } from './types'
 
 const GRID_API_BASE = 'https://api-op.grid.gg/central-data/graphql'
+const GRID_STATS_API_BASE = 'https://api-op.grid.gg/statistics-feed/graphql'
 const DEFAULT_API_KEY = 'GacqICJfwHbtteMEbQ8mUVztiBHCuKuzijh7m4N8'
 
 interface GridApiConfig {
@@ -23,16 +24,16 @@ interface GraphQLResponse<T = any> {
   errors?: Array<{ message: string; locations?: any[]; path?: string[] }>
 }
 
-async function gridFetch(query: string, variables: Record<string, any> = {}) {
+async function gridFetch(query: string, variables: Record<string, any> = {}, endpoint: string = GRID_API_BASE) {
   if (!gridConfig) {
     throw new Error('GRID API not initialized. Please call initializeGridApi() with your API key.')
   }
 
-  console.log('GRID API Request:', { endpoint: GRID_API_BASE, hasApiKey: !!gridConfig.apiKey })
+  console.log('GRID API Request:', { endpoint, hasApiKey: !!gridConfig.apiKey })
 
   try {
     const response: AxiosResponse<GraphQLResponse> = await axios.post(
-      GRID_API_BASE,
+      endpoint,
       {
         query,
         variables,
@@ -128,8 +129,33 @@ export async function fetchCloud9Players(): Promise<Player[]> {
 
 export async function fetchPlayerStats(playerId: string, limit: number = 20): Promise<{ kda: number; winRate: number; gamesPlayed: number }> {
   try {
-    console.log(`Attempting to fetch stats for player ${playerId}`)
-    return { kda: 3.5, winRate: 65, gamesPlayed: 50 }
+    console.log(`Fetching stats for player ${playerId}`)
+    
+    const stats = await fetchPlayerStatistics(playerId)
+    
+    if (!stats || stats.game.count === 0) {
+      console.log(`No statistics available for player ${playerId}, using defaults`)
+      return { kda: 0, winRate: 0, gamesPlayed: 0 }
+    }
+    
+    const winData = stats.game.wins.find(w => w.value === true)
+    const winRate = winData ? winData.percentage : 0
+    
+    const totalKills = stats.series.kills.avg || 0
+    const totalDeaths = stats.segment.length > 0 ? stats.segment[0].deaths.avg : 1
+    const kda = totalDeaths > 0 ? totalKills / totalDeaths : totalKills
+    
+    console.log(`Stats for player ${playerId}:`, {
+      gamesPlayed: stats.game.count,
+      winRate: Math.round(winRate),
+      kda: parseFloat(kda.toFixed(2))
+    })
+    
+    return {
+      kda: parseFloat(kda.toFixed(2)),
+      winRate: Math.round(winRate),
+      gamesPlayed: stats.game.count
+    }
   } catch (error) {
     console.error(`Failed to fetch stats for player ${playerId}:`, error)
     return { kda: 0, winRate: 0, gamesPlayed: 0 }
@@ -948,6 +974,214 @@ export async function fetchTeam(teamId: string): Promise<Team | null> {
     }
   } catch (error) {
     console.error(`Failed to fetch team ${teamId}:`, error)
+    return null
+  }
+}
+
+export interface PlayerStatistics {
+  id: string
+  aggregationSeriesIds: string[]
+  series: {
+    count: number
+    kills: {
+      sum: number
+      min: number
+      max: number
+      avg: number
+    }
+  }
+  game: {
+    count: number
+    wins: Array<{
+      value: boolean
+      count: number
+      percentage: number
+      streak: {
+        min: number
+        max: number
+        current: number
+      }
+    }>
+  }
+  segment: Array<{
+    type: string
+    count: number
+    deaths: {
+      sum: number
+      min: number
+      max: number
+      avg: number
+    }
+  }>
+}
+
+export interface TeamStatistics {
+  id: string
+  aggregationSeriesIds: string[]
+  series: {
+    count: number
+    kills: {
+      sum: number
+      min: number
+      max: number
+      avg: number
+    }
+  }
+  game: {
+    count: number
+    wins: Array<{
+      value: boolean
+      count: number
+      percentage: number
+      streak: {
+        min: number
+        max: number
+        current: number
+      }
+    }>
+  }
+  segment: Array<{
+    type: string
+    count: number
+    deaths: {
+      sum: number
+      min: number
+      max: number
+      avg: number
+    }
+  }>
+}
+
+export async function fetchPlayerStatistics(
+  playerId: string,
+  seriesIds?: string[]
+): Promise<PlayerStatistics | null> {
+  const query = `
+    query GetPlayerStats($playerId: ID!, $seriesIds: [ID!]) {
+      playerStatistics(id: $playerId, aggregationSeriesIds: $seriesIds) {
+        id
+        aggregationSeriesIds
+        series {
+          count
+          kills {
+            sum
+            min
+            max
+            avg
+          }
+        }
+        game {
+          count
+          wins {
+            value
+            count
+            percentage
+            streak {
+              min
+              max
+              current
+            }
+          }
+        }
+        segment {
+          type
+          count
+          deaths {
+            sum
+            min
+            max
+            avg
+          }
+        }
+      }
+    }
+  `
+
+  try {
+    console.log(`Fetching statistics for player ${playerId}${seriesIds ? ` with ${seriesIds.length} series` : ''}...`)
+    const variables: any = { playerId }
+    if (seriesIds && seriesIds.length > 0) {
+      variables.seriesIds = seriesIds
+    }
+    
+    const data = await gridFetch(query, variables, GRID_STATS_API_BASE)
+    
+    if (!data.playerStatistics) {
+      console.warn(`No statistics found for player ${playerId}`)
+      return null
+    }
+
+    console.log(`Statistics for player ${playerId}:`, data.playerStatistics)
+    return data.playerStatistics
+  } catch (error) {
+    console.error(`Failed to fetch player statistics for ${playerId}:`, error)
+    return null
+  }
+}
+
+export async function fetchTeamStatistics(
+  teamId: string,
+  seriesIds?: string[]
+): Promise<TeamStatistics | null> {
+  const query = `
+    query GetTeamStats($teamId: ID!, $seriesIds: [ID!]) {
+      teamStatistics(id: $teamId, aggregationSeriesIds: $seriesIds) {
+        id
+        aggregationSeriesIds
+        series {
+          count
+          kills {
+            sum
+            min
+            max
+            avg
+          }
+        }
+        game {
+          count
+          wins {
+            value
+            count
+            percentage
+            streak {
+              min
+              max
+              current
+            }
+          }
+        }
+        segment {
+          type
+          count
+          deaths {
+            sum
+            min
+            max
+            avg
+          }
+        }
+      }
+    }
+  `
+
+  try {
+    console.log(`Fetching statistics for team ${teamId}${seriesIds ? ` with ${seriesIds.length} series` : ''}...`)
+    const variables: any = { teamId }
+    if (seriesIds && seriesIds.length > 0) {
+      variables.seriesIds = seriesIds
+    }
+    
+    const data = await gridFetch(query, variables, GRID_STATS_API_BASE)
+    
+    if (!data.teamStatistics) {
+      console.warn(`No statistics found for team ${teamId}`)
+      return null
+    }
+
+    console.log(`Statistics for team ${teamId}:`, data.teamStatistics)
+    return data.teamStatistics
+  } catch (error) {
+    console.error(`Failed to fetch team statistics for ${teamId}:`, error)
     return null
   }
 }

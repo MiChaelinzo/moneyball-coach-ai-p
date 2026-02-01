@@ -13,11 +13,18 @@ This is a sophisticated analytics platform that requires multiple interconnected
 ## Essential Features
 
 ### GRID API Integration
-- **Functionality**: Direct integration with GRID's esports data API to fetch real Cloud9 match data, player statistics, and live game information. The application comes pre-configured with a valid GRID API key for immediate access.
-- **Purpose**: Replace mock data with authentic esports analytics from official tournament and team data
+- **Functionality**: Direct integration with GRID's esports data API to fetch real Cloud9 match data, player statistics, and live game information. The application comes pre-configured with a valid GRID API key for immediate access. Now includes GRID Statistics Feed API for detailed player and team statistics.
+- **Purpose**: Replace mock data with authentic esports analytics from official tournament and team data, and provide granular statistics for performance analysis
 - **Trigger**: Application auto-initializes GRID API on load with the pre-configured key
-- **Progression**: Auto-initialize API → Connect to GRID endpoint → Fetch Cloud9 roster → Retrieve recent matches → Cache data locally → Auto-refresh on demand → Display connection status
-- **Success criteria**: Automatic authentication on load, data retrieval within 3 seconds, graceful fallback to cached/mock data on failure, clear error messaging
+- **Progression**: Auto-initialize API → Connect to GRID endpoint → Fetch Cloud9 roster → Retrieve recent matches → Cache data locally → Auto-refresh on demand → Display connection status → Fetch detailed statistics from Statistics Feed API
+- **Success criteria**: Automatic authentication on load, data retrieval within 3 seconds, graceful fallback to cached/mock data on failure, clear error messaging, successful statistics queries with proper data aggregation
+
+### Detailed Statistics View (NEW)
+- **Functionality**: Comprehensive player and team statistics dashboard powered by GRID's Statistics Feed API. Displays granular metrics including kills/deaths per game, win rates, win/loss streaks, series performance, and segment-level statistics. Features series filtering to analyze all-time stats or specific match ranges (e.g., last 3 matches). Supports both player-level and team-level statistics with detailed breakdowns.
+- **Purpose**: Provide coaches with deep statistical insights into individual player performance and team dynamics, enabling data-driven coaching decisions and performance tracking over time
+- **Trigger**: User selects "Stats" tab from main navigation and chooses a player or team to analyze
+- **Progression**: Access Statistics tab → Choose player or team view → Select player/team from dropdown → Choose series filter (all matches or last 3) → Click "Fetch Stats" → System queries GRID Statistics Feed API → Display comprehensive stats dashboard → View games played, win rate percentage, average kills/deaths → Analyze kill/death min/max/avg statistics → Review win/loss streaks (current, best, worst) → Examine segment-level performance metrics → Switch between player and team views → Apply different series filters for time-based analysis
+- **Success criteria**: Successfully fetches statistics from GRID Statistics Feed API within 2 seconds, displays accurate metrics with proper aggregation, handles empty/zero data gracefully, presents win rate percentages correctly, shows streak data with current and historical records, supports series ID filtering for focused analysis, and provides clear visual hierarchy for different stat categories
 
 ### Live Match Tracking with Real-Time KDA Updates
 - **Functionality**: Real-time monitoring of ongoing Cloud9 matches with automatic game detection, live updates to player KDA (Kills/Deaths/Assists), CS (Creep Score), gold, and objective control. Features automatic polling of GRID API for live game data with seamless fallback to simulation mode.
