@@ -1,5 +1,24 @@
 export type GameTitle = 'LoL' | 'Valorant' | 'CS2' | 'All'
 
+export interface CareerMilestone {
+  year: number
+  event: string
+  achievement: string
+  team?: string
+  title?: GameTitle
+}
+
+export interface PlayerBiography {
+  realName?: string
+  nationality?: string
+  birthDate?: string
+  hometown?: string
+  bio: string
+  playstyle?: string
+  signature?: string
+  careerStart?: number
+}
+
 export interface Player {
   id: string
   name: string
@@ -9,6 +28,8 @@ export interface Player {
   gamesPlayed: number
   title?: GameTitle
   titleId?: string
+  biography?: PlayerBiography
+  careerHistory?: CareerMilestone[]
 }
 
 export interface Mistake {

@@ -6,6 +6,7 @@ import { InsightCard } from '@/components/InsightCard'
 import { PlayerCard } from '@/components/PlayerCard'
 import { StrategicImpactView } from '@/components/StrategicImpactView'
 import { PlayerAnalyticsView } from '@/components/PlayerAnalyticsView'
+import { PlayerBiographyView } from '@/components/PlayerBiographyView'
 import { LiveMatchTracker } from '@/components/LiveMatchTracker'
 import { LiveGameSelector } from '@/components/LiveGameSelector'
 import { GridApiSetup } from '@/components/GridApiSetup'
@@ -567,6 +568,11 @@ function App() {
                                             />
                                         </div>
                                         <PlayerAnalyticsView analytics={selectedPlayerAnalytics} />
+                                        {selectedPlayer && (
+                                            <PlayerBiographyView 
+                                                player={players.find(p => p.id === selectedPlayer)!}
+                                            />
+                                        )}
                                     </motion.div>
                                 )}
                             </TabsContent>
@@ -635,7 +641,14 @@ function App() {
                                 </div>
 
                                 {selectedPlayerAnalytics ? (
-                                    <PlayerAnalyticsView analytics={selectedPlayerAnalytics} />
+                                    <div className="space-y-6">
+                                        <PlayerAnalyticsView analytics={selectedPlayerAnalytics} />
+                                        {selectedPlayer && (
+                                            <PlayerBiographyView 
+                                                player={players.find(p => p.id === selectedPlayer)!}
+                                            />
+                                        )}
+                                    </div>
                                 ) : (
                                     <Card className="glow-border">
                                         <CardContent className="py-12 text-center">

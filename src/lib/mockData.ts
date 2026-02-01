@@ -1,28 +1,334 @@
 import type { Player, Mistake, Match, Insight, StrategicImpact, PlayerAnalytics, LiveMatch, LiveMatchPlayer } from './types'
 
 export const PLAYERS: Player[] = [
-  { id: '1', name: 'Fudge', role: 'Top', kda: 3.2, winRate: 58, gamesPlayed: 24, title: 'LoL', titleId: '3' },
-  { id: '2', name: 'Blaber', role: 'Jungle', kda: 4.1, winRate: 62, gamesPlayed: 24, title: 'LoL', titleId: '3' },
-  { id: '3', name: 'Jensen', role: 'Mid', kda: 5.3, winRate: 65, gamesPlayed: 24, title: 'LoL', titleId: '3' },
-  { id: '4', name: 'Berserker', role: 'ADC', kda: 6.8, winRate: 70, gamesPlayed: 24, title: 'LoL', titleId: '3' },
-  { id: '5', name: 'Zven', role: 'Support', kda: 3.9, winRate: 61, gamesPlayed: 24, title: 'LoL', titleId: '3' },
+  { 
+    id: '1', 
+    name: 'Fudge', 
+    role: 'Top', 
+    kda: 3.2, 
+    winRate: 58, 
+    gamesPlayed: 24, 
+    title: 'LoL', 
+    titleId: '3',
+    biography: {
+      realName: 'Ibrahim Allami',
+      nationality: 'Australian',
+      birthDate: '2002-01-20',
+      hometown: 'Sydney, Australia',
+      bio: 'Fudge rose through the Oceanic scene before making waves in the LCS. Known for his aggressive laning phase and impressive champion pool, he has become a cornerstone of Cloud9\'s top lane dominance.',
+      playstyle: 'Aggressive lane bully with strong team fighting',
+      signature: 'Jayce, Gnar, Renekton',
+      careerStart: 2019
+    },
+    careerHistory: [
+      { year: 2024, event: 'LCS Spring Split', achievement: 'Playoffs Semifinalist', team: 'Cloud9', title: 'LoL' },
+      { year: 2023, event: 'Worlds Championship', achievement: 'Quarterfinals', team: 'Cloud9', title: 'LoL' },
+      { year: 2022, event: 'LCS Summer', achievement: 'First Team All-Pro', team: 'Cloud9', title: 'LoL' },
+      { year: 2021, event: 'LCS Spring', achievement: 'Championship Winner', team: 'Cloud9', title: 'LoL' },
+      { year: 2020, event: 'OPL Split', achievement: 'MVP Runner-up', team: 'Mammoth', title: 'LoL' }
+    ]
+  },
+  { 
+    id: '2', 
+    name: 'Blaber', 
+    role: 'Jungle', 
+    kda: 4.1, 
+    winRate: 62, 
+    gamesPlayed: 24, 
+    title: 'LoL', 
+    titleId: '3',
+    biography: {
+      realName: 'Robert Huang',
+      nationality: 'American',
+      birthDate: '2000-02-16',
+      hometown: 'Arcadia, California',
+      bio: 'Blaber is a three-time LCS MVP known for his hyper-aggressive jungle style and lightning-fast decision making. His fearless invades and objective control have defined Cloud9\'s proactive playstyle.',
+      playstyle: 'Ultra-aggressive early game with high-tempo jungling',
+      signature: 'Lee Sin, Olaf, Hecarim',
+      careerStart: 2017
+    },
+    careerHistory: [
+      { year: 2024, event: 'LCS Spring', achievement: 'All-Star Selection', team: 'Cloud9', title: 'LoL' },
+      { year: 2023, event: 'LCS Summer', achievement: 'Third Team All-Pro', team: 'Cloud9', title: 'LoL' },
+      { year: 2022, event: 'LCS Spring', achievement: 'MVP Award', team: 'Cloud9', title: 'LoL' },
+      { year: 2021, event: 'LCS Summer', achievement: 'MVP Award', team: 'Cloud9', title: 'LoL' },
+      { year: 2020, event: 'LCS Spring', achievement: 'MVP Award & Championship', team: 'Cloud9', title: 'LoL' },
+      { year: 2018, event: 'Worlds Championship', achievement: 'Semifinals Debut', team: 'Cloud9', title: 'LoL' }
+    ]
+  },
+  { 
+    id: '3', 
+    name: 'Jensen', 
+    role: 'Mid', 
+    kda: 5.3, 
+    winRate: 65, 
+    gamesPlayed: 24, 
+    title: 'LoL', 
+    titleId: '3',
+    biography: {
+      realName: 'Nicolaj Jensen',
+      nationality: 'Danish',
+      birthDate: '1995-04-25',
+      hometown: 'Copenhagen, Denmark',
+      bio: 'Jensen is one of the most decorated North American mid laners with multiple LCS championships. His mechanical prowess and clutch performances in high-pressure situations make him a franchise player.',
+      playstyle: 'Control mage specialist with exceptional positioning',
+      signature: 'Orianna, Azir, Syndra',
+      careerStart: 2015
+    },
+    careerHistory: [
+      { year: 2024, event: 'Return to Cloud9', achievement: 'Roster Addition', team: 'Cloud9', title: 'LoL' },
+      { year: 2023, event: 'LCS', achievement: 'Multiple Pentakills', team: 'Team Liquid', title: 'LoL' },
+      { year: 2019, event: 'Worlds', achievement: 'Finals Appearance', team: 'Team Liquid', title: 'LoL' },
+      { year: 2018, event: 'LCS Summer', achievement: 'Championship & MVP', team: 'Team Liquid', title: 'LoL' },
+      { year: 2017, event: 'Worlds', achievement: 'Quarterfinals', team: 'Cloud9', title: 'LoL' },
+      { year: 2016, event: 'LCS Summer', achievement: 'Second Team All-Pro', team: 'Cloud9', title: 'LoL' }
+    ]
+  },
+  { 
+    id: '4', 
+    name: 'Berserker', 
+    role: 'ADC', 
+    kda: 6.8, 
+    winRate: 70, 
+    gamesPlayed: 24, 
+    title: 'LoL', 
+    titleId: '3',
+    biography: {
+      realName: 'Kim Min-cheol',
+      nationality: 'South Korean',
+      birthDate: '2002-08-17',
+      hometown: 'Seoul, South Korea',
+      bio: 'Berserker exploded onto the LCS scene with his aggressive laning and exceptional teamfight positioning. His Korean soloqueue dominance translated perfectly to the professional stage.',
+      playstyle: 'High-damage carry with fearless positioning',
+      signature: 'Zeri, Jinx, Aphelios',
+      careerStart: 2020
+    },
+    careerHistory: [
+      { year: 2024, event: 'LCS Spring', achievement: 'Leading KDA in Role', team: 'Cloud9', title: 'LoL' },
+      { year: 2023, event: 'LCS Summer', achievement: 'First Team All-Pro', team: 'Cloud9', title: 'LoL' },
+      { year: 2022, event: 'LCS Summer', achievement: 'Rookie of the Split', team: 'Cloud9', title: 'LoL' },
+      { year: 2022, event: 'LCS Spring', achievement: 'Championship Winner', team: 'Cloud9', title: 'LoL' },
+      { year: 2021, event: 'LCK Challengers', achievement: 'Promotion Tournament', team: 'T1', title: 'LoL' }
+    ]
+  },
+  { 
+    id: '5', 
+    name: 'Zven', 
+    role: 'Support', 
+    kda: 3.9, 
+    winRate: 61, 
+    gamesPlayed: 24, 
+    title: 'LoL', 
+    titleId: '3',
+    biography: {
+      realName: 'Jesper Svenningsen',
+      nationality: 'Danish',
+      birthDate: '1997-06-11',
+      hometown: 'Copenhagen, Denmark',
+      bio: 'Former ADC legend Zven made the unprecedented role swap to support, bringing veteran shotcalling and deep game knowledge. His European pedigree and multiple championship runs make him an invaluable leader.',
+      playstyle: 'Tactical support with exceptional vision control',
+      signature: 'Thresh, Alistar, Nautilus',
+      careerStart: 2014
+    },
+    careerHistory: [
+      { year: 2024, event: 'Role Swap', achievement: 'Successfully transitioned to Support', team: 'Cloud9', title: 'LoL' },
+      { year: 2022, event: 'LCS Spring', achievement: 'Championship as ADC', team: 'Cloud9', title: 'LoL' },
+      { year: 2018, event: 'Worlds', achievement: 'Quarterfinals', team: 'TSM', title: 'LoL' },
+      { year: 2017, event: 'EU LCS Summer', achievement: 'Championship', team: 'G2 Esports', title: 'LoL' },
+      { year: 2016, event: 'Worlds', achievement: 'Semifinals', team: 'G2 Esports', title: 'LoL' },
+      { year: 2015, event: 'EU LCS', achievement: 'Rookie of the Split', team: 'Origen', title: 'LoL' }
+    ]
+  },
   
   { id: '6', name: 'Vulcan', role: 'Support', kda: 4.5, winRate: 64, gamesPlayed: 22, title: 'LoL', titleId: '3' },
   { id: '7', name: 'Emenes', role: 'Mid', kda: 4.8, winRate: 59, gamesPlayed: 20, title: 'LoL', titleId: '3' },
   { id: '8', name: 'Thanatos', role: 'Top', kda: 3.6, winRate: 56, gamesPlayed: 18, title: 'LoL', titleId: '3' },
   
-  { id: '9', name: 'Xeta', role: 'Controller', kda: 1.24, winRate: 55, gamesPlayed: 32, title: 'Valorant', titleId: '6' },
-  { id: '10', name: 'vanity', role: 'IGL/Controller', kda: 1.18, winRate: 52, gamesPlayed: 32, title: 'Valorant', titleId: '6' },
-  { id: '11', name: 'leaf', role: 'Duelist', kda: 1.42, winRate: 58, gamesPlayed: 32, title: 'Valorant', titleId: '6' },
-  { id: '12', name: 'Xeppaa', role: 'Initiator', kda: 1.31, winRate: 54, gamesPlayed: 32, title: 'Valorant', titleId: '6' },
+  { 
+    id: '9', 
+    name: 'Xeta', 
+    role: 'Controller', 
+    kda: 1.24, 
+    winRate: 55, 
+    gamesPlayed: 32, 
+    title: 'Valorant', 
+    titleId: '6',
+    biography: {
+      realName: 'Son Seon-ho',
+      nationality: 'South Korean',
+      birthDate: '1995-07-03',
+      hometown: 'Seoul, South Korea',
+      bio: 'Former CS:GO pro Xeta brings tactical depth and clutch ability to Cloud9\'s Valorant roster. His experience in tier-1 Counter-Strike translates to elite game sense and mid-round calling.',
+      playstyle: 'Tactical controller with clutch gene',
+      signature: 'Omen, Viper, Brimstone',
+      careerStart: 2016
+    },
+    careerHistory: [
+      { year: 2024, event: 'VCT Americas', achievement: 'Kickoff Participant', team: 'Cloud9', title: 'Valorant' },
+      { year: 2023, event: 'VCT Masters', achievement: 'Top 8 Finish', team: 'DRX', title: 'Valorant' },
+      { year: 2022, event: 'Champions', achievement: 'Semifinals', team: 'DRX', title: 'Valorant' },
+      { year: 2021, event: 'VCT Stage 3', achievement: 'Masters Berlin Qualified', team: 'Cloud9 Blue', title: 'Valorant' },
+      { year: 2019, event: 'CS:GO Major', achievement: 'Legends Stage', team: 'MVP PK' }
+    ]
+  },
+  { 
+    id: '10', 
+    name: 'vanity', 
+    role: 'IGL/Controller', 
+    kda: 1.18, 
+    winRate: 52, 
+    gamesPlayed: 32, 
+    title: 'Valorant', 
+    titleId: '6',
+    biography: {
+      realName: 'Anthony Malaspina',
+      nationality: 'American',
+      birthDate: '1999-03-15',
+      hometown: 'New York, USA',
+      bio: 'Vanity is known as one of NA Valorant\'s premier IGLs with a cerebral approach to the game. His strategic innovations and mid-round adaptations have made Cloud9 a tactical powerhouse.',
+      playstyle: 'Big-brain IGL with tactical setups',
+      signature: 'Omen, Astra, Harbor',
+      careerStart: 2020
+    },
+    careerHistory: [
+      { year: 2024, event: 'VCT Americas Kickoff', achievement: 'Group Stage', team: 'Cloud9', title: 'Valorant' },
+      { year: 2023, event: 'VCT Lock//In', achievement: 'Playoff Round', team: 'Cloud9', title: 'Valorant' },
+      { year: 2022, event: 'LCQ', achievement: 'Championship Winner', team: 'Cloud9', title: 'Valorant' },
+      { year: 2021, event: 'NA VCT Stage 3', achievement: 'Challengers Finals Winner', team: 'Version1', title: 'Valorant' }
+    ]
+  },
+  { 
+    id: '11', 
+    name: 'leaf', 
+    role: 'Duelist', 
+    kda: 1.42, 
+    winRate: 58, 
+    gamesPlayed: 32, 
+    title: 'Valorant', 
+    titleId: '6',
+    biography: {
+      realName: 'Nathan Orf',
+      nationality: 'American',
+      birthDate: '2001-11-24',
+      hometown: 'Seattle, Washington',
+      bio: 'Leaf emerged as one of NA\'s most consistent duelists with his calm demeanor and exceptional aim. His clutch performances and multi-frag rounds have become a Cloud9 staple.',
+      playstyle: 'Aggressive entry with consistent fragging',
+      signature: 'Jett, Raze, Neon',
+      careerStart: 2020
+    },
+    careerHistory: [
+      { year: 2024, event: 'VCT Americas', achievement: 'Top Fragger Multiple Matches', team: 'Cloud9', title: 'Valorant' },
+      { year: 2023, event: 'VCT Americas League', achievement: 'All-Star Selection', team: 'Cloud9', title: 'Valorant' },
+      { year: 2022, event: 'Champions', achievement: 'Group Stage MVP Performance', team: 'Cloud9', title: 'Valorant' },
+      { year: 2021, event: 'Challengers', achievement: 'Multiple Ace Rounds', team: 'Chaos EC', title: 'Valorant' }
+    ]
+  },
+  { 
+    id: '12', 
+    name: 'Xeppaa', 
+    role: 'Initiator', 
+    kda: 1.31, 
+    winRate: 54, 
+    gamesPlayed: 32, 
+    title: 'Valorant', 
+    titleId: '6',
+    biography: {
+      realName: 'Erick Bach',
+      nationality: 'American',
+      birthDate: '2001-04-07',
+      hometown: 'Virginia, USA',
+      bio: 'Xeppaa\'s versatility across initiator agents makes him one of Cloud9\'s most valuable players. His ability to create space for teammates and gather crucial information is elite.',
+      playstyle: 'Versatile initiator with smart utility usage',
+      signature: 'Fade, Sova, Skye',
+      careerStart: 2020
+    },
+    careerHistory: [
+      { year: 2024, event: 'VCT Americas', achievement: 'Kickoff Tournament', team: 'Cloud9', title: 'Valorant' },
+      { year: 2023, event: 'Americas League', achievement: 'Playoffs Qualified', team: 'Cloud9', title: 'Valorant' },
+      { year: 2022, event: 'LCQ', achievement: 'Champions Qualification', team: 'Cloud9', title: 'Valorant' },
+      { year: 2021, event: 'Challengers Playoffs', achievement: 'Top 4 Finish', team: 'Cloud9 Blue', title: 'Valorant' }
+    ]
+  },
   { id: '13', name: 'mitch', role: 'Sentinel', kda: 1.15, winRate: 53, gamesPlayed: 32, title: 'Valorant', titleId: '6' },
   
-  { id: '14', name: 'oxy', role: 'Duelist', kda: 1.56, winRate: 61, gamesPlayed: 28, title: 'Valorant', titleId: '6' },
+  { 
+    id: '14', 
+    name: 'oxy', 
+    role: 'Duelist', 
+    kda: 1.56, 
+    winRate: 61, 
+    gamesPlayed: 28, 
+    title: 'Valorant', 
+    titleId: '6',
+    biography: {
+      realName: 'Francis Hoang',
+      nationality: 'American/Vietnamese',
+      birthDate: '2004-09-12',
+      hometown: 'California, USA',
+      bio: 'Young prodigy oxy has taken VCT Americas by storm with his aggressive duelist play. Despite his age, his mechanics and game sense rival the best in the world.',
+      playstyle: 'Hyper-aggressive with insane mechanics',
+      signature: 'Jett, Reyna, Chamber',
+      careerStart: 2022
+    },
+    careerHistory: [
+      { year: 2024, event: 'VCT Americas', achievement: 'Rising Star Award Nomination', team: 'Cloud9', title: 'Valorant' },
+      { year: 2023, event: 'Ascension Tournament', achievement: 'MVP Performance', team: 'The Guard', title: 'Valorant' },
+      { year: 2023, event: 'VCT Challengers', achievement: 'Highest ACS in League', team: 'The Guard', title: 'Valorant' }
+    ]
+  },
   { id: '15', name: 'moose', role: 'Controller', kda: 1.28, winRate: 57, gamesPlayed: 26, title: 'Valorant', titleId: '6' },
   { id: '16', name: 'v1c', role: 'Initiator', kda: 1.35, winRate: 59, gamesPlayed: 28, title: 'Valorant', titleId: '6' },
   
-  { id: '17', name: 'JT', role: 'IGL', kda: 1.08, winRate: 48, gamesPlayed: 45, title: 'CS2', titleId: '2' },
-  { id: '18', name: 'Ax1Le', role: 'Rifler', kda: 1.22, winRate: 52, gamesPlayed: 45, title: 'CS2', titleId: '2' },
+  { 
+    id: '17', 
+    name: 'JT', 
+    role: 'IGL', 
+    kda: 1.08, 
+    winRate: 48, 
+    gamesPlayed: 45, 
+    title: 'CS2', 
+    titleId: '2',
+    biography: {
+      realName: 'Justinas Lekavicius',
+      nationality: 'Lithuanian',
+      birthDate: '2000-05-20',
+      hometown: 'Vilnius, Lithuania',
+      bio: 'JT brings European tactical sophistication to Cloud9\'s CS2 roster. His leadership and strategic calling have revitalized the team\'s competitive approach.',
+      playstyle: 'Tactical IGL with solid fundamentals',
+      signature: 'Anchor CT positions, Strategic calling',
+      careerStart: 2018
+    },
+    careerHistory: [
+      { year: 2024, event: 'ESL Pro League', achievement: 'Playoff Qualification', team: 'Cloud9', title: 'CS2' },
+      { year: 2023, event: 'IEM', achievement: 'Group Stage', team: 'ENCE', title: 'CS2' },
+      { year: 2022, event: 'Major', achievement: 'Legends Stage', team: 'ENCE', title: 'CS2' }
+    ]
+  },
+  { 
+    id: '18', 
+    name: 'Ax1Le', 
+    role: 'Rifler', 
+    kda: 1.22, 
+    winRate: 52, 
+    gamesPlayed: 45, 
+    title: 'CS2', 
+    titleId: '2',
+    biography: {
+      realName: 'Sergey Rykhtorov',
+      nationality: 'Russian',
+      birthDate: '2002-11-03',
+      hometown: 'Moscow, Russia',
+      bio: 'Ax1Le is a young rifler with explosive potential. His aggressive T-side entries and solid CT holds make him a dual threat.',
+      playstyle: 'Aggressive rifler with high fragging potential',
+      signature: 'AK-47 spray control, Entry fragging',
+      careerStart: 2020
+    },
+    careerHistory: [
+      { year: 2024, event: 'CS2 Launch', achievement: 'Adapted to new meta', team: 'Cloud9', title: 'CS2' },
+      { year: 2022, event: 'PGL Major', achievement: 'Champions Winner', team: 'Gambit', title: 'CS2' },
+      { year: 2021, event: 'IEM Katowice', achievement: 'Grand Finals', team: 'Gambit', title: 'CS2' }
+    ]
+  },
   { id: '19', name: 'Hobbit', role: 'Support', kda: 1.15, winRate: 50, gamesPlayed: 45, title: 'CS2', titleId: '2' },
   { id: '20', name: 'nafany', role: 'AWPer', kda: 1.31, winRate: 54, gamesPlayed: 45, title: 'CS2', titleId: '2' },
   { id: '21', name: 'sh1ro', role: 'Rifler', kda: 1.28, winRate: 53, gamesPlayed: 45, title: 'CS2', titleId: '2' },

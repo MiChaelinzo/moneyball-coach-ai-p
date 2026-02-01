@@ -127,6 +127,40 @@ export function exportPlayerAnalyticsToCSV(data: PlayerAnalyticsExport): string 
     [[data.player.id, data.player.name, data.player.role, data.player.kda.toFixed(2), data.player.winRate, data.player.gamesPlayed]]
   ))
   
+  if (data.player.biography) {
+    const bio = data.player.biography
+    sections.push('\nPLAYER BIOGRAPHY')
+    const bioRows: (string | number | null)[][] = []
+    if (bio.realName) bioRows.push(['Real Name', bio.realName])
+    if (bio.nationality) bioRows.push(['Nationality', bio.nationality])
+    if (bio.birthDate) {
+      const birth = new Date(bio.birthDate)
+      const today = new Date()
+      let age = today.getFullYear() - birth.getFullYear()
+      const monthDiff = today.getMonth() - birth.getMonth()
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+        age--
+      }
+      bioRows.push(['Age', `${age} years old`])
+    }
+    if (bio.hometown) bioRows.push(['Hometown', bio.hometown])
+    if (bio.careerStart) bioRows.push(['Career Start', `${bio.careerStart} (${new Date().getFullYear() - bio.careerStart} years pro)`])
+    if (bio.playstyle) bioRows.push(['Playstyle', bio.playstyle])
+    if (bio.signature) bioRows.push(['Signature', bio.signature])
+    bioRows.push(['Bio', bio.bio])
+    sections.push(arrayToCSV(['Field', 'Value'], bioRows))
+  }
+  
+  if (data.player.careerHistory && data.player.careerHistory.length > 0) {
+    sections.push('\nCAREER HISTORY')
+    sections.push(arrayToCSV(
+      ['Year', 'Event', 'Achievement', 'Team', 'Game'],
+      data.player.careerHistory
+        .sort((a, b) => b.year - a.year)
+        .map(m => [m.year, m.event, m.achievement, m.team || 'N/A', m.title || 'N/A'])
+    ))
+  }
+  
   sections.push('\nTOP MISTAKES')
   sections.push(arrayToCSV(
     ['Category', 'Count', 'Trend'],
@@ -475,7 +509,58 @@ export function generatePDFContent(data: TeamAnalyticsExport | PlayerAnalyticsEx
       <div class="metric-value" style="font-size: 20px;">${playerData.player.role}</div>
     </div>
   </div>
+`
 
+    if (playerData.player.biography) {
+      const bio = playerData.player.biography
+      html += `
+  <h2>Player Biography</h2>
+  <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
+      ${bio.realName ? `<div><strong>Real Name:</strong> ${bio.realName}</div>` : ''}
+      ${bio.nationality ? `<div><strong>Nationality:</strong> ${bio.nationality}</div>` : ''}
+      ${bio.hometown ? `<div><strong>Hometown:</strong> ${bio.hometown}</div>` : ''}
+      ${bio.careerStart ? `<div><strong>Pro Since:</strong> ${bio.careerStart} (${new Date().getFullYear() - bio.careerStart} years)</div>` : ''}
+      ${bio.playstyle ? `<div><strong>Playstyle:</strong> ${bio.playstyle}</div>` : ''}
+      ${bio.signature ? `<div><strong>Signature:</strong> ${bio.signature}</div>` : ''}
+    </div>
+    <div style="border-top: 2px solid #dee2e6; padding-top: 15px;">
+      <strong>About:</strong>
+      <p style="margin-top: 10px; line-height: 1.8;">${bio.bio}</p>
+    </div>
+  </div>
+`
+    }
+
+    if (playerData.player.careerHistory && playerData.player.careerHistory.length > 0) {
+      html += `
+  <h2>Career History</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Year</th>
+        <th>Event</th>
+        <th>Achievement</th>
+        <th>Team</th>
+        <th>Game</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${playerData.player.careerHistory.sort((a, b) => b.year - a.year).map(milestone => `
+        <tr>
+          <td><strong>${milestone.year}</strong></td>
+          <td>${milestone.event}</td>
+          <td>${milestone.achievement}</td>
+          <td>${milestone.team || 'N/A'}</td>
+          <td>${milestone.title || 'N/A'}</td>
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>
+`
+    }
+
+    html += `
   <h2>Top Mistake Categories</h2>
   <table>
     <thead>
