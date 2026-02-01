@@ -18,6 +18,11 @@ export interface Mistake {
   matchId: string
   gameTime: number
   outcome: string
+  mapPosition?: {
+    x: number
+    y: number
+    zone: 'top' | 'jungle-top' | 'mid' | 'jungle-bot' | 'bot' | 'river' | 'baron' | 'dragon' | 'base'
+  }
 }
 
 export interface Match {

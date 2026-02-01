@@ -75,6 +75,13 @@ This is a sophisticated analytics platform that requires multiple interconnected
 - **Progression**: Browse match history → Filter by result (all/wins/losses) → Select match → View match summary with stats → Click "Watch Replay" → Replay loads with full timeline → Use playback controls (play/pause/skip/speed) → Scrub timeline to specific moments → Jump to key moments via markers → Review player stats at any timestamp → Analyze events and mistakes in context → Return to match list or select another match
 - **Success criteria**: Smooth timeline scrubbing with <100ms response, synchronized updates across all stats displays, clear visual markers for key moments (objectives, mistakes, kills), playback speed controls (0.5x - 4x), ability to jump to any point in the timeline instantly, and event details displayed contextually with game state
 
+### Mistake Heatmap Visualization (NEW)
+- **Functionality**: Interactive spatial heatmap showing where mistakes occur on the map at different game times. Features time-range filtering, category/impact filters, intensity-based visualization with radial gradient overlays, and zone-based statistics. Displays mistake clustering with hover tooltips showing detailed information for each incident.
+- **Purpose**: Enable coaches to identify geographical patterns in team mistakes, discover high-risk zones, and understand how positioning errors correlate with game phase and map objectives
+- **Trigger**: User selects "Heatmap" tab from main navigation
+- **Progression**: Load heatmap view → Display all mistakes as spatial overlay on map grid → Use time slider to filter by game phase (early/mid/late) → Apply category filters (positioning, mechanics, etc.) → Apply impact filters (critical/high/medium/low) → Hover over heat zones to see mistake details → View zone statistics showing hotspots → Identify patterns in Baron/Dragon pit areas → Generate insights about territorial risk zones
+- **Success criteria**: Clear visualization of mistake density with color-coded intensity, smooth filtering with <200ms response, accurate spatial positioning on map grid, hover tooltips display within 100ms, and zone statistics accurately aggregate mistakes by map region
+
 ## Edge Case Handling
 - **Incomplete match data**: Display partial analysis with confidence indicators for each insight based on data completeness
 - **First-time player analysis**: Show limited historical context but focus on single-match deep dive with provisional insights

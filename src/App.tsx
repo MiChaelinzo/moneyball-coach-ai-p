@@ -13,7 +13,8 @@ import { DataSourceIndicator } from '@/components/DataSourceIndicator'
 import { MultiMatchAnalysisView } from '@/components/MultiMatchAnalysisView'
 import { GridApiTestPanel } from '@/components/GridApiTestPanel'
 import { MatchReplayManager } from '@/components/MatchReplayManager'
-import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise } from '@phosphor-icons/react'
+import { MistakeHeatmap } from '@/components/MistakeHeatmap'
+import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise, MapPin } from '@phosphor-icons/react'
 import { PLAYERS, INSIGHTS, STRATEGIC_IMPACTS, getPlayerAnalytics, MATCHES, MISTAKES, generateAIInsight } from '@/lib/mockData'
 import { useLiveMatch } from '@/hooks/use-live-match'
 import { useGridData } from '@/hooks/use-grid-data'
@@ -223,7 +224,7 @@ function App() {
                         </div>
 
                         <Tabs defaultValue="dashboard" className="space-y-8">
-                            <TabsList className="grid w-full max-w-4xl grid-cols-7 mx-auto">
+                            <TabsList className="grid w-full max-w-4xl grid-cols-8 mx-auto">
                                 <TabsTrigger value="live" className="flex items-center gap-2">
                                     <Crosshair size={18} weight="duotone" />
                                     <span className="hidden sm:inline">Live</span>
@@ -231,6 +232,10 @@ function App() {
                                 <TabsTrigger value="replay" className="flex items-center gap-2">
                                     <ClockCounterClockwise size={18} weight="duotone" />
                                     <span className="hidden sm:inline">Replay</span>
+                                </TabsTrigger>
+                                <TabsTrigger value="heatmap" className="flex items-center gap-2">
+                                    <MapPin size={18} weight="duotone" />
+                                    <span className="hidden sm:inline">Heatmap</span>
                                 </TabsTrigger>
                                 <TabsTrigger value="dashboard" className="flex items-center gap-2">
                                     <ChartBar size={18} weight="duotone" />
@@ -277,6 +282,10 @@ function App() {
                                     matches={matches}
                                     mistakes={MISTAKES}
                                 />
+                            </TabsContent>
+
+                            <TabsContent value="heatmap" className="space-y-6">
+                                <MistakeHeatmap mistakes={MISTAKES} />
                             </TabsContent>
 
                             <TabsContent value="trends" className="space-y-6">

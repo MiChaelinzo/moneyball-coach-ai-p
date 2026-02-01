@@ -86,7 +86,8 @@ export const MISTAKES: Mistake[] = [
     impact: 'critical',
     matchId: 'm2',
     gameTime: 420,
-    outcome: 'Lost baron control, enemy secured baron at 24:00'
+    outcome: 'Lost baron control, enemy secured baron at 24:00',
+    mapPosition: { x: 35, y: 25, zone: 'jungle-top' }
   },
   {
     id: 'mk2',
@@ -98,7 +99,8 @@ export const MISTAKES: Mistake[] = [
     impact: 'high',
     matchId: 'm2',
     gameTime: 1320,
-    outcome: 'Team wiped, lost 3 towers'
+    outcome: 'Team wiped, lost 3 towers',
+    mapPosition: { x: 70, y: 75, zone: 'bot' }
   },
   {
     id: 'mk3',
@@ -110,7 +112,8 @@ export const MISTAKES: Mistake[] = [
     impact: 'medium',
     matchId: 'm1',
     gameTime: 680,
-    outcome: 'Death but team secured dragon after enemy recall'
+    outcome: 'Death but team secured dragon after enemy recall',
+    mapPosition: { x: 65, y: 35, zone: 'jungle-top' }
   },
   {
     id: 'mk4',
@@ -122,7 +125,8 @@ export const MISTAKES: Mistake[] = [
     impact: 'medium',
     matchId: 'm3',
     gameTime: 1560,
-    outcome: 'Extended fight duration, support died'
+    outcome: 'Extended fight duration, support died',
+    mapPosition: { x: 50, y: 50, zone: 'river' }
   },
   {
     id: 'mk5',
@@ -134,7 +138,8 @@ export const MISTAKES: Mistake[] = [
     impact: 'critical',
     matchId: 'm5',
     gameTime: 1880,
-    outcome: 'Split team, 3 deaths, lost baron and elder dragon'
+    outcome: 'Split team, 3 deaths, lost baron and elder dragon',
+    mapPosition: { x: 30, y: 20, zone: 'baron' }
   },
   {
     id: 'mk6',
@@ -146,7 +151,8 @@ export const MISTAKES: Mistake[] = [
     impact: 'high',
     matchId: 'm5',
     gameTime: 1680,
-    outcome: 'Enemy secured soul dragon'
+    outcome: 'Enemy secured soul dragon',
+    mapPosition: { x: 70, y: 80, zone: 'dragon' }
   },
   {
     id: 'mk7',
@@ -158,7 +164,8 @@ export const MISTAKES: Mistake[] = [
     impact: 'medium',
     matchId: 'm4',
     gameTime: 890,
-    outcome: '4v5 fight, lost but survived with inhibitor intact'
+    outcome: '4v5 fight, lost but survived with inhibitor intact',
+    mapPosition: { x: 45, y: 65, zone: 'river' }
   },
   {
     id: 'mk8',
@@ -170,7 +177,8 @@ export const MISTAKES: Mistake[] = [
     impact: 'low',
     matchId: 'm1',
     gameTime: 1020,
-    outcome: 'Team disengaged safely, no casualties'
+    outcome: 'Team disengaged safely, no casualties',
+    mapPosition: { x: 55, y: 40, zone: 'mid' }
   },
   {
     id: 'mk9',
@@ -182,7 +190,8 @@ export const MISTAKES: Mistake[] = [
     impact: 'critical',
     matchId: 'm8',
     gameTime: 180,
-    outcome: 'First blood given, lost jungle camps, enemy jungler snowballed'
+    outcome: 'First blood given, lost jungle camps, enemy jungler snowballed',
+    mapPosition: { x: 60, y: 40, zone: 'jungle-top' }
   },
   {
     id: 'mk10',
@@ -194,7 +203,8 @@ export const MISTAKES: Mistake[] = [
     impact: 'high',
     matchId: 'm8',
     gameTime: 480,
-    outcome: 'Bot lane ganked, ADC died, lost tower plates'
+    outcome: 'Bot lane ganked, ADC died, lost tower plates',
+    mapPosition: { x: 50, y: 50, zone: 'mid' }
   },
   {
     id: 'mk11',
@@ -206,7 +216,8 @@ export const MISTAKES: Mistake[] = [
     impact: 'medium',
     matchId: 'm6',
     gameTime: 1245,
-    outcome: 'Died but team won 4v4 fight afterward'
+    outcome: 'Died but team won 4v4 fight afterward',
+    mapPosition: { x: 25, y: 30, zone: 'top' }
   },
   {
     id: 'mk12',
@@ -218,7 +229,8 @@ export const MISTAKES: Mistake[] = [
     impact: 'low',
     matchId: 'm7',
     gameTime: 645,
-    outcome: 'Used flash defensively, no death but pressure lost'
+    outcome: 'Used flash defensively, no death but pressure lost',
+    mapPosition: { x: 75, y: 70, zone: 'bot' }
   },
   {
     id: 'mk13',
@@ -230,7 +242,8 @@ export const MISTAKES: Mistake[] = [
     impact: 'medium',
     matchId: 'm6',
     gameTime: 1680,
-    outcome: 'Team delayed dragon take, almost contested'
+    outcome: 'Team delayed dragon take, almost contested',
+    mapPosition: { x: 15, y: 85, zone: 'base' }
   },
   {
     id: 'mk14',
@@ -242,7 +255,8 @@ export const MISTAKES: Mistake[] = [
     impact: 'critical',
     matchId: 'm8',
     gameTime: 1920,
-    outcome: 'Caught and killed, enemy team secured baron, lost game'
+    outcome: 'Caught and killed, enemy team secured baron, lost game',
+    mapPosition: { x: 28, y: 22, zone: 'baron' }
   },
 ]
 
