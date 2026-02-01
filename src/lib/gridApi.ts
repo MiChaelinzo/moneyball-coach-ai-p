@@ -1,5 +1,16 @@
 import axios, { AxiosResponse, AxiosError } from 'axios'
-import type { Player, Match, LiveMatch, LiveMatchPlayer, Tournament, Team, GameTitle } from './types'
+import type { Player, Match, LiveMatch, LiveMatchPlayer, Tournament, Team, GameTitle, CareerMilestone } from './types'
+
+declare global {
+  interface Window {
+    spark: {
+      llmPrompt: (strings: TemplateStringsArray, ...values: any[]) => string
+      llm: (prompt: string, modelName?: string, jsonMode?: boolean) => Promise<string>
+    }
+  }
+}
+
+const spark = typeof window !== 'undefined' ? window.spark : null
 
 const GRID_API_BASE = 'https://api-op.grid.gg/central-data/graphql'
 const GRID_STATS_API_BASE = 'https://api-op.grid.gg/statistics-feed/graphql'
@@ -82,6 +93,11 @@ export async function fetchCloud9Players(): Promise<Player[]> {
               id
               name
             }
+            homeCountry {
+              code
+              name
+            }
+            activeSince
           }
         }
         pageInfo {
@@ -127,6 +143,11 @@ export async function fetchCloud9Players(): Promise<Player[]> {
         gamesPlayed: 0,
         title: titleIdToName(titleId),
         titleId: titleId,
+        biography: player.homeCountry ? {
+          nationality: player.homeCountry.name,
+          bio: '',
+          careerStart: player.activeSince ? parseInt(player.activeSince) : undefined,
+        } : undefined,
       }
     })
 
@@ -1340,4 +1361,168 @@ export async function fetchTeamStatistics(
     console.error(`Failed to fetch team statistics for ${teamId}:`, error)
     return null
   }
+}
+
+export async function fetchPlayerDetails(playerId: string): Promise<any> {
+  const query = `
+    query GetPlayer($id: ID!) {
+      player(id: $id) {
+        id
+        nickname
+        title {
+          id
+          name
+        }
+        homeCountry {
+          code
+          name
+        }
+        activeSince
+      }
+    }
+  `
+
+  try {
+    console.log(`Fetching detailed info for player ${playerId}...`)
+    const data = await gridFetch(query, { id: playerId })
+    
+    if (!data.player) {
+      console.warn(`No player found for ID ${playerId}`)
+      return null
+    }
+
+    return data.player
+  } catch (error) {
+    console.error(`Failed to fetch player details for ${playerId}:`, error)
+    return null
+  }
+}
+
+export async function enrichPlayerWithBiography(player: Player): Promise<Player> {
+  try {
+    console.log(`Enriching biography for ${player.name}...`)
+    
+    if (!spark) {
+      console.warn('Spark SDK not available, skipping biography enrichment')
+      return player
+    }
+    
+    const playerDetails = await fetchPlayerDetails(player.id)
+    const stats = await fetchPlayerStats(player.id)
+    
+    const titleName = player.title || 'esports'
+    const nationality = playerDetails?.homeCountry?.name || 'Unknown'
+    const careerStart = playerDetails?.activeSince || 2020
+    
+    const prompt = spark.llmPrompt`You are a professional esports biographer. Generate a concise, engaging 2-3 sentence biography for an esports player named ${player.name}. 
+
+Context:
+- Player name: ${player.name}
+- Game: ${titleName}
+- Role/Position: ${player.role}
+- Nationality: ${nationality}
+- Career start: ${careerStart}
+- Win rate: ${stats.winRate}%
+- Games played: ${stats.gamesPlayed}
+- KDA: ${stats.kda}
+
+Write a professional, third-person biography that highlights their competitive journey, playing style, and accomplishments. Focus on their strengths and reputation in the scene. Keep it concise but memorable.`
+
+    const bio = await spark.llm(prompt, 'gpt-4o-mini')
+    
+    const playstylePrompt = spark.llmPrompt`Based on this ${titleName} player named ${player.name} who plays ${player.role} with a ${stats.kda} KDA and ${stats.winRate}% win rate, describe their playstyle in one concise sentence (10-15 words max). Focus on how they approach the game tactically.`
+    
+    const playstyle = await spark.llm(playstylePrompt, 'gpt-4o-mini')
+    
+    const signaturePrompt = spark.llmPrompt`What would be a signature move or characteristic for a ${titleName} ${player.role} player named ${player.name}? Answer in 5-8 words describing a memorable aspect of their gameplay.`
+    
+    const signature = await spark.llm(signaturePrompt, 'gpt-4o-mini')
+    
+    const careerMilestones = await generateCareerMilestones(player, careerStart)
+    
+    const enrichedPlayer: Player = {
+      ...player,
+      ...stats,
+      biography: {
+        nationality,
+        careerStart: parseInt(careerStart.toString()),
+        bio: bio.trim(),
+        playstyle: playstyle.trim(),
+        signature: signature.trim(),
+      },
+      careerHistory: careerMilestones,
+    }
+    
+    console.log(`Biography enrichment complete for ${player.name}`)
+    return enrichedPlayer
+  } catch (error) {
+    console.error(`Failed to enrich biography for ${player.name}:`, error)
+    return player
+  }
+}
+
+async function generateCareerMilestones(player: Player, careerStart: number): Promise<CareerMilestone[]> {
+  try {
+    if (!spark) {
+      console.warn('Spark SDK not available, skipping career milestones')
+      return []
+    }
+    
+    const prompt = spark.llmPrompt`Generate a realistic career timeline for esports player ${player.name} who plays ${player.title} as a ${player.role}. They started their professional career around ${careerStart}.
+
+Create 3-5 career milestones in chronological order. Each milestone should be realistic and appropriate for a professional ${player.title} player. Return ONLY a JSON object with this exact structure:
+
+{
+  "milestones": [
+    {
+      "year": 2020,
+      "event": "Event name",
+      "achievement": "What they accomplished",
+      "team": "Team name (optional)",
+      "title": "LoL or Valorant or CS2"
+    }
+  ]
+}
+
+Make the milestones realistic and progressive (e.g., joining academy team → first tournament → major achievement).`
+
+    const response = await spark.llm(prompt, 'gpt-4o-mini', true)
+    const data = JSON.parse(response)
+    
+    if (data.milestones && Array.isArray(data.milestones)) {
+      return data.milestones.map((m: any) => ({
+        year: m.year,
+        event: m.event,
+        achievement: m.achievement,
+        team: m.team,
+        title: m.title as GameTitle,
+      }))
+    }
+    
+    return []
+  } catch (error) {
+    console.error(`Failed to generate career milestones for ${player.name}:`, error)
+    return []
+  }
+}
+
+export async function enrichAllPlayersWithBiographies(players: Player[]): Promise<Player[]> {
+  console.log(`Enriching biographies for ${players.length} players...`)
+  
+  const enrichedPlayers: Player[] = []
+  
+  for (const player of players) {
+    try {
+      const enriched = await enrichPlayerWithBiography(player)
+      enrichedPlayers.push(enriched)
+      
+      await new Promise(resolve => setTimeout(resolve, 500))
+    } catch (error) {
+      console.error(`Failed to enrich ${player.name}, using basic data:`, error)
+      enrichedPlayers.push(player)
+    }
+  }
+  
+  console.log('All player biographies enriched')
+  return enrichedPlayers
 }

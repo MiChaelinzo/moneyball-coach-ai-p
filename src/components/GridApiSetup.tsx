@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Key, Database, Check, X, ArrowsClockwise } from '@phosphor-icons/react'
+import { Key, Database, Check, X, ArrowsClockwise, Sparkle } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 
 interface GridApiSetupProps {
@@ -13,7 +13,7 @@ interface GridApiSetupProps {
   isLoading: boolean
   error: string | null
   onInitialize: (apiKey: string) => void
-  onFetchData: (forceRefresh?: boolean) => void
+  onFetchData: (forceRefresh?: boolean, enrichBiographies?: boolean) => void
   onClearKey: () => void
   hasCachedData: boolean
 }
@@ -68,7 +68,7 @@ export function GridApiSetup({
             </div>
             <div className="flex items-center gap-2">
               <Button
-                onClick={() => onFetchData(true)}
+                onClick={() => onFetchData(true, false)}
                 disabled={isLoading}
                 variant="outline"
                 size="sm"
@@ -76,6 +76,16 @@ export function GridApiSetup({
               >
                 <ArrowsClockwise size={16} weight="bold" className={isLoading ? 'animate-spin' : ''} />
                 {isLoading ? 'Refreshing...' : 'Refresh Data'}
+              </Button>
+              <Button
+                onClick={() => onFetchData(true, true)}
+                disabled={isLoading}
+                variant="default"
+                size="sm"
+                className="gap-2"
+              >
+                <Sparkle size={16} weight="duotone" />
+                {isLoading ? 'Enriching...' : 'Enrich Bios'}
               </Button>
               <Button
                 onClick={() => setShowSetup(true)}

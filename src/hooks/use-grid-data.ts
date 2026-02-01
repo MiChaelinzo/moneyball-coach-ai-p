@@ -9,6 +9,7 @@ import {
   fetchCloud9Matches,
   fetchCloud9Tournaments,
   enrichPlayersWithStats,
+  enrichAllPlayersWithBiographies,
   fetchCloud9Organization,
   fetchTeams,
   type Organization,
@@ -68,7 +69,7 @@ export function useGridData() {
     }
   }, [setApiKey])
 
-  const fetchData = useCallback(async (forceRefresh: boolean = false) => {
+  const fetchData = useCallback(async (forceRefresh: boolean = false, enrichBiographies: boolean = false) => {
     if (!isGridApiInitialized()) {
       setState(prev => ({ ...prev, error: 'GRID API not initialized' }))
       return
@@ -95,6 +96,7 @@ export function useGridData() {
     setState(prev => ({ ...prev, isLoading: true, error: null }))
     console.log('=== Starting GRID API Data Fetch ===')
     console.log('Force refresh:', forceRefresh)
+    console.log('Enrich biographies:', enrichBiographies)
     toast.info('Fetching Cloud9 data from GRID API...')
 
     try {
@@ -108,9 +110,16 @@ export function useGridData() {
       ])
 
       console.log('Step 2: Enriching players with statistics...')
-      const enrichedPlayers = await enrichPlayersWithStats(players)
+      let enrichedPlayers = await enrichPlayersWithStats(players)
 
-      console.log('Step 3: Caching data...')
+      if (enrichBiographies && enrichedPlayers.length > 0) {
+        console.log('Step 3: Enriching player biographies with AI...')
+        toast.info('Generating player biographies...')
+        enrichedPlayers = await enrichAllPlayersWithBiographies(enrichedPlayers)
+        toast.success('Player biographies generated!')
+      }
+
+      console.log('Step 4: Caching data...')
       setCachedOrganization(organization)
       setCachedPlayers(enrichedPlayers)
       setCachedMatches(matches)
@@ -118,7 +127,7 @@ export function useGridData() {
       setCachedTeams(teams)
       setLastFetchTime(now)
 
-      console.log('Step 4: Updating state...')
+      console.log('Step 5: Updating state...')
       setState({
         players: enrichedPlayers,
         matches,
