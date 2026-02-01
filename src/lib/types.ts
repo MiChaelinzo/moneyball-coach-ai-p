@@ -1,3 +1,5 @@
+export type GameTitle = 'LoL' | 'Valorant' | 'CS2' | 'All'
+
 export interface Player {
   id: string
   name: string
@@ -5,6 +7,8 @@ export interface Player {
   kda: number
   winRate: number
   gamesPlayed: number
+  title?: GameTitle
+  titleId?: string
 }
 
 export interface Mistake {
@@ -137,6 +141,8 @@ export interface Team {
   colorPrimary: string
   colorSecondary: string
   logoUrl?: string
+  title?: GameTitle
+  titleId?: string
   externalLinks?: Array<{
     dataProvider: {
       name: string

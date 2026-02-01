@@ -1,5 +1,5 @@
 import axios, { AxiosResponse, AxiosError } from 'axios'
-import type { Player, Match, LiveMatch, LiveMatchPlayer, Tournament, Team } from './types'
+import type { Player, Match, LiveMatch, LiveMatchPlayer, Tournament, Team, GameTitle } from './types'
 
 const GRID_API_BASE = 'https://api-op.grid.gg/central-data/graphql'
 const GRID_STATS_API_BASE = 'https://api-op.grid.gg/statistics-feed/graphql'
@@ -79,6 +79,7 @@ export async function fetchCloud9Players(): Promise<Player[]> {
             id
             nickname
             title {
+              id
               name
             }
           }
@@ -104,9 +105,19 @@ export async function fetchCloud9Players(): Promise<Player[]> {
     }
 
     const roles = ['Top', 'Jungle', 'Mid', 'ADC', 'Support']
+    
+    const titleIdToName = (titleId: string): GameTitle => {
+      switch(titleId) {
+        case '3': return 'LoL'
+        case '6': return 'Valorant'
+        case '25': return 'CS2'
+        default: return 'LoL'
+      }
+    }
 
     const allPlayers = playerEdges.map((edge: any, index: number) => {
       const player = edge.node
+      const titleId = player.title?.id?.toString() || '3'
       return {
         id: player.id.toString(),
         name: player.nickname || 'Unknown',
@@ -114,10 +125,12 @@ export async function fetchCloud9Players(): Promise<Player[]> {
         kda: 0,
         winRate: 0,
         gamesPlayed: 0,
+        title: titleIdToName(titleId),
+        titleId: titleId,
       }
     })
 
-    console.log('Processed Cloud9 players:', allPlayers.map(p => p.name).join(', '))
+    console.log('Processed Cloud9 players:', allPlayers.map(p => `${p.name} (${p.title})`).join(', '))
     return allPlayers
   } catch (error) {
     console.error('Failed to fetch Cloud9 players:', error)
@@ -918,6 +931,14 @@ export async function fetchTeams(limit: number = 50): Promise<Team[]> {
     let after: string | null = null
     let fetchedCount = 0
     
+    const titleIdToName = (titleName: string): GameTitle => {
+      const lowerTitle = titleName.toLowerCase()
+      if (lowerTitle.includes('league') || lowerTitle.includes('lol')) return 'LoL'
+      if (lowerTitle.includes('valorant') || lowerTitle.includes('val')) return 'Valorant'
+      if (lowerTitle.includes('counter') || lowerTitle.includes('cs')) return 'CS2'
+      return 'LoL'
+    }
+    
     while (hasNextPage && fetchedCount < limit) {
       const batchSize = Math.min(50, limit - fetchedCount)
       const data = await gridFetch(query, { first: batchSize, after })
@@ -925,14 +946,31 @@ export async function fetchTeams(limit: number = 50): Promise<Team[]> {
       
       if (teams.length === 0) break
       
-      const mappedTeams = teams.map((edge: any) => ({
-        id: edge.node.id,
-        name: edge.node.name,
-        colorPrimary: edge.node.colorPrimary || '#000000',
-        colorSecondary: edge.node.colorSecondary || '#ffffff',
-        logoUrl: edge.node.logoUrl,
-        externalLinks: edge.node.externalLinks || [],
-      }))
+      const mappedTeams = teams.map((edge: any) => {
+        const externalLinks = edge.node.externalLinks || []
+        const titleName = externalLinks.length > 0 
+          ? externalLinks[0].dataProvider?.name || 'League of Legends'
+          : 'League of Legends'
+        
+        const title = titleIdToName(titleName)
+        const titleIdMap: Record<GameTitle, string> = {
+          'LoL': '3',
+          'Valorant': '6',
+          'CS2': '25',
+          'All': '3',
+        }
+        
+        return {
+          id: edge.node.id,
+          name: edge.node.name,
+          colorPrimary: edge.node.colorPrimary || '#000000',
+          colorSecondary: edge.node.colorSecondary || '#ffffff',
+          logoUrl: edge.node.logoUrl,
+          title: title,
+          titleId: titleIdMap[title],
+          externalLinks: edge.node.externalLinks || [],
+        }
+      })
       
       allTeams.push(...mappedTeams)
       fetchedCount += teams.length

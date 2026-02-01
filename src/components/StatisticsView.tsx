@@ -10,14 +10,21 @@ import {
   type PlayerStatistics,
   type TeamStatistics
 } from '@/lib/gridApi'
-import { ChartBar, TrendUp, TrendDown, Target, Crosshair, User, Users } from '@phosphor-icons/react'
+import { ChartBar, TrendUp, TrendDown, Target, Crosshair, User, Users, Funnel, GameController } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import type { Player, Team } from '@/lib/types'
+import type { Player, Team, GameTitle } from '@/lib/types'
 
 interface StatisticsViewProps {
   players: Player[]
   teams: Team[]
   matches: any[]
+}
+
+const TITLE_ID_MAP: Record<GameTitle, number | null> = {
+  'LoL': 3,
+  'Valorant': 6,
+  'CS2': 25,
+  'All': null,
 }
 
 export function StatisticsView({ players, teams, matches }: StatisticsViewProps) {
@@ -28,6 +35,7 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
   const [isLoadingPlayer, setIsLoadingPlayer] = useState(false)
   const [isLoadingTeam, setIsLoadingTeam] = useState(false)
   const [seriesFilter, setSeriesFilter] = useState<'all' | 'last3'>('all')
+  const [gameTitleFilter, setGameTitleFilter] = useState<GameTitle>('All')
   const [aggregateStats, setAggregateStats] = useState<{
     totalPlayers: number
     totalTeams: number
@@ -35,22 +43,42 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
     avgWinRate: number
   }>({ totalPlayers: 0, totalTeams: 0, avgGamesPerPlayer: 0, avgWinRate: 0 })
 
+  const filteredPlayers = gameTitleFilter === 'All' 
+    ? players 
+    : players.filter(p => p.title === gameTitleFilter)
+
+  const filteredTeams = gameTitleFilter === 'All' 
+    ? teams 
+    : teams.filter(t => t.title === gameTitleFilter)
+
   useEffect(() => {
-    if (players.length > 0) {
-      const totalGames = players.reduce((sum, p) => sum + (p.gamesPlayed || 0), 0)
-      const avgGames = players.length > 0 ? totalGames / players.length : 0
-      const avgWin = players.length > 0 
-        ? players.reduce((sum, p) => sum + (p.winRate || 0), 0) / players.length 
+    setPlayerStats(null)
+    setTeamStats(null)
+    if (filteredPlayers.length > 0) {
+      setSelectedPlayer(filteredPlayers[0].id)
+    }
+    if (filteredTeams.length > 0) {
+      setSelectedTeam(filteredTeams[0].id)
+    }
+  }, [gameTitleFilter])
+
+  useEffect(() => {
+    const playersToUse = filteredPlayers
+    if (playersToUse.length > 0) {
+      const totalGames = playersToUse.reduce((sum, p) => sum + (p.gamesPlayed || 0), 0)
+      const avgGames = playersToUse.length > 0 ? totalGames / playersToUse.length : 0
+      const avgWin = playersToUse.length > 0 
+        ? playersToUse.reduce((sum, p) => sum + (p.winRate || 0), 0) / playersToUse.length 
         : 0
       
       setAggregateStats({
-        totalPlayers: players.length,
-        totalTeams: teams.length,
+        totalPlayers: playersToUse.length,
+        totalTeams: filteredTeams.length,
         avgGamesPerPlayer: Math.round(avgGames),
         avgWinRate: Math.round(avgWin),
       })
     }
-  }, [players, teams])
+  }, [filteredPlayers, filteredTeams, gameTitleFilter])
 
   const handleFetchPlayerStats = async () => {
     if (!selectedPlayer) return
@@ -103,34 +131,34 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
   }
 
   useEffect(() => {
-    if (players.length > 0 && !selectedPlayer) {
-      setSelectedPlayer(players[0].id)
+    if (filteredPlayers.length > 0 && !selectedPlayer) {
+      setSelectedPlayer(filteredPlayers[0].id)
     }
-  }, [players, selectedPlayer])
+  }, [filteredPlayers, selectedPlayer])
 
   useEffect(() => {
-    if (teams.length > 0 && !selectedTeam) {
-      setSelectedTeam(teams[0].id)
+    if (filteredTeams.length > 0 && !selectedTeam) {
+      setSelectedTeam(filteredTeams[0].id)
     }
-  }, [teams, selectedTeam])
+  }, [filteredTeams, selectedTeam])
 
   useEffect(() => {
-    if (selectedPlayer && !playerStats && !isLoadingPlayer && players.length > 0) {
+    if (selectedPlayer && !playerStats && !isLoadingPlayer && filteredPlayers.length > 0) {
       const timer = setTimeout(() => {
         handleFetchPlayerStats()
       }, 500)
       return () => clearTimeout(timer)
     }
-  }, [selectedPlayer, players.length])
+  }, [selectedPlayer, filteredPlayers.length])
 
   useEffect(() => {
-    if (selectedTeam && !teamStats && !isLoadingTeam && teams.length > 0) {
+    if (selectedTeam && !teamStats && !isLoadingTeam && filteredTeams.length > 0) {
       const timer = setTimeout(() => {
         handleFetchTeamStats()
       }, 500)
       return () => clearTimeout(timer)
     }
-  }, [selectedTeam, teams.length])
+  }, [selectedTeam, filteredTeams.length])
 
   const renderPlayerStats = (stats: PlayerStatistics) => {
     const winData = stats.game.wins.find(w => w.value === true)
@@ -140,6 +168,8 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
       ? (stats.series.kills.avg / segment.deaths.avg).toFixed(2)
       : stats.series.kills.avg.toFixed(2)
 
+    const currentPlayer = filteredPlayers.find(p => p.id === selectedPlayer)
+
     return (
       <div className="space-y-6">
         <div className="p-4 bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/30 rounded-lg">
@@ -148,10 +178,16 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
             <span className="text-xs font-semibold uppercase tracking-wide text-primary">
               Real-Time Statistics from GRID API
             </span>
+            {currentPlayer?.title && (
+              <Badge variant="outline" className="ml-auto font-mono text-xs">
+                {currentPlayer.title}
+              </Badge>
+            )}
           </div>
           <p className="text-sm text-muted-foreground">
             Statistics pulled directly from GRID's Statistics Feed API. 
             {seriesFilter === 'last3' ? ' Showing data from last 3 matches.' : ' Showing all available data.'}
+            {gameTitleFilter !== 'All' && ` Filtered by ${gameTitleFilter}.`}
           </p>
         </div>
 
@@ -361,6 +397,8 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
       ? (stats.series.kills.avg / segment.deaths.avg).toFixed(2)
       : stats.series.kills.avg.toFixed(2)
 
+    const currentTeam = filteredTeams.find(t => t.id === selectedTeam)
+
     return (
       <div className="space-y-6">
         <div className="p-4 bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/30 rounded-lg">
@@ -369,10 +407,16 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
             <span className="text-xs font-semibold uppercase tracking-wide text-primary">
               Real-Time Statistics from GRID API
             </span>
+            {currentTeam?.title && (
+              <Badge variant="outline" className="ml-auto font-mono text-xs">
+                {currentTeam.title}
+              </Badge>
+            )}
           </div>
           <p className="text-sm text-muted-foreground">
             Team statistics pulled directly from GRID's Statistics Feed API. 
             {seriesFilter === 'last3' ? ' Showing data from last 3 matches.' : ' Showing all available data.'}
+            {gameTitleFilter !== 'All' && ` Filtered by ${gameTitleFilter}.`}
           </p>
         </div>
 
@@ -550,6 +594,74 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
       </div>
 
       {(players.length > 0 || teams.length > 0) && (
+        <Card className="glow-border bg-gradient-to-br from-primary/5 to-accent/5">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Funnel size={20} weight="duotone" className="text-primary" />
+              Advanced Filtering
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Filter statistics by game title to view title-specific data
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-4">
+              <div className="flex-1">
+                <label className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2 block">
+                  Game Title Filter
+                </label>
+                <Select value={gameTitleFilter} onValueChange={(v) => setGameTitleFilter(v as GameTitle)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="All">
+                      <div className="flex items-center gap-2">
+                        <GameController size={16} weight="duotone" />
+                        All Games
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="LoL">
+                      <div className="flex items-center gap-2">
+                        <GameController size={16} weight="duotone" />
+                        League of Legends
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="Valorant">
+                      <div className="flex items-center gap-2">
+                        <GameController size={16} weight="duotone" />
+                        Valorant
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="CS2">
+                      <div className="flex items-center gap-2">
+                        <GameController size={16} weight="duotone" />
+                        Counter-Strike 2
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="pt-7">
+                <Badge variant="outline" className="font-mono">
+                  {filteredPlayers.length} players • {filteredTeams.length} teams
+                </Badge>
+              </div>
+            </div>
+            {gameTitleFilter !== 'All' && (
+              <div className="mt-3 p-3 bg-primary/10 border border-primary/30 rounded-lg">
+                <div className="flex items-center gap-2 text-sm text-primary">
+                  <Funnel size={16} weight="duotone" />
+                  <span className="font-semibold">Active Filter:</span>
+                  <span>{gameTitleFilter} statistics only</span>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {(players.length > 0 || teams.length > 0) && (
         <div className="grid md:grid-cols-4 gap-4">
           <Card className="glow-border">
             <CardHeader className="pb-3">
@@ -609,19 +721,25 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
         </div>
       )}
 
-      {(players.length > 0 || teams.length > 0) && (
+      {(filteredPlayers.length > 0 || filteredTeams.length > 0) && (
         <Card className="glow-border">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ChartBar size={20} weight="duotone" className="text-primary" />
               Team Roster Overview
+              {gameTitleFilter !== 'All' && (
+                <Badge variant="outline" className="ml-2 font-mono text-xs">
+                  {gameTitleFilter}
+                </Badge>
+              )}
             </CardTitle>
             <p className="text-sm text-muted-foreground">
               Quick statistics for all players from GRID data
+              {gameTitleFilter !== 'All' && ` (filtered by ${gameTitleFilter})`}
             </p>
           </CardHeader>
           <CardContent>
-            {players.length > 0 ? (
+            {filteredPlayers.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
@@ -644,7 +762,7 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
                     </tr>
                   </thead>
                   <tbody>
-                    {players.map((player) => (
+                    {filteredPlayers.map((player) => (
                       <tr 
                         key={player.id} 
                         className="border-b border-border/50 hover:bg-accent/5 transition-colors cursor-pointer"
@@ -689,27 +807,33 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
               </div>
             ) : (
               <div className="py-8 text-center text-muted-foreground text-sm">
-                No player data available. Fetch data from GRID API first.
+                No player data available for {gameTitleFilter}. Try selecting a different game title.
               </div>
             )}
           </CardContent>
         </Card>
       )}
 
-      {teams.length > 0 && (
+      {filteredTeams.length > 0 && (
         <Card className="glow-border">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users size={20} weight="duotone" className="text-primary" />
               Teams Overview
+              {gameTitleFilter !== 'All' && (
+                <Badge variant="outline" className="ml-2 font-mono text-xs">
+                  {gameTitleFilter}
+                </Badge>
+              )}
             </CardTitle>
             <p className="text-sm text-muted-foreground">
               All teams fetched from GRID API
+              {gameTitleFilter !== 'All' && ` (filtered by ${gameTitleFilter})`}
             </p>
           </CardHeader>
           <CardContent>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {teams.slice(0, 20).map((team) => (
+              {filteredTeams.slice(0, 20).map((team) => (
                 <div
                   key={team.id}
                   onClick={() => {
@@ -750,9 +874,9 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
                 </div>
               ))}
             </div>
-            {teams.length > 20 && (
+            {filteredTeams.length > 20 && (
               <div className="mt-4 pt-4 border-t border-border text-center text-sm text-muted-foreground">
-                Showing 20 of {teams.length} teams
+                Showing 20 of {filteredTeams.length} teams
               </div>
             )}
           </CardContent>
@@ -790,14 +914,14 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
                       <SelectValue placeholder="Choose a player..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {players.length > 0 ? (
-                        players.map(player => (
+                      {filteredPlayers.length > 0 ? (
+                        filteredPlayers.map(player => (
                           <SelectItem key={player.id} value={player.id}>
                             {player.name} - {player.role}
                           </SelectItem>
                         ))
                       ) : (
-                        <SelectItem value="none" disabled>No players available</SelectItem>
+                        <SelectItem value="none" disabled>No players available for {gameTitleFilter}</SelectItem>
                       )}
                     </SelectContent>
                   </Select>
@@ -846,11 +970,11 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
               <CardContent className="py-12 text-center">
                 <User size={48} weight="duotone" className="text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground mb-2">
-                  {players.length > 0 
+                  {filteredPlayers.length > 0 
                     ? "Select a player and click 'Fetch Stats' to view detailed statistics"
-                    : "No players available. Fetch data from GRID API first."}
+                    : `No players available for ${gameTitleFilter}. Try selecting a different game title.`}
                 </p>
-                {players.length > 0 && (
+                {filteredPlayers.length > 0 && (
                   <p className="text-xs text-muted-foreground/70">
                     Statistics are fetched from the GRID Statistics Feed API in real-time
                   </p>
@@ -891,14 +1015,14 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
                       <SelectValue placeholder="Choose a team..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {teams.length > 0 ? (
-                        teams.map(team => (
+                      {filteredTeams.length > 0 ? (
+                        filteredTeams.map(team => (
                           <SelectItem key={team.id} value={team.id}>
                             {team.name}
                           </SelectItem>
                         ))
                       ) : (
-                        <SelectItem value="none" disabled>No teams available</SelectItem>
+                        <SelectItem value="none" disabled>No teams available for {gameTitleFilter}</SelectItem>
                       )}
                     </SelectContent>
                   </Select>
@@ -947,11 +1071,11 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
               <CardContent className="py-12 text-center">
                 <Users size={48} weight="duotone" className="text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground mb-2">
-                  {teams.length > 0 
+                  {filteredTeams.length > 0 
                     ? "Select a team and click 'Fetch Stats' to view detailed statistics"
-                    : "No teams available. Fetch data from GRID API first."}
+                    : `No teams available for ${gameTitleFilter}. Try selecting a different game title.`}
                 </p>
-                {teams.length > 0 && (
+                {filteredTeams.length > 0 && (
                   <p className="text-xs text-muted-foreground/70">
                     Statistics are fetched from the GRID Statistics Feed API in real-time
                   </p>
