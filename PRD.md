@@ -82,6 +82,13 @@ This is a sophisticated analytics platform that requires multiple interconnected
 - **Progression**: Load heatmap view → Display all mistakes as spatial overlay on map grid → Use time slider to filter by game phase (early/mid/late) → Apply category filters (positioning, mechanics, etc.) → Apply impact filters (critical/high/medium/low) → Hover over heat zones to see mistake details → View zone statistics showing hotspots → Identify patterns in Baron/Dragon pit areas → Generate insights about territorial risk zones
 - **Success criteria**: Clear visualization of mistake density with color-coded intensity, smooth filtering with <200ms response, accurate spatial positioning on map grid, hover tooltips display within 100ms, and zone statistics accurately aggregate mistakes by map region
 
+### Live Series State Tracking (NEW)
+- **Functionality**: Real-time tracking of DOTA 2 series state via GRID's Live Data Feed API. Monitors active games within a series, displaying live player stats including kills, deaths, net worth, money, and real-time position coordinates on the map. Features automatic polling every 3 seconds, series finder for upcoming matches, and comprehensive game state visualization.
+- **Purpose**: Provide coaches with granular, real-time insight into ongoing DOTA 2 matches, enabling immediate tactical analysis and strategic decision-making during live games
+- **Trigger**: User selects "Series" tab and either manually enters a series ID or selects from upcoming matches in the series finder
+- **Progression**: Access Series tab → Browse upcoming DOTA 2 series (optional) → Select or enter series ID → Click "Start Tracking" → System polls GRID Series State API every 3 seconds → Display series overview (format, team scores, status) → Show active games with player details → View live KDA stats, net worth, gold, and map positions → Monitor team scores and game progress → Receive warnings for permission errors or invalid series → Stop tracking or reset to select new series
+- **Success criteria**: Successfully connects to GRID Series State API, polls data every 3 seconds without overwhelming the API, displays real-time player stats with <3s latency, handles permission errors gracefully with clear messaging, presents upcoming series from Central Data API for easy selection, and visualizes player positions and economic stats with smooth updates
+
 ## Edge Case Handling
 - **Incomplete match data**: Display partial analysis with confidence indicators for each insight based on data completeness
 - **First-time player analysis**: Show limited historical context but focus on single-match deep dive with provisional insights

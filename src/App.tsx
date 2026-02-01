@@ -19,7 +19,8 @@ import { SeriesFormatsView } from '@/components/SeriesFormatsView'
 import { UpcomingSeriesView } from '@/components/UpcomingSeriesView'
 import { OrganizationView } from '@/components/OrganizationView'
 import { TeamsView } from '@/components/TeamsView'
-import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise, MapPin, Trophy, ListBullets, CalendarBlank } from '@phosphor-icons/react'
+import { SeriesStateTracker } from '@/components/SeriesStateTracker'
+import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise, MapPin, Trophy, ListBullets, CalendarBlank, GameController } from '@phosphor-icons/react'
 import { PLAYERS, INSIGHTS, STRATEGIC_IMPACTS, getPlayerAnalytics, MATCHES, MISTAKES, generateAIInsight } from '@/lib/mockData'
 import { useLiveMatch } from '@/hooks/use-live-match'
 import { useGridData } from '@/hooks/use-grid-data'
@@ -234,7 +235,7 @@ function App() {
                         </div>
 
                         <Tabs defaultValue="dashboard" className="space-y-8">
-                            <TabsList className="grid w-full max-w-6xl grid-cols-12 mx-auto text-xs">
+                            <TabsList className="grid w-full max-w-6xl grid-cols-13 mx-auto text-xs">
                                 <TabsTrigger value="organization" className="flex items-center gap-1.5 px-2">
                                     <Cpu size={16} weight="duotone" />
                                     <span className="hidden sm:inline">Org</span>
@@ -246,6 +247,10 @@ function App() {
                                 <TabsTrigger value="live" className="flex items-center gap-1.5 px-2">
                                     <Crosshair size={16} weight="duotone" />
                                     <span className="hidden sm:inline">Live</span>
+                                </TabsTrigger>
+                                <TabsTrigger value="series-state" className="flex items-center gap-1.5 px-2">
+                                    <GameController size={16} weight="duotone" />
+                                    <span className="hidden sm:inline">Series</span>
                                 </TabsTrigger>
                                 <TabsTrigger value="upcoming" className="flex items-center gap-1.5 px-2">
                                     <CalendarBlank size={16} weight="duotone" />
@@ -319,6 +324,10 @@ function App() {
                                     onReset={resetMatch}
                                     isUsingGridData={isUsingGridData}
                                 />
+                            </TabsContent>
+
+                            <TabsContent value="series-state" className="space-y-6">
+                                <SeriesStateTracker />
                             </TabsContent>
 
                             <TabsContent value="upcoming" className="space-y-6">
