@@ -111,3 +111,13 @@ export interface LiveMatch {
   }
   players: LiveMatchPlayer[]
 }
+
+export interface Tournament {
+  id: string
+  name: string
+  nameShortened: string
+  seriesCount?: number
+  startDate?: string
+  endDate?: string
+  teams?: string[]
+}

@@ -1,5 +1,5 @@
 import axios, { AxiosResponse, AxiosError } from 'axios'
-import type { Player, Match, LiveMatch, LiveMatchPlayer } from './types'
+import type { Player, Match, LiveMatch, LiveMatchPlayer, Tournament } from './types'
 
 const GRID_API_BASE = 'https://api.grid.gg/central-data/graphql'
 const DEFAULT_API_KEY = 'GacqICJfwHbtteMEbQ8mUVztiBHCuKuzijh7m4N8'
@@ -439,4 +439,126 @@ export async function enrichPlayersWithStats(players: Player[]): Promise<Player[
 
   console.log('Player enrichment complete')
   return enrichedPlayers
+}
+
+export async function fetchTournaments(limit: number = 50): Promise<Tournament[]> {
+  const query = `
+    query GetTournaments($first: Int!) {
+      tournaments(first: $first) {
+        pageInfo {
+          hasPreviousPage
+          hasNextPage
+          startCursor
+          endCursor
+        }
+        totalCount
+        edges {
+          cursor
+          node {
+            id
+            name
+            nameShortened
+          }
+        }
+      }
+    }
+  `
+
+  try {
+    console.log('Fetching tournaments, limit:', limit)
+    const data = await gridFetch(query, { first: limit })
+    const tournaments = data.tournaments?.edges || []
+    console.log('Received', tournaments.length, 'tournaments')
+
+    return tournaments.map((edge: any) => ({
+      id: edge.node.id.toString(),
+      name: edge.node.name,
+      nameShortened: edge.node.nameShortened,
+    }))
+  } catch (error) {
+    console.error('Failed to fetch tournaments:', error)
+    throw error
+  }
+}
+
+export async function fetchTournament(tournamentId: string): Promise<Tournament | null> {
+  const query = `
+    query GetTournament($id: ID!) {
+      tournament(id: $id) {
+        id
+        name
+        nameShortened
+      }
+    }
+  `
+
+  try {
+    console.log(`Fetching tournament ${tournamentId}...`)
+    const data = await gridFetch(query, { id: tournamentId })
+    
+    if (!data.tournament) {
+      console.warn(`No tournament found for ID ${tournamentId}`)
+      return null
+    }
+
+    return {
+      id: data.tournament.id.toString(),
+      name: data.tournament.name,
+      nameShortened: data.tournament.nameShortened,
+    }
+  } catch (error) {
+    console.error(`Failed to fetch tournament ${tournamentId}:`, error)
+    return null
+  }
+}
+
+export async function fetchCloud9Tournaments(limit: number = 20): Promise<Tournament[]> {
+  const query = `
+    query GetCloud9Tournaments($first: Int!) {
+      allSeries(
+        first: $first
+        filter: {
+          teams: "Cloud9"
+        }
+        orderBy: StartTimeScheduled
+        orderDirection: DESC
+      ) {
+        edges {
+          node {
+            tournament {
+              id
+              name
+              nameShortened
+            }
+          }
+        }
+      }
+    }
+  `
+
+  try {
+    console.log('Fetching Cloud9 tournaments, limit:', limit)
+    const data = await gridFetch(query, { first: limit })
+    const series = data.allSeries?.edges || []
+    
+    const tournamentMap = new Map<string, Tournament>()
+    
+    series.forEach((edge: any) => {
+      const tournament = edge.node.tournament
+      if (tournament && !tournamentMap.has(tournament.id)) {
+        tournamentMap.set(tournament.id, {
+          id: tournament.id.toString(),
+          name: tournament.name,
+          nameShortened: tournament.nameShortened,
+        })
+      }
+    })
+
+    const tournaments = Array.from(tournamentMap.values())
+    console.log('Found', tournaments.length, 'unique Cloud9 tournaments')
+    return tournaments
+  } catch (error) {
+    console.error('Failed to fetch Cloud9 tournaments:', error)
+    throw error
+  }
 }

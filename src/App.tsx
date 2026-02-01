@@ -14,7 +14,8 @@ import { MultiMatchAnalysisView } from '@/components/MultiMatchAnalysisView'
 import { GridApiTestPanel } from '@/components/GridApiTestPanel'
 import { MatchReplayManager } from '@/components/MatchReplayManager'
 import { MistakeHeatmap } from '@/components/MistakeHeatmap'
-import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise, MapPin } from '@phosphor-icons/react'
+import { TournamentsView } from '@/components/TournamentsView'
+import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise, MapPin, Trophy } from '@phosphor-icons/react'
 import { PLAYERS, INSIGHTS, STRATEGIC_IMPACTS, getPlayerAnalytics, MATCHES, MISTAKES, generateAIInsight } from '@/lib/mockData'
 import { useLiveMatch } from '@/hooks/use-live-match'
 import { useGridData } from '@/hooks/use-grid-data'
@@ -163,6 +164,7 @@ function App() {
                                 onTestFetch={async () => await gridData.fetchData(true)}
                                 players={players}
                                 matches={matches}
+                                tournaments={gridData.tournaments}
                                 isLoading={gridData.isLoading}
                                 error={gridData.error}
                                 isInitialized={gridData.isInitialized}
@@ -224,7 +226,7 @@ function App() {
                         </div>
 
                         <Tabs defaultValue="dashboard" className="space-y-8">
-                            <TabsList className="grid w-full max-w-4xl grid-cols-8 mx-auto">
+                            <TabsList className="grid w-full max-w-4xl grid-cols-9 mx-auto">
                                 <TabsTrigger value="live" className="flex items-center gap-2">
                                     <Crosshair size={18} weight="duotone" />
                                     <span className="hidden sm:inline">Live</span>
@@ -252,6 +254,10 @@ function App() {
                                 <TabsTrigger value="players" className="flex items-center gap-2">
                                     <Users size={18} weight="duotone" />
                                     <span className="hidden sm:inline">Players</span>
+                                </TabsTrigger>
+                                <TabsTrigger value="tournaments" className="flex items-center gap-2">
+                                    <Trophy size={18} weight="duotone" />
+                                    <span className="hidden sm:inline">Tournaments</span>
                                 </TabsTrigger>
                                 <TabsTrigger value="strategic" className="flex items-center gap-2">
                                     <Target size={18} weight="duotone" />
@@ -436,6 +442,10 @@ function App() {
                                         </CardContent>
                                     </Card>
                                 )}
+                            </TabsContent>
+
+                            <TabsContent value="tournaments">
+                                <TournamentsView tournaments={gridData.tournaments} />
                             </TabsContent>
 
                             <TabsContent value="strategic">

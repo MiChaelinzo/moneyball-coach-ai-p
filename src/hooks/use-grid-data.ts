@@ -1,18 +1,20 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { toast } from 'sonner'
-import type { Player, Match } from '@/lib/types'
+import type { Player, Match, Tournament } from '@/lib/types'
 import {
   initializeGridApi,
   isGridApiInitialized,
   fetchCloud9Players,
   fetchCloud9Matches,
+  fetchCloud9Tournaments,
   enrichPlayersWithStats,
 } from '@/lib/gridApi'
 
 interface GridDataState {
   players: Player[]
   matches: Match[]
+  tournaments: Tournament[]
   isLoading: boolean
   error: string | null
   isInitialized: boolean
@@ -24,11 +26,13 @@ export function useGridData() {
   const [apiKey, setApiKey] = useKV<string>('grid-api-key', DEFAULT_API_KEY)
   const [cachedPlayers, setCachedPlayers] = useKV<Player[]>('grid-cached-players', [])
   const [cachedMatches, setCachedMatches] = useKV<Match[]>('grid-cached-matches', [])
+  const [cachedTournaments, setCachedTournaments] = useKV<Tournament[]>('grid-cached-tournaments', [])
   const [lastFetchTime, setLastFetchTime] = useKV<number>('grid-last-fetch', 0)
   
   const [state, setState] = useState<GridDataState>({
     players: cachedPlayers || [],
     matches: cachedMatches || [],
+    tournaments: cachedTournaments || [],
     isLoading: false,
     error: null,
     isInitialized: isGridApiInitialized(),
@@ -70,6 +74,7 @@ export function useGridData() {
         ...prev,
         players: cachedPlayers,
         matches: cachedMatches || [],
+        tournaments: cachedTournaments || [],
         isLoading: false,
         error: null,
       }))
@@ -82,10 +87,11 @@ export function useGridData() {
     toast.info('Fetching Cloud9 data from GRID API...')
 
     try {
-      console.log('Step 1: Fetching players and matches in parallel...')
-      const [players, matches] = await Promise.all([
+      console.log('Step 1: Fetching players, matches, and tournaments in parallel...')
+      const [players, matches, tournaments] = await Promise.all([
         fetchCloud9Players(),
         fetchCloud9Matches(10),
+        fetchCloud9Tournaments(20),
       ])
 
       console.log('Step 2: Enriching players with statistics...')
@@ -94,12 +100,14 @@ export function useGridData() {
       console.log('Step 3: Caching data...')
       setCachedPlayers(enrichedPlayers)
       setCachedMatches(matches)
+      setCachedTournaments(tournaments)
       setLastFetchTime(now)
 
       console.log('Step 4: Updating state...')
       setState({
         players: enrichedPlayers,
         matches,
+        tournaments,
         isLoading: false,
         error: null,
         isInitialized: true,
@@ -108,7 +116,8 @@ export function useGridData() {
       console.log('=== GRID API Data Fetch Complete ===')
       console.log('Players:', enrichedPlayers.length)
       console.log('Matches:', matches.length)
-      toast.success(`Loaded ${enrichedPlayers.length} players and ${matches.length} matches from GRID API`)
+      console.log('Tournaments:', tournaments.length)
+      toast.success(`Loaded ${enrichedPlayers.length} players, ${matches.length} matches, and ${tournaments.length} tournaments`)
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch data from GRID API'
       console.error('=== GRID API Data Fetch Failed ===')
@@ -121,10 +130,11 @@ export function useGridData() {
         error: errorMessage,
         players: cachedPlayers || [],
         matches: cachedMatches || [],
+        tournaments: cachedTournaments || [],
       }))
       toast.error(`Failed to fetch data: ${errorMessage}`)
     }
-  }, [lastFetchTime, cachedPlayers, cachedMatches, setCachedPlayers, setCachedMatches, setLastFetchTime])
+  }, [lastFetchTime, cachedPlayers, cachedMatches, cachedTournaments, setCachedPlayers, setCachedMatches, setCachedTournaments, setLastFetchTime])
 
   const clearApiKey = useCallback(() => {
     setApiKey(DEFAULT_API_KEY)
@@ -152,10 +162,11 @@ export function useGridData() {
         ...prev,
         players: cachedPlayers,
         matches: cachedMatches || [],
+        tournaments: cachedTournaments || [],
         isInitialized: true,
       }))
     }
-  }, [cachedPlayers, cachedMatches])
+  }, [cachedPlayers, cachedMatches, cachedTournaments])
 
   return {
     ...state,

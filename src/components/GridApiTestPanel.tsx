@@ -5,12 +5,13 @@ import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Flask, ArrowsClockwise, Check, X, Database } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'
-import type { Player, Match } from '@/lib/types'
+import type { Player, Match, Tournament } from '@/lib/types'
 
 interface GridApiTestPanelProps {
   onTestFetch: () => Promise<void>
   players: Player[]
   matches: Match[]
+  tournaments: Tournament[]
   isLoading: boolean
   error: string | null
   isInitialized: boolean
@@ -19,7 +20,8 @@ interface GridApiTestPanelProps {
 export function GridApiTestPanel({ 
   onTestFetch, 
   players, 
-  matches, 
+  matches,
+  tournaments, 
   isLoading, 
   error,
   isInitialized 
@@ -74,7 +76,7 @@ export function GridApiTestPanel({
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-4 gap-4">
           <Card className={`border-2 ${isInitialized ? 'border-success/40 bg-success/5' : 'border-muted'}`}>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between mb-2">
@@ -94,7 +96,7 @@ export function GridApiTestPanel({
           <Card className={`border-2 ${players.length > 0 ? 'border-primary/40 bg-primary/5' : 'border-muted'}`}>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold text-muted-foreground">Players Loaded</span>
+                <span className="text-sm font-semibold text-muted-foreground">Players</span>
                 <Database size={20} weight="duotone" className="text-primary" />
               </div>
               <div className="font-mono text-2xl font-bold text-primary">
@@ -106,11 +108,23 @@ export function GridApiTestPanel({
           <Card className={`border-2 ${matches.length > 0 ? 'border-accent/40 bg-accent/5' : 'border-muted'}`}>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold text-muted-foreground">Matches Loaded</span>
+                <span className="text-sm font-semibold text-muted-foreground">Matches</span>
                 <Database size={20} weight="duotone" className="text-accent" />
               </div>
               <div className="font-mono text-2xl font-bold text-accent">
                 {matches.length}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className={`border-2 ${tournaments.length > 0 ? 'border-warning/40 bg-warning/5' : 'border-muted'}`}>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-semibold text-muted-foreground">Tournaments</span>
+                <Database size={20} weight="duotone" className="text-warning" />
+              </div>
+              <div className="font-mono text-2xl font-bold text-warning">
+                {tournaments.length}
               </div>
             </CardContent>
           </Card>
@@ -184,6 +198,33 @@ export function GridApiTestPanel({
                       <Badge variant={match.result === 'win' ? 'default' : 'destructive'}>
                         {match.result.toUpperCase()}
                       </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {tournaments.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-3"
+          >
+            <div className="flex items-center justify-between">
+              <h4 className="font-semibold text-sm uppercase tracking-wide">Cloud9 Tournaments</h4>
+              <Badge variant="secondary">{tournaments.length} found</Badge>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+              {tournaments.slice(0, 8).map(tournament => (
+                <Card key={tournament.id} className="bg-card/50">
+                  <CardContent className="p-3">
+                    <div className="font-semibold text-sm line-clamp-1">
+                      {tournament.nameShortened}
+                    </div>
+                    <div className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                      {tournament.name}
                     </div>
                   </CardContent>
                 </Card>
