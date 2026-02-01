@@ -22,8 +22,9 @@ import { TeamsView } from '@/components/TeamsView'
 import { SeriesStateTracker } from '@/components/SeriesStateTracker'
 import { StatisticsView } from '@/components/StatisticsView'
 import { CrossTitleComparisonView } from '@/components/CrossTitleComparisonView'
+import { TitleRecommendationView } from '@/components/TitleRecommendationView'
 import { ExportButton } from '@/components/ExportButton'
-import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise, MapPin, Trophy, ListBullets, CalendarBlank, GameController, ChartLineUp, ArrowsLeftRight } from '@phosphor-icons/react'
+import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise, MapPin, Trophy, ListBullets, CalendarBlank, GameController, ChartLineUp, ArrowsLeftRight, Lightbulb } from '@phosphor-icons/react'
 import { PLAYERS, INSIGHTS, STRATEGIC_IMPACTS, getPlayerAnalytics, MATCHES, MISTAKES, generateAIInsight } from '@/lib/mockData'
 import { useLiveMatch } from '@/hooks/use-live-match'
 import { useGridData } from '@/hooks/use-grid-data'
@@ -286,7 +287,7 @@ function App() {
                         </div>
 
                         <Tabs defaultValue="dashboard" className="space-y-8">
-                            <TabsList className="grid w-full max-w-6xl grid-cols-15 mx-auto text-xs">
+                            <TabsList className="grid w-full max-w-6xl grid-cols-16 mx-auto text-xs">
                                 <TabsTrigger value="organization" className="flex items-center gap-1.5 px-2">
                                     <Cpu size={16} weight="duotone" />
                                     <span className="hidden sm:inline">Org</span>
@@ -302,6 +303,10 @@ function App() {
                                 <TabsTrigger value="cross-title" className="flex items-center gap-1.5 px-2">
                                     <ArrowsLeftRight size={16} weight="duotone" />
                                     <span className="hidden sm:inline">Compare</span>
+                                </TabsTrigger>
+                                <TabsTrigger value="recommendations" className="flex items-center gap-1.5 px-2">
+                                    <Lightbulb size={16} weight="duotone" />
+                                    <span className="hidden sm:inline">Recommend</span>
                                 </TabsTrigger>
                                 <TabsTrigger value="live" className="flex items-center gap-1.5 px-2">
                                     <Crosshair size={16} weight="duotone" />
@@ -377,6 +382,12 @@ function App() {
 
                             <TabsContent value="cross-title" className="space-y-6">
                                 <CrossTitleComparisonView
+                                    players={players}
+                                />
+                            </TabsContent>
+
+                            <TabsContent value="recommendations" className="space-y-6">
+                                <TitleRecommendationView
                                     players={players}
                                 />
                             </TabsContent>

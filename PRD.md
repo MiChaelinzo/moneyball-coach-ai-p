@@ -103,6 +103,13 @@ This is a sophisticated analytics platform that requires multiple interconnected
 - **Progression**: Navigate to desired view → Configure filters/selections → Click Export button → Choose format (PDF or CSV) → System generates report with current data → PDF opens in new window ready to print → CSV downloads automatically → Toast notification confirms success → Reports include timestamp and comprehensive data
 - **Success criteria**: Export generation completes within 2 seconds, PDF reports are print-ready with professional formatting, CSV files are Excel-compatible with proper escaping, all current filters and selections are preserved in export, reports include generation timestamp and metadata, file naming follows consistent pattern (e.g., team-analytics-2024-01-15.csv)
 
+### AI-Powered Title Recommendations (NEW)
+- **Functionality**: Intelligent recommendation system that analyzes player playstyles using six core metrics (aggression, precision, teamwork, strategy, mechanics, adaptability) and suggests which esports title best matches their strengths. Uses AI to generate detailed playstyle profiles, calculates compatibility scores for League of Legends, Valorant, and CS2, and provides role recommendations within each title. Features include comprehensive reasoning for each recommendation, identification of player strengths and growth areas, and real-time AI insights powered by the Spark LLM API.
+- **Purpose**: Help organizations make data-driven decisions about player recruitment, roster construction, and individual player development by matching playstyles to game requirements
+- **Trigger**: User selects "Recommend" tab from main navigation and chooses a player to analyze
+- **Progression**: Access recommendations tab → Select player from roster → Click "Analyze Playstyle" → AI generates playstyle metrics → System calculates title compatibility scores → Display rankings for all three titles → Show detailed breakdowns with strengths, growth areas, and role recommendations → Generate AI expert analysis explaining top match → Review reasoning and metrics for each title option
+- **Success criteria**: Successfully analyzes player attributes within 2 seconds, generates accurate playstyle metrics, provides compatibility scores with clear reasoning, highlights top title match prominently, delivers actionable role recommendations, integrates AI insights that explain the analysis in natural language, and presents results in an easily digestible visual format
+
 ## Edge Case Handling
 - **Incomplete match data**: Display partial analysis with confidence indicators for each insight based on data completeness
 - **First-time player analysis**: Show limited historical context but focus on single-match deep dive with provisional insights
@@ -111,6 +118,8 @@ This is a sophisticated analytics platform that requires multiple interconnected
 - **Contradictory data points**: Flag conflicting insights and present multiple interpretations with confidence scores
 - **Voice narration unavailable**: Gracefully detect when browser doesn't support Web Speech API and disable voice controls with informative message
 - **Narration queue overflow**: Intelligently prioritize high-impact events over routine updates when multiple events occur simultaneously
+- **AI recommendation API failure**: Display fallback recommendations based on statistical analysis when LLM is unavailable, with clear indication of reduced confidence
+- **Player with no historical data**: Generate provisional recommendations based on role and basic stats, flagging results as preliminary
 
 ## Design Direction
 The design should evoke the feeling of a cutting-edge command center—intelligent, precise, and performance-oriented. Think "Moneyball meets esports war room": data-rich but not overwhelming, with a focus on clarity and actionable intelligence. The aesthetic should feel modern and technical, with a slight edge that resonates with competitive gaming culture while maintaining professional coaching credibility.
