@@ -17,6 +17,21 @@ export function PlayerCard({ player, isSelected, onClick }: PlayerCardProps) {
     'Mid': 'bg-chart-3/20 text-chart-3 border-chart-3/40',
     'ADC': 'bg-chart-4/20 text-chart-4 border-chart-4/40',
     'Support': 'bg-chart-5/20 text-chart-5 border-chart-5/40',
+    'Controller': 'bg-chart-2/20 text-chart-2 border-chart-2/40',
+    'IGL/Controller': 'bg-chart-3/20 text-chart-3 border-chart-3/40',
+    'Duelist': 'bg-chart-1/20 text-chart-1 border-chart-1/40',
+    'Initiator': 'bg-chart-4/20 text-chart-4 border-chart-4/40',
+    'Sentinel': 'bg-chart-5/20 text-chart-5 border-chart-5/40',
+    'IGL/Sentinel': 'bg-chart-5/20 text-chart-5 border-chart-5/40',
+    'IGL': 'bg-chart-3/20 text-chart-3 border-chart-3/40',
+    'Rifler': 'bg-chart-1/20 text-chart-1 border-chart-1/40',
+    'AWPer': 'bg-chart-4/20 text-chart-4 border-chart-4/40',
+  }
+
+  const titleColors: Record<string, string> = {
+    'LoL': 'bg-primary/20 text-primary border-primary/40',
+    'Valorant': 'bg-destructive/20 text-destructive border-destructive/40',
+    'CS2': 'bg-warning/20 text-warning border-warning/40',
   }
 
   return (
@@ -38,9 +53,16 @@ export function PlayerCard({ player, isSelected, onClick }: PlayerCardProps) {
               </div>
               <div>
                 <CardTitle className="text-xl">{player.name}</CardTitle>
-                <Badge className={`${roleColors[player.role]} mt-1 text-xs`}>
-                  {player.role}
-                </Badge>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <Badge className={`${roleColors[player.role] || roleColors['Support']} text-xs`}>
+                    {player.role}
+                  </Badge>
+                  {player.title && (
+                    <Badge className={`${titleColors[player.title] || titleColors['LoL']} text-xs`}>
+                      {player.title}
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
           </div>

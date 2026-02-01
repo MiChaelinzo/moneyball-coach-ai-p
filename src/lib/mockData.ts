@@ -1,11 +1,36 @@
 import type { Player, Mistake, Match, Insight, StrategicImpact, PlayerAnalytics, LiveMatch, LiveMatchPlayer } from './types'
 
 export const PLAYERS: Player[] = [
-  { id: '1', name: 'Fudge', role: 'Top', kda: 3.2, winRate: 58, gamesPlayed: 24 },
-  { id: '2', name: 'Blaber', role: 'Jungle', kda: 4.1, winRate: 62, gamesPlayed: 24 },
-  { id: '3', name: 'Jensen', role: 'Mid', kda: 5.3, winRate: 65, gamesPlayed: 24 },
-  { id: '4', name: 'Berserker', role: 'ADC', kda: 6.8, winRate: 70, gamesPlayed: 24 },
-  { id: '5', name: 'Zven', role: 'Support', kda: 3.9, winRate: 61, gamesPlayed: 24 },
+  { id: '1', name: 'Fudge', role: 'Top', kda: 3.2, winRate: 58, gamesPlayed: 24, title: 'LoL', titleId: '3' },
+  { id: '2', name: 'Blaber', role: 'Jungle', kda: 4.1, winRate: 62, gamesPlayed: 24, title: 'LoL', titleId: '3' },
+  { id: '3', name: 'Jensen', role: 'Mid', kda: 5.3, winRate: 65, gamesPlayed: 24, title: 'LoL', titleId: '3' },
+  { id: '4', name: 'Berserker', role: 'ADC', kda: 6.8, winRate: 70, gamesPlayed: 24, title: 'LoL', titleId: '3' },
+  { id: '5', name: 'Zven', role: 'Support', kda: 3.9, winRate: 61, gamesPlayed: 24, title: 'LoL', titleId: '3' },
+  
+  { id: '6', name: 'Vulcan', role: 'Support', kda: 4.5, winRate: 64, gamesPlayed: 22, title: 'LoL', titleId: '3' },
+  { id: '7', name: 'Emenes', role: 'Mid', kda: 4.8, winRate: 59, gamesPlayed: 20, title: 'LoL', titleId: '3' },
+  { id: '8', name: 'Thanatos', role: 'Top', kda: 3.6, winRate: 56, gamesPlayed: 18, title: 'LoL', titleId: '3' },
+  
+  { id: '9', name: 'Xeta', role: 'Controller', kda: 1.24, winRate: 55, gamesPlayed: 32, title: 'Valorant', titleId: '6' },
+  { id: '10', name: 'vanity', role: 'IGL/Controller', kda: 1.18, winRate: 52, gamesPlayed: 32, title: 'Valorant', titleId: '6' },
+  { id: '11', name: 'leaf', role: 'Duelist', kda: 1.42, winRate: 58, gamesPlayed: 32, title: 'Valorant', titleId: '6' },
+  { id: '12', name: 'Xeppaa', role: 'Initiator', kda: 1.31, winRate: 54, gamesPlayed: 32, title: 'Valorant', titleId: '6' },
+  { id: '13', name: 'mitch', role: 'Sentinel', kda: 1.15, winRate: 53, gamesPlayed: 32, title: 'Valorant', titleId: '6' },
+  
+  { id: '14', name: 'oxy', role: 'Duelist', kda: 1.56, winRate: 61, gamesPlayed: 28, title: 'Valorant', titleId: '6' },
+  { id: '15', name: 'moose', role: 'Controller', kda: 1.28, winRate: 57, gamesPlayed: 26, title: 'Valorant', titleId: '6' },
+  { id: '16', name: 'v1c', role: 'Initiator', kda: 1.35, winRate: 59, gamesPlayed: 28, title: 'Valorant', titleId: '6' },
+  
+  { id: '17', name: 'JT', role: 'IGL', kda: 1.08, winRate: 48, gamesPlayed: 45, title: 'CS2', titleId: '2' },
+  { id: '18', name: 'Ax1Le', role: 'Rifler', kda: 1.22, winRate: 52, gamesPlayed: 45, title: 'CS2', titleId: '2' },
+  { id: '19', name: 'Hobbit', role: 'Support', kda: 1.15, winRate: 50, gamesPlayed: 45, title: 'CS2', titleId: '2' },
+  { id: '20', name: 'nafany', role: 'AWPer', kda: 1.31, winRate: 54, gamesPlayed: 45, title: 'CS2', titleId: '2' },
+  { id: '21', name: 'sh1ro', role: 'Rifler', kda: 1.28, winRate: 53, gamesPlayed: 45, title: 'CS2', titleId: '2' },
+  
+  { id: '22', name: 'Bwipo', role: 'Top', kda: 3.8, winRate: 62, gamesPlayed: 26, title: 'LoL', titleId: '3' },
+  { id: '23', name: 'Jojopyun', role: 'Mid', kda: 4.9, winRate: 63, gamesPlayed: 24, title: 'LoL', titleId: '3' },
+  { id: '24', name: 'wiz', role: 'Duelist', kda: 1.38, winRate: 56, gamesPlayed: 30, title: 'Valorant', titleId: '6' },
+  { id: '25', name: 'runi', role: 'IGL/Sentinel', kda: 1.21, winRate: 55, gamesPlayed: 34, title: 'Valorant', titleId: '6' },
 ]
 
 export const MATCHES: Match[] = [
@@ -72,6 +97,62 @@ export const MATCHES: Match[] = [
     result: 'loss',
     duration: 2834,
     objectives: { dragons: 1, barons: 0, towers: 3 }
+  },
+  {
+    id: 'm9',
+    date: '2024-01-20',
+    opponent: 'Sentinels',
+    result: 'win',
+    duration: 2340,
+    objectives: { dragons: 0, barons: 0, towers: 0 }
+  },
+  {
+    id: 'm10',
+    date: '2024-01-19',
+    opponent: 'NRG Esports',
+    result: 'loss',
+    duration: 2680,
+    objectives: { dragons: 0, barons: 0, towers: 0 }
+  },
+  {
+    id: 'm11',
+    date: '2024-01-18',
+    opponent: 'Evil Geniuses',
+    result: 'win',
+    duration: 2120,
+    objectives: { dragons: 0, barons: 0, towers: 0 }
+  },
+  {
+    id: 'm12',
+    date: '2024-01-17',
+    opponent: '100 Thieves',
+    result: 'win',
+    duration: 2450,
+    objectives: { dragons: 0, barons: 0, towers: 0 }
+  },
+  {
+    id: 'm13',
+    date: '2024-01-22',
+    opponent: 'FaZe Clan',
+    result: 'loss',
+    duration: 3120,
+    objectives: { dragons: 0, barons: 0, towers: 0 }
+  },
+  {
+    id: 'm14',
+    date: '2024-01-21',
+    opponent: 'NAVI',
+    result: 'win',
+    duration: 2890,
+    objectives: { dragons: 0, barons: 0, towers: 0 }
+  },
+  {
+    id: 'm15',
+    date: '2024-01-20',
+    opponent: 'Vitality',
+    result: 'loss',
+    duration: 3340,
+    objectives: { dragons: 0, barons: 0, towers: 0 }
   },
 ]
 
@@ -258,6 +339,240 @@ export const MISTAKES: Mistake[] = [
     outcome: 'Caught and killed, enemy team secured baron, lost game',
     mapPosition: { x: 28, y: 22, zone: 'baron' }
   },
+  {
+    id: 'mk15',
+    playerId: '9',
+    playerName: 'Xeta',
+    category: 'positioning',
+    description: 'Smoke placement blocked team\'s push line of sight',
+    timestamp: '2024-01-20T14:15:00',
+    impact: 'medium',
+    matchId: 'm9',
+    gameTime: 780,
+    outcome: 'Lost site control, forced to rotate',
+    mapPosition: { x: 45, y: 55, zone: 'mid' }
+  },
+  {
+    id: 'mk16',
+    playerId: '11',
+    playerName: 'leaf',
+    category: 'decision-making',
+    description: 'Overpeeked after getting first kill, traded unnecessarily',
+    timestamp: '2024-01-19T15:30:00',
+    impact: 'high',
+    matchId: 'm10',
+    gameTime: 1240,
+    outcome: '4v4 instead of 5v4 advantage, lost round',
+    mapPosition: { x: 70, y: 30, zone: 'top' }
+  },
+  {
+    id: 'mk17',
+    playerId: '10',
+    playerName: 'vanity',
+    category: 'communication',
+    description: 'Late rotation call led to split team positioning',
+    timestamp: '2024-01-19T15:45:00',
+    impact: 'critical',
+    matchId: 'm10',
+    gameTime: 1580,
+    outcome: 'Team divided, lost 3 members, round loss',
+    mapPosition: { x: 50, y: 50, zone: 'mid' }
+  },
+  {
+    id: 'mk18',
+    playerId: '14',
+    playerName: 'oxy',
+    category: 'mechanics',
+    description: 'Whiffed crucial operator shot in clutch situation',
+    timestamp: '2024-01-18T16:20:00',
+    impact: 'critical',
+    matchId: 'm11',
+    gameTime: 1920,
+    outcome: 'Lost 1v1, enemy planted bomb, lost round',
+    mapPosition: { x: 35, y: 65, zone: 'bot' }
+  },
+  {
+    id: 'mk19',
+    playerId: '12',
+    playerName: 'Xeppaa',
+    category: 'positioning',
+    description: 'Peeked too aggressively without util backup',
+    timestamp: '2024-01-17T14:50:00',
+    impact: 'medium',
+    matchId: 'm12',
+    gameTime: 890,
+    outcome: 'Early death, 4v5 but team won round',
+    mapPosition: { x: 60, y: 40, zone: 'jungle-top' }
+  },
+  {
+    id: 'mk20',
+    playerId: '17',
+    playerName: 'JT',
+    category: 'decision-making',
+    description: 'Called risky force buy instead of saving for next round',
+    timestamp: '2024-01-22T17:10:00',
+    impact: 'high',
+    matchId: 'm13',
+    gameTime: 1120,
+    outcome: 'Lost force buy and next two rounds due to economy',
+    mapPosition: { x: 15, y: 85, zone: 'base' }
+  },
+  {
+    id: 'mk21',
+    playerId: '18',
+    playerName: 'Ax1Le',
+    category: 'mechanics',
+    description: 'Missed spray control in close-range engagement',
+    timestamp: '2024-01-21T16:35:00',
+    impact: 'medium',
+    matchId: 'm14',
+    gameTime: 1450,
+    outcome: 'Lost duel, but team traded and won round',
+    mapPosition: { x: 55, y: 45, zone: 'mid' }
+  },
+  {
+    id: 'mk22',
+    playerId: '20',
+    playerName: 'nafany',
+    category: 'positioning',
+    description: 'Poor AWP position exposed to multiple angles',
+    timestamp: '2024-01-20T18:15:00',
+    impact: 'critical',
+    matchId: 'm15',
+    gameTime: 2140,
+    outcome: 'Lost AWP early, enemy economy boost, lost next 3 rounds',
+    mapPosition: { x: 50, y: 50, zone: 'river' }
+  },
+  {
+    id: 'mk23',
+    playerId: '21',
+    playerName: 'sh1ro',
+    category: 'communication',
+    description: 'Didn\'t call out low HP enemy position',
+    timestamp: '2024-01-20T18:25:00',
+    impact: 'high',
+    matchId: 'm15',
+    gameTime: 2380,
+    outcome: 'Teammate peeked expecting fight, got surprised and died',
+    mapPosition: { x: 65, y: 55, zone: 'top' }
+  },
+  {
+    id: 'mk24',
+    playerId: '13',
+    playerName: 'mitch',
+    category: 'macro',
+    description: 'Played too passively on defensive setup, gave map control',
+    timestamp: '2024-01-19T15:15:00',
+    impact: 'medium',
+    matchId: 'm10',
+    gameTime: 980,
+    outcome: 'Lost mid control, forced into retake situation',
+    mapPosition: { x: 40, y: 50, zone: 'mid' }
+  },
+  {
+    id: 'mk25',
+    playerId: '6',
+    playerName: 'Vulcan',
+    category: 'positioning',
+    description: 'Roamed too far from ADC during laning phase',
+    timestamp: '2024-01-16T14:20:00',
+    impact: 'medium',
+    matchId: 'm3',
+    gameTime: 720,
+    outcome: 'ADC caught 1v2, died and lost lane pressure',
+    mapPosition: { x: 70, y: 60, zone: 'bot' }
+  },
+  {
+    id: 'mk26',
+    playerId: '22',
+    playerName: 'Bwipo',
+    category: 'decision-making',
+    description: 'Took unfavorable trade in top lane without jungle proximity',
+    timestamp: '2024-01-15T14:55:00',
+    impact: 'high',
+    matchId: 'm1',
+    gameTime: 1180,
+    outcome: 'Died, lost wave and tower plates',
+    mapPosition: { x: 25, y: 25, zone: 'top' }
+  },
+  {
+    id: 'mk27',
+    playerId: '23',
+    playerName: 'Jojopyun',
+    category: 'mechanics',
+    description: 'Missed combo execution in crucial team fight',
+    timestamp: '2024-01-14T15:55:00',
+    impact: 'critical',
+    matchId: 'm2',
+    gameTime: 1680,
+    outcome: 'Didn\'t burst carry, team lost fight and baron',
+    mapPosition: { x: 50, y: 45, zone: 'mid' }
+  },
+  {
+    id: 'mk28',
+    playerId: '15',
+    playerName: 'moose',
+    category: 'communication',
+    description: 'Failed to call out flanking enemy player',
+    timestamp: '2024-01-18T16:40:00',
+    impact: 'high',
+    matchId: 'm11',
+    gameTime: 1340,
+    outcome: 'Team got sandwiched, lost 3 players',
+    mapPosition: { x: 30, y: 70, zone: 'bot' }
+  },
+  {
+    id: 'mk29',
+    playerId: '16',
+    playerName: 'v1c',
+    category: 'positioning',
+    description: 'Used recon ability from exposed position',
+    timestamp: '2024-01-17T15:10:00',
+    impact: 'medium',
+    matchId: 'm12',
+    gameTime: 1120,
+    outcome: 'Got traded but info gained helped team win',
+    mapPosition: { x: 55, y: 35, zone: 'jungle-top' }
+  },
+  {
+    id: 'mk30',
+    playerId: '19',
+    playerName: 'Hobbit',
+    category: 'macro',
+    description: 'Played wrong side of map for next circle rotation',
+    timestamp: '2024-01-22T17:35:00',
+    impact: 'high',
+    matchId: 'm13',
+    gameTime: 2280,
+    outcome: 'Team had to rotate late, lost better positioning',
+    mapPosition: { x: 20, y: 80, zone: 'bot' }
+  },
+  {
+    id: 'mk31',
+    playerId: '24',
+    playerName: 'wiz',
+    category: 'decision-making',
+    description: 'Pushed alone without team backup after round won',
+    timestamp: '2024-01-20T14:35:00',
+    impact: 'low',
+    matchId: 'm9',
+    gameTime: 980,
+    outcome: 'Died but round already won, no economic impact',
+    mapPosition: { x: 75, y: 70, zone: 'bot' }
+  },
+  {
+    id: 'mk32',
+    playerId: '25',
+    playerName: 'runi',
+    category: 'communication',
+    description: 'Unclear mid-round call led to confused executions',
+    timestamp: '2024-01-18T16:05:00',
+    impact: 'critical',
+    matchId: 'm11',
+    gameTime: 1680,
+    outcome: 'Team split between two strats, easy defend for enemy',
+    mapPosition: { x: 50, y: 50, zone: 'mid' }
+  },
 ]
 
 export const INSIGHTS: Insight[] = [
@@ -325,44 +640,135 @@ export const INSIGHTS: Insight[] = [
     relatedMistakes: ['mk7'],
     recommendation: 'Zven should prioritize movement speed items earlier. Practice rotation drills focusing on positioning within team formation.',
     confidence: 0.73
+  },
+  {
+    id: 'in6',
+    type: 'pattern',
+    severity: 'high',
+    title: 'Valorant IGL Communication Timing Issues',
+    description: 'vanity and runi both show delayed rotation calls causing team splits. Pattern emerges in rounds 7-10 when economy is tight.',
+    affectedPlayers: ['10', '25'],
+    frequency: 0.58,
+    impactOnWinRate: -14,
+    relatedMistakes: ['mk17', 'mk32'],
+    recommendation: 'Implement earlier mid-round call protocol. IGLs should call rotations 5 seconds earlier to account for team movement time.',
+    confidence: 0.84
+  },
+  {
+    id: 'in7',
+    type: 'correlation',
+    severity: 'critical',
+    title: 'Post-First-Kill Aggression Pattern in Valorant',
+    description: 'leaf and oxy show tendency to overpeek after securing first kill, resulting in unnecessary trades. 68% of these trades cost rounds.',
+    affectedPlayers: ['11', '14'],
+    frequency: 0.63,
+    impactOnWinRate: -18,
+    relatedMistakes: ['mk16', 'mk18'],
+    recommendation: 'Institute "kill and fall back" discipline. After first pick, duelists must regroup with team unless IGL explicitly calls for push.',
+    confidence: 0.91
+  },
+  {
+    id: 'in8',
+    type: 'trend',
+    severity: 'high',
+    title: 'CS2 Economic Decision-Making Decline',
+    description: 'JT\'s force buy calls have 35% success rate, well below optimal. Pattern shows emotional buying after lost rounds rather than calculated economy management.',
+    affectedPlayers: ['17'],
+    frequency: 0.48,
+    impactOnWinRate: -16,
+    relatedMistakes: ['mk20'],
+    recommendation: 'Implement strict economy flowchart. IGL should consult with nafany (AWPer) before any force buy decisions to ensure AWP economy.',
+    confidence: 0.87
+  },
+  {
+    id: 'in9',
+    type: 'pattern',
+    severity: 'critical',
+    title: 'CS2 AWP Position Vulnerability Pattern',
+    description: 'nafany consistently takes AWP positions with multiple exposed angles, leading to early AWP losses that devastate team economy.',
+    affectedPlayers: ['20'],
+    frequency: 0.71,
+    impactOnWinRate: -24,
+    relatedMistakes: ['mk22'],
+    recommendation: 'Mandatory AWP position review with coach. nafany should only hold positions with 1-2 angles max and guaranteed escape route.',
+    confidence: 0.94
+  },
+  {
+    id: 'in10',
+    type: 'recommendation',
+    severity: 'medium',
+    title: 'Cross-Team Communication Style Optimization',
+    description: 'Analysis shows LoL team benefits from verbose comms while CS2 team performs better with minimal callouts. Valorant team falls in between.',
+    affectedPlayers: ['1', '2', '3', '4', '5', '17', '18', '19', '20', '21'],
+    frequency: 0.82,
+    impactOnWinRate: 9,
+    relatedMistakes: [],
+    recommendation: 'Tailor communication training by title. LoL: maintain current style. CS2: reduce non-essential comms. Valorant: balance based on round phase.',
+    confidence: 0.79
+  },
+  {
+    id: 'in11',
+    type: 'correlation',
+    severity: 'high',
+    title: 'Utility Usage Efficiency Gap in Valorant',
+    description: 'Xeta and moose (Controllers) show 40% lower utility efficiency than opponents. Smokes often misplaced or poorly timed, costing map control.',
+    affectedPlayers: ['9', '15'],
+    frequency: 0.54,
+    impactOnWinRate: -11,
+    relatedMistakes: ['mk15', 'mk28'],
+    recommendation: 'Implement utility-specific VOD review sessions. Controllers should study opponent smoke setups and practice standard lineups daily.',
+    confidence: 0.83
+  },
+  {
+    id: 'in12',
+    type: 'trend',
+    severity: 'medium',
+    title: 'LoL Academy Roster Integration Success',
+    description: 'Vulcan and Bwipo showing strong synergy metrics when playing together. Win rate jumps 12% compared to other roster configurations.',
+    affectedPlayers: ['6', '22'],
+    frequency: 0.89,
+    impactOnWinRate: 12,
+    relatedMistakes: [],
+    recommendation: 'Consider Vulcan-Bwipo as core duo for critical matches. Both players show complementary aggressive playstyles that synergize well.',
+    confidence: 0.77
   }
 ]
 
 export const STRATEGIC_IMPACTS: StrategicImpact[] = [
   {
     mistakeCategory: 'positioning',
-    occurrences: 4,
+    occurrences: 12,
     avgTimeToObjectiveLoss: 240,
+    winRateImpact: -12,
+    objectivesLost: 8
+  },
+  {
+    mistakeCategory: 'decision-making',
+    occurrences: 7,
+    avgTimeToObjectiveLoss: 180,
+    winRateImpact: -10,
+    objectivesLost: 5
+  },
+  {
+    mistakeCategory: 'communication',
+    occurrences: 8,
+    avgTimeToObjectiveLoss: 120,
+    winRateImpact: -19,
+    objectivesLost: 7
+  },
+  {
+    mistakeCategory: 'macro',
+    occurrences: 3,
+    avgTimeToObjectiveLoss: 300,
     winRateImpact: -12,
     objectivesLost: 3
   },
   {
-    mistakeCategory: 'decision-making',
-    occurrences: 2,
-    avgTimeToObjectiveLoss: 180,
-    winRateImpact: -8,
-    objectivesLost: 2
-  },
-  {
-    mistakeCategory: 'communication',
-    occurrences: 1,
-    avgTimeToObjectiveLoss: 120,
-    winRateImpact: -22,
-    objectivesLost: 2
-  },
-  {
-    mistakeCategory: 'macro',
-    occurrences: 1,
-    avgTimeToObjectiveLoss: 300,
-    winRateImpact: -15,
-    objectivesLost: 1
-  },
-  {
     mistakeCategory: 'mechanics',
-    occurrences: 1,
-    avgTimeToObjectiveLoss: 480,
-    winRateImpact: -3,
-    objectivesLost: 0
+    occurrences: 5,
+    avgTimeToObjectiveLoss: 420,
+    winRateImpact: -7,
+    objectivesLost: 2
   }
 ]
 

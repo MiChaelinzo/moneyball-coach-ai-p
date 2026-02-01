@@ -47,6 +47,7 @@ function App() {
     const [aiInsight, setAiInsight] = useState<string>('')
     const [isGeneratingInsight, setIsGeneratingInsight] = useState(false)
     const [hasAutoFetched, setHasAutoFetched] = useState(false)
+    const [titleFilter, setTitleFilter] = useState<string>('All')
     const { 
         liveMatch, 
         toggleTracking, 
@@ -61,6 +62,10 @@ function App() {
 
     const players: Player[] = gridData.players.length > 0 ? gridData.players : PLAYERS
     const matches: Match[] = gridData.matches.length > 0 ? gridData.matches : MATCHES
+    
+    const filteredPlayers = titleFilter === 'All' 
+        ? players 
+        : players.filter(p => p.title === titleFilter)
     
     useEffect(() => {
         if (gridData.isInitialized && !hasAutoFetched && !gridData.hasCachedData) {
@@ -280,7 +285,7 @@ function App() {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="font-mono text-3xl font-bold text-success">
-                                        {PLAYERS.length}
+                                        {players.length}
                                     </div>
                                 </CardContent>
                             </Card>
@@ -513,9 +518,24 @@ function App() {
                                 </motion.div>
 
                                 <div>
-                                    <h2 className="text-2xl font-semibold mb-6">Team Roster</h2>
+                                    <div className="flex items-center justify-between mb-6">
+                                        <h2 className="text-2xl font-semibold">Team Roster</h2>
+                                        <div className="w-48">
+                                            <Select value={titleFilter} onValueChange={setTitleFilter}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Filter by title" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="All">All Games</SelectItem>
+                                                    <SelectItem value="LoL">League of Legends</SelectItem>
+                                                    <SelectItem value="Valorant">Valorant</SelectItem>
+                                                    <SelectItem value="CS2">CS2</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
                                     <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-                                        {players.map(player => (
+                                        {filteredPlayers.map(player => (
                                             <PlayerCard
                                                 key={player.id}
                                                 player={player}
@@ -580,16 +600,31 @@ function App() {
                                             Select a player to view detailed performance metrics
                                         </p>
                                     </div>
-                                    <ExportButton
-                                        onExport={handleExportPlayerAnalytics}
-                                        label="Export Player Report"
-                                        variant="outline"
-                                        disabled={!selectedPlayer}
-                                    />
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-48">
+                                            <Select value={titleFilter} onValueChange={setTitleFilter}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Filter by title" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="All">All Games</SelectItem>
+                                                    <SelectItem value="LoL">League of Legends</SelectItem>
+                                                    <SelectItem value="Valorant">Valorant</SelectItem>
+                                                    <SelectItem value="CS2">CS2</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <ExportButton
+                                            onExport={handleExportPlayerAnalytics}
+                                            label="Export Player Report"
+                                            variant="outline"
+                                            disabled={!selectedPlayer}
+                                        />
+                                    </div>
                                 </div>
                                 
                                 <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
-                                    {players.map(player => (
+                                    {filteredPlayers.map(player => (
                                         <PlayerCard
                                             key={player.id}
                                             player={player}
