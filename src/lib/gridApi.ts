@@ -71,24 +71,29 @@ async function gridFetch(query: string, variables: Record<string, any> = {}) {
 
 export async function fetchCloud9Players(): Promise<Player[]> {
   const query = `
-    query GetCloud9Teams {
-      allTeams(
-        first: 20
+    query GetCloud9Players {
+      allSeries(
+        first: 50
         filter: {
-          name: "Cloud9"
+          titleId: 3
+          types: ESPORTS
         }
+        orderBy: StartTimeScheduled
+        orderDirection: DESC
       ) {
         edges {
           node {
             id
-            baseInfo {
-              name
-            }
-            players {
-              id
-              handle
-              firstName
-              lastName
+            teams {
+              baseInfo {
+                name
+              }
+              players {
+                id
+                handle
+                firstName
+                lastName
+              }
             }
           }
         }
@@ -97,42 +102,50 @@ export async function fetchCloud9Players(): Promise<Player[]> {
   `
 
   try {
-    console.log('Fetching Cloud9 players...')
+    console.log('Fetching Cloud9 players from recent series...')
     const data = await gridFetch(query)
-    console.log('Cloud9 team data received:', data.allTeams?.edges?.length || 0, 'teams')
+    console.log('Series data received:', data.allSeries?.edges?.length || 0, 'series')
     
-    const cloud9Teams = data.allTeams?.edges || []
+    const series = data.allSeries?.edges || []
     
-    if (cloud9Teams.length === 0) {
-      console.warn('No Cloud9 teams found in GRID API response')
-      console.log('Response structure:', JSON.stringify(data, null, 2))
+    if (series.length === 0) {
+      console.warn('No series found in GRID API response')
       return []
     }
 
-    const allPlayers: Player[] = []
+    const playerMap = new Map<string, Player>()
     const roles = ['Top', 'Jungle', 'Mid', 'ADC', 'Support']
     let roleIndex = 0
 
-    cloud9Teams.forEach((edge: any) => {
-      const team = edge.node
-      if (team.players && team.players.length > 0) {
-        console.log(`Found ${team.players.length} players in team ${team.baseInfo?.name}`)
-        
-        team.players.forEach((player: any) => {
-          allPlayers.push({
-            id: player.id.toString(),
-            name: player.handle || player.firstName || 'Unknown',
-            role: roles[roleIndex % roles.length],
-            kda: 0,
-            winRate: 0,
-            gamesPlayed: 0,
+    series.forEach((edge: any) => {
+      const seriesNode = edge.node
+      const teams = seriesNode.teams || []
+      
+      teams.forEach((team: any) => {
+        const teamName = team.baseInfo?.name || ''
+        if (teamName.toLowerCase().includes('cloud9') || teamName.toLowerCase().includes('c9')) {
+          const players = team.players || []
+          console.log(`Found ${players.length} Cloud9 players in ${teamName}`)
+          
+          players.forEach((player: any) => {
+            if (!playerMap.has(player.id)) {
+              playerMap.set(player.id, {
+                id: player.id.toString(),
+                name: player.handle || player.firstName || 'Unknown',
+                role: roles[roleIndex % roles.length],
+                kda: 0,
+                winRate: 0,
+                gamesPlayed: 0,
+              })
+              roleIndex++
+            }
           })
-          roleIndex++
-        })
-      }
+        }
+      })
     })
 
-    console.log('Processed players:', allPlayers.map(p => p.name).join(', '))
+    const allPlayers = Array.from(playerMap.values())
+    console.log('Processed unique Cloud9 players:', allPlayers.map(p => p.name).join(', '))
     return allPlayers
   } catch (error) {
     console.error('Failed to fetch Cloud9 players:', error)
