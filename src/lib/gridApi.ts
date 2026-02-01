@@ -190,6 +190,8 @@ export async function fetchCloud9Matches(limit: number = 10): Promise<Match[]> {
               nameShortened
             }
             tournament {
+              id
+              name
               nameShortened
             }
             startTimeScheduled
@@ -238,6 +240,15 @@ export async function fetchCloud9Matches(limit: number = 10): Promise<Match[]> {
           barons: 0,
           towers: 0,
         },
+        format: seriesData.format ? {
+          name: seriesData.format.name,
+          nameShortened: seriesData.format.nameShortened,
+        } : undefined,
+        tournament: seriesData.tournament ? {
+          id: seriesData.tournament.id?.toString() || '',
+          name: seriesData.tournament.name,
+          nameShortened: seriesData.tournament.nameShortened,
+        } : undefined,
       } as Match
     })
   } catch (error) {
@@ -680,6 +691,118 @@ export async function fetchSeriesWithDetails(limit: number = 50, titleId: number
     }))
   } catch (error) {
     console.error('Failed to fetch series with details:', error)
+    throw error
+  }
+}
+
+export interface SeriesFormat {
+  id: string
+  name: string
+  nameShortened: string
+}
+
+export async function fetchSeriesFormats(): Promise<SeriesFormat[]> {
+  const query = `
+    query SeriesFormats {
+      seriesFormats {
+        id
+        name
+        nameShortened 
+      }
+    }
+  `
+
+  try {
+    console.log('Fetching series formats...')
+    const data = await gridFetch(query)
+    const formats = data.seriesFormats || []
+    console.log(`Received ${formats.length} series formats`)
+    
+    return formats.map((format: any) => ({
+      id: format.id,
+      name: format.name,
+      nameShortened: format.nameShortened,
+    }))
+  } catch (error) {
+    console.error('Failed to fetch series formats:', error)
+    throw error
+  }
+}
+
+export async function fetchSeriesInTimeRange(
+  startTime: string,
+  endTime: string,
+  titleId: number = 3,
+  limit: number = 50
+): Promise<any[]> {
+  const query = `
+    query GetSeriesInTimeRange($first: Int!, $titleId: Int!, $startTime: DateTime!, $endTime: DateTime!) {
+      allSeries(
+        first: $first
+        filter: {
+          titleId: $titleId
+          types: ESPORTS
+          startTimeScheduled: {
+            gte: $startTime
+            lte: $endTime
+          }
+        }
+        orderBy: StartTimeScheduled
+        orderDirection: DESC
+      ) {
+        totalCount
+        pageInfo {
+          hasPreviousPage
+          hasNextPage
+          startCursor
+          endCursor
+        }
+        edges {
+          cursor
+          node {
+            id
+            title {
+              nameShortened
+            }
+            tournament {
+              id
+              name
+              nameShortened
+            }
+            startTimeScheduled
+            format {
+              name
+              nameShortened
+            }
+            teams {
+              baseInfo {
+                name
+              }
+              scoreAdvantage
+            }
+          }
+        }
+      }
+    }
+  `
+
+  try {
+    console.log(`Fetching series in time range: ${startTime} to ${endTime}`)
+    const data = await gridFetch(query, { 
+      first: limit, 
+      titleId,
+      startTime,
+      endTime,
+    })
+    const series = data.allSeries?.edges || []
+    console.log(`Received ${series.length} series in time range`)
+    
+    return series.map((edge: any) => ({
+      cursor: edge.cursor,
+      ...edge.node,
+    }))
+  } catch (error) {
+    console.error('Failed to fetch series in time range:', error)
     throw error
   }
 }

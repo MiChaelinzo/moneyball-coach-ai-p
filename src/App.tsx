@@ -15,7 +15,9 @@ import { GridApiTestPanel } from '@/components/GridApiTestPanel'
 import { MatchReplayManager } from '@/components/MatchReplayManager'
 import { MistakeHeatmap } from '@/components/MistakeHeatmap'
 import { TournamentsView } from '@/components/TournamentsView'
-import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise, MapPin, Trophy } from '@phosphor-icons/react'
+import { SeriesFormatsView } from '@/components/SeriesFormatsView'
+import { UpcomingSeriesView } from '@/components/UpcomingSeriesView'
+import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise, MapPin, Trophy, ListBullets, CalendarBlank } from '@phosphor-icons/react'
 import { PLAYERS, INSIGHTS, STRATEGIC_IMPACTS, getPlayerAnalytics, MATCHES, MISTAKES, generateAIInsight } from '@/lib/mockData'
 import { useLiveMatch } from '@/hooks/use-live-match'
 import { useGridData } from '@/hooks/use-grid-data'
@@ -226,41 +228,49 @@ function App() {
                         </div>
 
                         <Tabs defaultValue="dashboard" className="space-y-8">
-                            <TabsList className="grid w-full max-w-4xl grid-cols-9 mx-auto">
-                                <TabsTrigger value="live" className="flex items-center gap-2">
-                                    <Crosshair size={18} weight="duotone" />
+                            <TabsList className="grid w-full max-w-6xl grid-cols-11 mx-auto text-xs">
+                                <TabsTrigger value="live" className="flex items-center gap-1.5 px-2">
+                                    <Crosshair size={16} weight="duotone" />
                                     <span className="hidden sm:inline">Live</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="replay" className="flex items-center gap-2">
-                                    <ClockCounterClockwise size={18} weight="duotone" />
+                                <TabsTrigger value="upcoming" className="flex items-center gap-1.5 px-2">
+                                    <CalendarBlank size={16} weight="duotone" />
+                                    <span className="hidden sm:inline">Upcoming</span>
+                                </TabsTrigger>
+                                <TabsTrigger value="replay" className="flex items-center gap-1.5 px-2">
+                                    <ClockCounterClockwise size={16} weight="duotone" />
                                     <span className="hidden sm:inline">Replay</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="heatmap" className="flex items-center gap-2">
-                                    <MapPin size={18} weight="duotone" />
+                                <TabsTrigger value="heatmap" className="flex items-center gap-1.5 px-2">
+                                    <MapPin size={16} weight="duotone" />
                                     <span className="hidden sm:inline">Heatmap</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="dashboard" className="flex items-center gap-2">
-                                    <ChartBar size={18} weight="duotone" />
+                                <TabsTrigger value="dashboard" className="flex items-center gap-1.5 px-2">
+                                    <ChartBar size={16} weight="duotone" />
                                     <span className="hidden sm:inline">Dashboard</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="trends" className="flex items-center gap-2">
-                                    <ChartLine size={18} weight="duotone" />
+                                <TabsTrigger value="trends" className="flex items-center gap-1.5 px-2">
+                                    <ChartLine size={16} weight="duotone" />
                                     <span className="hidden sm:inline">Trends</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="insights" className="flex items-center gap-2">
-                                    <Sparkle size={18} weight="duotone" />
+                                <TabsTrigger value="insights" className="flex items-center gap-1.5 px-2">
+                                    <Sparkle size={16} weight="duotone" />
                                     <span className="hidden sm:inline">Insights</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="players" className="flex items-center gap-2">
-                                    <Users size={18} weight="duotone" />
+                                <TabsTrigger value="players" className="flex items-center gap-1.5 px-2">
+                                    <Users size={16} weight="duotone" />
                                     <span className="hidden sm:inline">Players</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="tournaments" className="flex items-center gap-2">
-                                    <Trophy size={18} weight="duotone" />
+                                <TabsTrigger value="tournaments" className="flex items-center gap-1.5 px-2">
+                                    <Trophy size={16} weight="duotone" />
                                     <span className="hidden sm:inline">Tournaments</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="strategic" className="flex items-center gap-2">
-                                    <Target size={18} weight="duotone" />
+                                <TabsTrigger value="formats" className="flex items-center gap-1.5 px-2">
+                                    <ListBullets size={16} weight="duotone" />
+                                    <span className="hidden sm:inline">Formats</span>
+                                </TabsTrigger>
+                                <TabsTrigger value="strategic" className="flex items-center gap-1.5 px-2">
+                                    <Target size={16} weight="duotone" />
                                     <span className="hidden sm:inline">Strategic</span>
                                 </TabsTrigger>
                             </TabsList>
@@ -281,6 +291,10 @@ function App() {
                                     onReset={resetMatch}
                                     isUsingGridData={isUsingGridData}
                                 />
+                            </TabsContent>
+
+                            <TabsContent value="upcoming" className="space-y-6">
+                                <UpcomingSeriesView />
                             </TabsContent>
 
                             <TabsContent value="replay" className="space-y-6">
@@ -446,6 +460,10 @@ function App() {
 
                             <TabsContent value="tournaments">
                                 <TournamentsView tournaments={gridData.tournaments} />
+                            </TabsContent>
+
+                            <TabsContent value="formats">
+                                <SeriesFormatsView />
                             </TabsContent>
 
                             <TabsContent value="strategic">

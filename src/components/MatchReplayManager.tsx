@@ -19,11 +19,31 @@ interface MatchReplayManagerProps {
 export function MatchReplayManager({ matches, mistakes }: MatchReplayManagerProps) {
   const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null)
   const [filterResult, setFilterResult] = useState<'all' | 'win' | 'loss'>('all')
+  const [filterFormat, setFilterFormat] = useState<string>('all')
+
+  const availableFormats = useMemo(() => {
+    const formats = new Set<string>()
+    matches.forEach(m => {
+      if (m.format) {
+        formats.add(m.format.nameShortened)
+      }
+    })
+    return Array.from(formats).sort()
+  }, [matches])
 
   const filteredMatches = useMemo(() => {
-    if (filterResult === 'all') return matches
-    return matches.filter(m => m.result === filterResult)
-  }, [matches, filterResult])
+    let filtered = matches
+    
+    if (filterResult !== 'all') {
+      filtered = filtered.filter(m => m.result === filterResult)
+    }
+    
+    if (filterFormat !== 'all') {
+      filtered = filtered.filter(m => m.format?.nameShortened === filterFormat)
+    }
+    
+    return filtered
+  }, [matches, filterResult, filterFormat])
 
   const currentReplay: MatchReplay | null = useMemo(() => {
     if (!selectedMatchId) return null
@@ -87,6 +107,19 @@ export function MatchReplayManager({ matches, mistakes }: MatchReplayManagerProp
                   <SelectItem value="loss">Losses Only</SelectItem>
                 </SelectContent>
               </Select>
+              {availableFormats.length > 0 && (
+                <Select value={filterFormat} onValueChange={setFilterFormat}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue placeholder="Format" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Formats</SelectItem>
+                    {availableFormats.map(format => (
+                      <SelectItem key={format} value={format}>{format}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </div>
         </CardHeader>
@@ -138,6 +171,11 @@ export function MatchReplayManager({ matches, mistakes }: MatchReplayManagerProp
                           >
                             {isWin ? 'Victory' : 'Defeat'}
                           </Badge>
+                          {match.format && (
+                            <Badge variant="outline" className="font-mono text-xs">
+                              {match.format.nameShortened}
+                            </Badge>
+                          )}
                         </div>
                         
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -150,6 +188,15 @@ export function MatchReplayManager({ matches, mistakes }: MatchReplayManagerProp
                             <Clock size={16} />
                             <span>{formatGameTime(match.duration)}</span>
                           </div>
+                          {match.tournament && (
+                            <>
+                              <span>·</span>
+                              <div className="flex items-center gap-1.5">
+                                <Trophy size={16} />
+                                <span>{match.tournament.nameShortened}</span>
+                              </div>
+                            </>
+                          )}
                         </div>
 
                         <div className="flex items-center gap-6 mt-3">

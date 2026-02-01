@@ -36,6 +36,15 @@ export interface Match {
     barons: number
     towers: number
   }
+  format?: {
+    name: string
+    nameShortened: string
+  }
+  tournament?: {
+    id: string
+    name: string
+    nameShortened: string
+  }
 }
 
 export interface Insight {
