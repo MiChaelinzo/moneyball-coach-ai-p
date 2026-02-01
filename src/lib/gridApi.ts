@@ -1,7 +1,7 @@
 import axios, { AxiosResponse, AxiosError } from 'axios'
 import type { Player, Match, LiveMatch, LiveMatchPlayer, Tournament } from './types'
 
-const GRID_API_BASE = 'https://api.grid.gg/central-data/graphql'
+const GRID_API_BASE = 'https://api-op.grid.gg/central-data/graphql'
 const DEFAULT_API_KEY = 'GacqICJfwHbtteMEbQ8mUVztiBHCuKuzijh7m4N8'
 
 interface GridApiConfig {
@@ -71,19 +71,25 @@ async function gridFetch(query: string, variables: Record<string, any> = {}) {
 
 export async function fetchCloud9Players(): Promise<Player[]> {
   const query = `
-    query GetCloud9Team {
+    query GetCloud9Teams {
       allTeams(
+        first: 20
         filter: {
           name: "Cloud9"
         }
       ) {
-        nodes {
-          id
-          name
-          players {
+        edges {
+          node {
             id
-            handle
-            homeCountry
+            baseInfo {
+              name
+            }
+            players {
+              id
+              handle
+              firstName
+              lastName
+            }
           }
         }
       }
@@ -93,31 +99,41 @@ export async function fetchCloud9Players(): Promise<Player[]> {
   try {
     console.log('Fetching Cloud9 players...')
     const data = await gridFetch(query)
-    console.log('Cloud9 team data received:', data.allTeams?.nodes?.length || 0, 'teams')
+    console.log('Cloud9 team data received:', data.allTeams?.edges?.length || 0, 'teams')
     
-    const cloud9Team = data.allTeams?.nodes?.[0]
+    const cloud9Teams = data.allTeams?.edges || []
     
-    if (!cloud9Team?.players) {
-      console.warn('No Cloud9 players found in GRID API response')
+    if (cloud9Teams.length === 0) {
+      console.warn('No Cloud9 teams found in GRID API response')
       console.log('Response structure:', JSON.stringify(data, null, 2))
       return []
     }
 
-    console.log('Found', cloud9Team.players.length, 'Cloud9 players')
-
+    const allPlayers: Player[] = []
     const roles = ['Top', 'Jungle', 'Mid', 'ADC', 'Support']
+    let roleIndex = 0
 
-    const players = cloud9Team.players.map((player: any, index: number) => ({
-      id: player.id.toString(),
-      name: player.handle || 'Unknown',
-      role: roles[index % roles.length],
-      kda: 0,
-      winRate: 0,
-      gamesPlayed: 0,
-    }))
+    cloud9Teams.forEach((edge: any) => {
+      const team = edge.node
+      if (team.players && team.players.length > 0) {
+        console.log(`Found ${team.players.length} players in team ${team.baseInfo?.name}`)
+        
+        team.players.forEach((player: any) => {
+          allPlayers.push({
+            id: player.id.toString(),
+            name: player.handle || player.firstName || 'Unknown',
+            role: roles[roleIndex % roles.length],
+            kda: 0,
+            winRate: 0,
+            gamesPlayed: 0,
+          })
+          roleIndex++
+        })
+      }
+    })
 
-    console.log('Processed players:', players.map(p => p.name).join(', '))
-    return players
+    console.log('Processed players:', allPlayers.map(p => p.name).join(', '))
+    return allPlayers
   } catch (error) {
     console.error('Failed to fetch Cloud9 players:', error)
     throw error
@@ -140,29 +156,39 @@ export async function fetchCloud9Matches(limit: number = 10): Promise<Match[]> {
       allSeries(
         first: $first
         filter: {
-          teams: "Cloud9"
+          titleId: 3
+          types: ESPORTS
         }
         orderBy: StartTimeScheduled
         orderDirection: DESC
       ) {
         totalCount
+        pageInfo {
+          hasPreviousPage
+          hasNextPage
+          startCursor
+          endCursor
+        }
         edges {
+          cursor
           node {
             id
-            startTimeScheduled
-            endTimeScheduled
-            games {
-              id
-              state
-            }
             title {
-              id
+              nameShortened
+            }
+            tournament {
+              nameShortened
+            }
+            startTimeScheduled
+            format {
               name
+              nameShortened
             }
             teams {
-              id
-              name
-              score
+              baseInfo {
+                name
+              }
+              scoreAdvantage
             }
           }
         }
@@ -174,25 +200,25 @@ export async function fetchCloud9Matches(limit: number = 10): Promise<Match[]> {
     console.log('Fetching Cloud9 matches, limit:', limit)
     const data = await gridFetch(query, { first: limit })
     const series = data.allSeries?.edges || []
-    console.log('Received', series.length, 'Cloud9 series')
+    console.log('Received', series.length, 'series')
 
     return series.map((edge: any) => {
       const seriesData = edge.node
-      const cloud9Team = seriesData.teams?.find((t: any) => t.name === 'Cloud9')
-      const opponentTeam = seriesData.teams?.find((t: any) => t.name !== 'Cloud9')
+      const teams = seriesData.teams || []
+      const cloud9Team = teams.find((t: any) => t.baseInfo?.name?.toLowerCase().includes('cloud9'))
+      const opponentTeam = teams.find((t: any) => !t.baseInfo?.name?.toLowerCase().includes('cloud9'))
       
       const startTime = new Date(seriesData.startTimeScheduled)
-      const endTime = seriesData.endTimeScheduled ? new Date(seriesData.endTimeScheduled) : new Date()
-      const duration = Math.floor((endTime.getTime() - startTime.getTime()) / 1000)
+      const duration = 2400
 
-      const cloud9Score = cloud9Team?.score || 0
-      const opponentScore = opponentTeam?.score || 0
+      const cloud9Score = cloud9Team?.scoreAdvantage || 0
+      const opponentScore = opponentTeam?.scoreAdvantage || 0
 
       return {
         id: seriesData.id.toString(),
         date: startTime.toISOString().split('T')[0],
-        opponent: opponentTeam?.name || 'Unknown',
-        result: cloud9Score > opponentScore ? 'win' : 'loss',
+        opponent: opponentTeam?.baseInfo?.name || 'Unknown',
+        result: cloud9Score > opponentScore ? 'win' : (cloud9Score < opponentScore ? 'loss' : 'draw'),
         duration,
         objectives: {
           dragons: 0,
@@ -230,11 +256,12 @@ interface LiveSeriesData {
 
 export async function fetchOngoingCloud9Games(): Promise<LiveSeriesData[]> {
   const query = `
-    query GetOngoingCloud9Games {
+    query GetOngoingGames {
       allSeries(
-        first: 10
+        first: 20
         filter: {
-          teams: "Cloud9"
+          titleId: 3
+          types: ESPORTS
           states: [UNSTARTED, RUNNING]
         }
         orderBy: StartTimeScheduled
@@ -246,17 +273,17 @@ export async function fetchOngoingCloud9Games(): Promise<LiveSeriesData[]> {
             state
             title {
               id
-              name
+              nameShortened
             }
             teams {
-              id
-              name
-              score
+              baseInfo {
+                name
+              }
+              scoreAdvantage
             }
             games {
               id
               state
-              statsAvailable
             }
           }
         }
@@ -265,18 +292,34 @@ export async function fetchOngoingCloud9Games(): Promise<LiveSeriesData[]> {
   `
 
   try {
-    console.log('Checking for ongoing Cloud9 games...')
+    console.log('Checking for ongoing games...')
     const data = await gridFetch(query)
     const series = data.allSeries?.edges || []
     
     const liveSeries = series
-      .map((edge: any) => edge.node)
+      .map((edge: any) => {
+        const node = edge.node
+        return {
+          id: node.id,
+          state: node.state,
+          games: node.games || [],
+          teams: (node.teams || []).map((t: any) => ({
+            id: t.baseInfo?.name || 'unknown',
+            name: t.baseInfo?.name || 'Unknown',
+            score: t.scoreAdvantage || 0,
+          })),
+          title: {
+            id: node.title?.id || '',
+            name: node.title?.nameShortened || 'Unknown',
+          },
+        }
+      })
       .filter((s: any) => s.state === 'RUNNING' || s.games?.some((g: any) => g.state === 'RUNNING'))
     
-    console.log(`Found ${liveSeries.length} ongoing Cloud9 series`)
+    console.log(`Found ${liveSeries.length} ongoing series`)
     return liveSeries
   } catch (error) {
-    console.error('Failed to fetch ongoing Cloud9 games:', error)
+    console.error('Failed to fetch ongoing games:', error)
     throw error
   }
 }
@@ -444,7 +487,7 @@ export async function enrichPlayersWithStats(players: Player[]): Promise<Player[
 export async function fetchTournaments(limit: number = 50): Promise<Tournament[]> {
   const query = `
     query GetTournaments($first: Int!) {
-      tournaments(first: $first) {
+      allTournaments(first: $first) {
         pageInfo {
           hasPreviousPage
           hasNextPage
@@ -467,7 +510,7 @@ export async function fetchTournaments(limit: number = 50): Promise<Tournament[]
   try {
     console.log('Fetching tournaments, limit:', limit)
     const data = await gridFetch(query, { first: limit })
-    const tournaments = data.tournaments?.edges || []
+    const tournaments = data.allTournaments?.edges || []
     console.log('Received', tournaments.length, 'tournaments')
 
     return tournaments.map((edge: any) => ({
@@ -514,11 +557,12 @@ export async function fetchTournament(tournamentId: string): Promise<Tournament 
 
 export async function fetchCloud9Tournaments(limit: number = 20): Promise<Tournament[]> {
   const query = `
-    query GetCloud9Tournaments($first: Int!) {
+    query GetRecentTournaments($first: Int!) {
       allSeries(
         first: $first
         filter: {
-          teams: "Cloud9"
+          titleId: 3
+          types: ESPORTS
         }
         orderBy: StartTimeScheduled
         orderDirection: DESC
@@ -537,7 +581,7 @@ export async function fetchCloud9Tournaments(limit: number = 20): Promise<Tourna
   `
 
   try {
-    console.log('Fetching Cloud9 tournaments, limit:', limit)
+    console.log('Fetching tournaments from recent series, limit:', limit)
     const data = await gridFetch(query, { first: limit })
     const series = data.allSeries?.edges || []
     
@@ -555,10 +599,74 @@ export async function fetchCloud9Tournaments(limit: number = 20): Promise<Tourna
     })
 
     const tournaments = Array.from(tournamentMap.values())
-    console.log('Found', tournaments.length, 'unique Cloud9 tournaments')
+    console.log('Found', tournaments.length, 'unique tournaments from recent series')
     return tournaments
   } catch (error) {
-    console.error('Failed to fetch Cloud9 tournaments:', error)
+    console.error('Failed to fetch tournaments:', error)
+    throw error
+  }
+}
+
+export async function fetchSeriesWithDetails(limit: number = 50, titleId: number = 3): Promise<any[]> {
+  const query = `
+    query GetSeriesDetails($first: Int!, $titleId: Int!) {
+      allSeries(
+        first: $first
+        filter: {
+          titleId: $titleId
+          types: ESPORTS
+        }
+        orderBy: StartTimeScheduled
+        orderDirection: DESC
+      ) {
+        totalCount
+        pageInfo {
+          hasPreviousPage
+          hasNextPage
+          startCursor
+          endCursor
+        }
+        edges {
+          cursor
+          node {
+            id
+            title {
+              nameShortened
+            }
+            tournament {
+              id
+              name
+              nameShortened
+            }
+            startTimeScheduled
+            format {
+              name
+              nameShortened
+            }
+            teams {
+              baseInfo {
+                name
+              }
+              scoreAdvantage
+            }
+          }
+        }
+      }
+    }
+  `
+
+  try {
+    console.log(`Fetching series details, limit: ${limit}, titleId: ${titleId}`)
+    const data = await gridFetch(query, { first: limit, titleId })
+    const series = data.allSeries?.edges || []
+    console.log(`Received ${series.length} series with details`)
+    
+    return series.map((edge: any) => ({
+      cursor: edge.cursor,
+      ...edge.node,
+    }))
+  } catch (error) {
+    console.error('Failed to fetch series with details:', error)
     throw error
   }
 }
