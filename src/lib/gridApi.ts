@@ -71,81 +71,54 @@ async function gridFetch(query: string, variables: Record<string, any> = {}) {
 
 export async function fetchCloud9Players(): Promise<Player[]> {
   const query = `
-    query GetCloud9Players {
-      allSeries(
-        first: 50
-        filter: {
-          titleId: 3
-          types: ESPORTS
-        }
-        orderBy: StartTimeScheduled
-        orderDirection: DESC
-      ) {
+    query GetPlayers {
+      players(filter: {teamIdFilter: {id: "1"}}, first: 50) {
         edges {
           node {
             id
-            teams {
-              baseInfo {
-                name
-              }
-              players {
-                id
-                handle
-                firstName
-                lastName
-              }
+            nickname
+            firstName
+            lastName
+            title {
+              name
             }
           }
+        }
+        pageInfo {
+          hasNextPage
+          hasPreviousPage
         }
       }
     }
   `
 
   try {
-    console.log('Fetching Cloud9 players from recent series...')
+    console.log('Fetching Cloud9 players...')
     const data = await gridFetch(query)
-    console.log('Series data received:', data.allSeries?.edges?.length || 0, 'series')
+    console.log('Players data received:', data.players?.edges?.length || 0, 'players')
     
-    const series = data.allSeries?.edges || []
+    const playerEdges = data.players?.edges || []
     
-    if (series.length === 0) {
-      console.warn('No series found in GRID API response')
+    if (playerEdges.length === 0) {
+      console.warn('No players found in GRID API response')
       return []
     }
 
-    const playerMap = new Map<string, Player>()
     const roles = ['Top', 'Jungle', 'Mid', 'ADC', 'Support']
-    let roleIndex = 0
 
-    series.forEach((edge: any) => {
-      const seriesNode = edge.node
-      const teams = seriesNode.teams || []
-      
-      teams.forEach((team: any) => {
-        const teamName = team.baseInfo?.name || ''
-        if (teamName.toLowerCase().includes('cloud9') || teamName.toLowerCase().includes('c9')) {
-          const players = team.players || []
-          console.log(`Found ${players.length} Cloud9 players in ${teamName}`)
-          
-          players.forEach((player: any) => {
-            if (!playerMap.has(player.id)) {
-              playerMap.set(player.id, {
-                id: player.id.toString(),
-                name: player.handle || player.firstName || 'Unknown',
-                role: roles[roleIndex % roles.length],
-                kda: 0,
-                winRate: 0,
-                gamesPlayed: 0,
-              })
-              roleIndex++
-            }
-          })
-        }
-      })
+    const allPlayers = playerEdges.map((edge: any, index: number) => {
+      const player = edge.node
+      return {
+        id: player.id.toString(),
+        name: player.nickname || player.firstName || 'Unknown',
+        role: roles[index % roles.length],
+        kda: 0,
+        winRate: 0,
+        gamesPlayed: 0,
+      }
     })
 
-    const allPlayers = Array.from(playerMap.values())
-    console.log('Processed unique Cloud9 players:', allPlayers.map(p => p.name).join(', '))
+    console.log('Processed Cloud9 players:', allPlayers.map(p => p.name).join(', '))
     return allPlayers
   } catch (error) {
     console.error('Failed to fetch Cloud9 players:', error)
@@ -165,9 +138,8 @@ export async function fetchPlayerStats(playerId: string, limit: number = 20): Pr
 
 export async function fetchCloud9Matches(limit: number = 10): Promise<Match[]> {
   const query = `
-    query GetCloud9Series($first: Int!) {
+    query GetCloud9Series {
       allSeries(
-        first: $first
         filter: {
           titleId: 3
           types: ESPORTS
@@ -213,11 +185,11 @@ export async function fetchCloud9Matches(limit: number = 10): Promise<Match[]> {
 
   try {
     console.log('Fetching Cloud9 matches, limit:', limit)
-    const data = await gridFetch(query, { first: limit })
+    const data = await gridFetch(query)
     const series = data.allSeries?.edges || []
     console.log('Received', series.length, 'series')
 
-    return series.map((edge: any) => {
+    return series.slice(0, limit).map((edge: any) => {
       const seriesData = edge.node
       const teams = seriesData.teams || []
       const cloud9Team = teams.find((t: any) => t.baseInfo?.name?.toLowerCase().includes('cloud9'))
@@ -282,7 +254,6 @@ export async function fetchOngoingCloud9Games(): Promise<LiveSeriesData[]> {
   const query = `
     query GetOngoingGames {
       allSeries(
-        first: 20
         filter: {
           titleId: 3
           types: ESPORTS
@@ -339,6 +310,7 @@ export async function fetchOngoingCloud9Games(): Promise<LiveSeriesData[]> {
         }
       })
       .filter((s: any) => s.state === 'RUNNING' || s.games?.some((g: any) => g.state === 'RUNNING'))
+      .slice(0, 20)
     
     console.log(`Found ${liveSeries.length} ongoing series`)
     return liveSeries
@@ -510,8 +482,8 @@ export async function enrichPlayersWithStats(players: Player[]): Promise<Player[
 
 export async function fetchTournaments(limit: number = 50): Promise<Tournament[]> {
   const query = `
-    query GetTournaments($first: Int!) {
-      allTournaments(first: $first) {
+    query GetTournaments {
+      tournaments {
         pageInfo {
           hasPreviousPage
           hasNextPage
@@ -533,11 +505,11 @@ export async function fetchTournaments(limit: number = 50): Promise<Tournament[]
 
   try {
     console.log('Fetching tournaments, limit:', limit)
-    const data = await gridFetch(query, { first: limit })
-    const tournaments = data.allTournaments?.edges || []
+    const data = await gridFetch(query)
+    const tournaments = data.tournaments?.edges || []
     console.log('Received', tournaments.length, 'tournaments')
 
-    return tournaments.map((edge: any) => ({
+    return tournaments.slice(0, limit).map((edge: any) => ({
       id: edge.node.id.toString(),
       name: edge.node.name,
       nameShortened: edge.node.nameShortened,
@@ -581,23 +553,21 @@ export async function fetchTournament(tournamentId: string): Promise<Tournament 
 
 export async function fetchCloud9Tournaments(limit: number = 20): Promise<Tournament[]> {
   const query = `
-    query GetRecentTournaments($first: Int!) {
-      allSeries(
-        first: $first
-        filter: {
-          titleId: 3
-          types: ESPORTS
+    query GetRecentTournaments {
+      tournaments {
+        pageInfo {
+          hasPreviousPage
+          hasNextPage
+          startCursor
+          endCursor
         }
-        orderBy: StartTimeScheduled
-        orderDirection: DESC
-      ) {
+        totalCount
         edges {
+          cursor
           node {
-            tournament {
-              id
-              name
-              nameShortened
-            }
+            id
+            name
+            nameShortened
           }
         }
       }
@@ -605,26 +575,16 @@ export async function fetchCloud9Tournaments(limit: number = 20): Promise<Tourna
   `
 
   try {
-    console.log('Fetching tournaments from recent series, limit:', limit)
-    const data = await gridFetch(query, { first: limit })
-    const series = data.allSeries?.edges || []
-    
-    const tournamentMap = new Map<string, Tournament>()
-    
-    series.forEach((edge: any) => {
-      const tournament = edge.node.tournament
-      if (tournament && !tournamentMap.has(tournament.id)) {
-        tournamentMap.set(tournament.id, {
-          id: tournament.id.toString(),
-          name: tournament.name,
-          nameShortened: tournament.nameShortened,
-        })
-      }
-    })
+    console.log('Fetching tournaments, limit:', limit)
+    const data = await gridFetch(query)
+    const tournaments = data.tournaments?.edges || []
+    console.log('Received', tournaments.length, 'tournaments')
 
-    const tournaments = Array.from(tournamentMap.values())
-    console.log('Found', tournaments.length, 'unique tournaments from recent series')
-    return tournaments
+    return tournaments.slice(0, limit).map((edge: any) => ({
+      id: edge.node.id.toString(),
+      name: edge.node.name,
+      nameShortened: edge.node.nameShortened,
+    }))
   } catch (error) {
     console.error('Failed to fetch tournaments:', error)
     throw error
@@ -633,11 +593,10 @@ export async function fetchCloud9Tournaments(limit: number = 20): Promise<Tourna
 
 export async function fetchSeriesWithDetails(limit: number = 50, titleId: number = 3): Promise<any[]> {
   const query = `
-    query GetSeriesDetails($first: Int!, $titleId: Int!) {
+    query GetSeriesDetails {
       allSeries(
-        first: $first
         filter: {
-          titleId: $titleId
+          titleId: ${titleId}
           types: ESPORTS
         }
         orderBy: StartTimeScheduled
@@ -681,11 +640,11 @@ export async function fetchSeriesWithDetails(limit: number = 50, titleId: number
 
   try {
     console.log(`Fetching series details, limit: ${limit}, titleId: ${titleId}`)
-    const data = await gridFetch(query, { first: limit, titleId })
+    const data = await gridFetch(query)
     const series = data.allSeries?.edges || []
     console.log(`Received ${series.length} series with details`)
     
-    return series.map((edge: any) => ({
+    return series.slice(0, limit).map((edge: any) => ({
       cursor: edge.cursor,
       ...edge.node,
     }))
@@ -736,37 +695,31 @@ export async function fetchSeriesInTimeRange(
   limit: number = 50
 ): Promise<any[]> {
   const query = `
-    query GetSeriesInTimeRange($first: Int!, $titleId: Int!, $startTime: DateTime!, $endTime: DateTime!) {
+    query GetAllSeriesInNext24Hours {
       allSeries(
-        first: $first
-        filter: {
-          titleId: $titleId
-          types: ESPORTS
-          startTimeScheduled: {
-            gte: $startTime
-            lte: $endTime
+        filter:{
+          startTimeScheduled:{
+            gte: "${startTime}"
+            lte: "${endTime}"
           }
         }
         orderBy: StartTimeScheduled
-        orderDirection: DESC
       ) {
-        totalCount
-        pageInfo {
+        totalCount,
+        pageInfo{
           hasPreviousPage
           hasNextPage
           startCursor
           endCursor
         }
-        edges {
+        edges{
           cursor
-          node {
+          node{
             id
             title {
               nameShortened
             }
             tournament {
-              id
-              name
               nameShortened
             }
             startTimeScheduled
@@ -788,16 +741,11 @@ export async function fetchSeriesInTimeRange(
 
   try {
     console.log(`Fetching series in time range: ${startTime} to ${endTime}`)
-    const data = await gridFetch(query, { 
-      first: limit, 
-      titleId,
-      startTime,
-      endTime,
-    })
+    const data = await gridFetch(query)
     const series = data.allSeries?.edges || []
     console.log(`Received ${series.length} series in time range`)
     
-    return series.map((edge: any) => ({
+    return series.slice(0, limit).map((edge: any) => ({
       cursor: edge.cursor,
       ...edge.node,
     }))
