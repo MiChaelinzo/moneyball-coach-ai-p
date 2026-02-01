@@ -91,6 +91,18 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
     }
   }, [teams, selectedTeam])
 
+  useEffect(() => {
+    if (selectedPlayer && !playerStats && !isLoadingPlayer && players.length > 0) {
+      handleFetchPlayerStats()
+    }
+  }, [selectedPlayer, players.length])
+
+  useEffect(() => {
+    if (selectedTeam && !teamStats && !isLoadingTeam && teams.length > 0) {
+      handleFetchTeamStats()
+    }
+  }, [selectedTeam, teams.length])
+
   const renderPlayerStats = (stats: PlayerStatistics) => {
     const winData = stats.game.wins.find(w => w.value === true)
     const lossData = stats.game.wins.find(w => w.value === false)
@@ -413,6 +425,13 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
         <p className="text-sm text-muted-foreground">
           Real-time player and team statistics from GRID API
         </p>
+        {players.length === 0 && teams.length === 0 && (
+          <div className="mt-2 p-3 bg-warning/10 border border-warning/30 rounded-lg">
+            <p className="text-sm text-warning">
+              No players or teams available. Initialize GRID API and fetch data first.
+            </p>
+          </div>
+        )}
       </div>
 
       <Tabs defaultValue="player" className="space-y-6">
@@ -443,14 +462,18 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
                   </label>
                   <Select value={selectedPlayer} onValueChange={setSelectedPlayer}>
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Choose a player..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {players.map(player => (
-                        <SelectItem key={player.id} value={player.id}>
-                          {player.name} - {player.role}
-                        </SelectItem>
-                      ))}
+                      {players.length > 0 ? (
+                        players.map(player => (
+                          <SelectItem key={player.id} value={player.id}>
+                            {player.name} - {player.role}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="none" disabled>No players available</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -482,22 +505,42 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
             </CardContent>
           </Card>
 
-          {playerStats && playerStats.game.count > 0 ? (
+          {isLoadingPlayer ? (
+            <Card className="glow-border">
+              <CardContent className="py-12 text-center">
+                <div className="animate-spin w-12 h-12 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
+                <p className="text-muted-foreground">
+                  Fetching player statistics from GRID API...
+                </p>
+              </CardContent>
+            </Card>
+          ) : playerStats && playerStats.game.count > 0 ? (
             renderPlayerStats(playerStats)
           ) : playerStats === null ? (
             <Card className="glow-border">
               <CardContent className="py-12 text-center">
                 <User size={48} weight="duotone" className="text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">
-                  Select a player and click "Fetch Stats" to view detailed statistics
+                <p className="text-muted-foreground mb-2">
+                  {players.length > 0 
+                    ? "Select a player and click 'Fetch Stats' to view detailed statistics"
+                    : "No players available. Fetch data from GRID API first."}
                 </p>
+                {players.length > 0 && (
+                  <p className="text-xs text-muted-foreground/70">
+                    Statistics are fetched from the GRID Statistics Feed API in real-time
+                  </p>
+                )}
               </CardContent>
             </Card>
           ) : (
             <Card className="glow-border">
               <CardContent className="py-12 text-center">
-                <p className="text-muted-foreground">
+                <User size={48} weight="duotone" className="text-warning mx-auto mb-4" />
+                <p className="text-muted-foreground mb-2">
                   No statistics available for this player
+                </p>
+                <p className="text-xs text-muted-foreground/70">
+                  This player may not have any recorded match data in the GRID system
                 </p>
               </CardContent>
             </Card>
@@ -520,14 +563,18 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
                   </label>
                   <Select value={selectedTeam} onValueChange={setSelectedTeam}>
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Choose a team..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {teams.map(team => (
-                        <SelectItem key={team.id} value={team.id}>
-                          {team.name}
-                        </SelectItem>
-                      ))}
+                      {teams.length > 0 ? (
+                        teams.map(team => (
+                          <SelectItem key={team.id} value={team.id}>
+                            {team.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="none" disabled>No teams available</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -559,22 +606,42 @@ export function StatisticsView({ players, teams, matches }: StatisticsViewProps)
             </CardContent>
           </Card>
 
-          {teamStats && teamStats.game.count > 0 ? (
+          {isLoadingTeam ? (
+            <Card className="glow-border">
+              <CardContent className="py-12 text-center">
+                <div className="animate-spin w-12 h-12 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
+                <p className="text-muted-foreground">
+                  Fetching team statistics from GRID API...
+                </p>
+              </CardContent>
+            </Card>
+          ) : teamStats && teamStats.game.count > 0 ? (
             renderTeamStats(teamStats)
           ) : teamStats === null ? (
             <Card className="glow-border">
               <CardContent className="py-12 text-center">
                 <Users size={48} weight="duotone" className="text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">
-                  Select a team and click "Fetch Stats" to view detailed statistics
+                <p className="text-muted-foreground mb-2">
+                  {teams.length > 0 
+                    ? "Select a team and click 'Fetch Stats' to view detailed statistics"
+                    : "No teams available. Fetch data from GRID API first."}
                 </p>
+                {teams.length > 0 && (
+                  <p className="text-xs text-muted-foreground/70">
+                    Statistics are fetched from the GRID Statistics Feed API in real-time
+                  </p>
+                )}
               </CardContent>
             </Card>
           ) : (
             <Card className="glow-border">
               <CardContent className="py-12 text-center">
-                <p className="text-muted-foreground">
+                <Users size={48} weight="duotone" className="text-warning mx-auto mb-4" />
+                <p className="text-muted-foreground mb-2">
                   No statistics available for this team
+                </p>
+                <p className="text-xs text-muted-foreground/70">
+                  This team may not have any recorded match data in the GRID system
                 </p>
               </CardContent>
             </Card>
