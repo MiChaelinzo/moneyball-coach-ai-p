@@ -2,19 +2,32 @@
 
 This application integrates with GRID's esports data API to fetch real Cloud9 match data and player statistics.
 
+## ⚡ Recent Updates
+
+**Latest**: GRID API now uses axios with proper TypeScript typing for improved error handling and type safety. All API calls use the recommended header-based authentication method.
+
 ## Pre-Configured API Key
 
-This application comes pre-configured with a GRID API key for immediate access to Cloud9 esports data. The API key is automatically initialized when the application loads.
+This application comes pre-configured with a GRID API key (`GacqICJfwHbtteMEbQ8mUVztiBHCuKuzijh7m4N8`) for immediate access to Cloud9 esports data. The API key is automatically initialized when the application loads.
 
 ## Setting Up the Integration
 
 ### Automatic Initialization
 
 The application automatically:
-- Initializes the GRID API with the pre-configured key
+- Initializes the GRID API with the pre-configured key using **axios** for HTTP requests
 - Connects to the GRID API endpoint: `https://api.grid.gg/central-data/graphql`
-- Uses the `x-api-key` header for authentication (secure method)
+- Uses the `x-api-key` header for authentication (secure method recommended by GRID)
+- Implements proper TypeScript typing for all API responses
+- Provides enhanced error handling with axios error detection
 - Is ready to fetch Cloud9 data immediately
+
+### Technology Stack
+
+- **HTTP Client**: axios (v1.13.4)
+- **Authentication**: Header-based with `x-api-key` (recommended method)
+- **Type Safety**: Full TypeScript support with typed responses
+- **Error Handling**: axios-specific error detection and reporting
 
 ### Manual Data Fetching
 
@@ -59,13 +72,35 @@ The application intelligently switches between data sources:
 
 ## API Endpoints Used
 
-The integration uses GRID's Central Data GraphQL API:
+The integration uses GRID's Central Data GraphQL API with axios:
 
 ```
 https://api.grid.gg/central-data/graphql
 ```
 
-Authentication is handled via the `x-api-key` request header, which is the secure method recommended by GRID's documentation.
+Authentication is handled via the `x-api-key` request header using axios, which is the secure method recommended by GRID's documentation.
+
+### Example axios Request
+
+```typescript
+import axios from 'axios';
+
+const response = await axios.post(
+  'https://api.grid.gg/central-data/graphql',
+  {
+    query: graphqlQuery,
+    variables: queryVariables,
+  },
+  {
+    headers: {
+      'x-api-key': 'YOUR_API_KEY',
+      'Content-Type': 'application/json',
+    },
+  }
+);
+
+const data = response.data.data;
+```
 
 ### Queries
 
@@ -150,12 +185,30 @@ To optimize performance and provide offline functionality:
 
 ## Error Handling
 
-The application gracefully handles various error scenarios:
+The application gracefully handles various error scenarios with enhanced axios error detection:
 
-- **Invalid API Key**: Clear error message with setup instructions
-- **Network Errors**: Falls back to cached data
+- **Invalid API Key**: Clear error message with setup instructions, detected via axios error response
+- **400 Bad Request**: GraphQL query syntax errors or missing variables
+- **401 Unauthorized**: Invalid or missing API key authentication
+- **Network Errors**: Falls back to cached data, with detailed axios error reporting
 - **API Rate Limits**: Respects rate limits and retries appropriately
 - **Missing Data**: Uses mock data as fallback for demonstrations
+- **GraphQL Errors**: Parses and displays specific GraphQL error messages from response
+
+### Error Detection Example
+
+```typescript
+try {
+  const response = await axios.post(url, data, config);
+  return response.data.data;
+} catch (error) {
+  if (axios.isAxiosError(error)) {
+    console.error('API Error:', error.response?.status, error.response?.data);
+    throw new Error(`GRID API error (${error.response?.status}): ${error.response?.statusText}`);
+  }
+  throw error;
+}
+```
 
 ## Privacy & Security
 
@@ -171,16 +224,34 @@ The application gracefully handles various error scenarios:
 - Try disconnecting and reconnecting
 - Check that your API key hasn't expired
 
+### 400 Bad Request Error
+- **Cause**: GraphQL query syntax error or invalid variables
+- **Solution**: Check the browser console for detailed error messages
+- **Fix**: Verify GraphQL query syntax and variable types match schema
+- Review the query in GRID's GraphQL Playground
+
+### 401 Unauthorized Error
+- **Cause**: Invalid or missing API key
+- **Solution**: Verify API key is correct in the setup dialog
+- **Fix**: Re-enter your API key or use the pre-configured default key
+
 ### No Data Loading
 - Verify your internet connection
 - Check if GRID API is operational
 - Try the manual "Refresh Data" button
 - Clear cache and reconnect
+- Check browser console for axios error messages
 
 ### Stale Data
 - Click "Refresh Data" to force an update
 - Check the last update timestamp
 - Ensure auto-refresh is enabled
+
+### GraphQL Errors
+- Check browser console for specific GraphQL error messages
+- Verify field names match GRID API schema
+- Ensure filter parameters are valid
+- Test query in GRID's GraphQL Playground
 
 ## Development Notes
 
@@ -215,6 +286,18 @@ The application works fully without a GRID API key using mock data, allowing you
 ## Support
 
 For GRID API documentation and support:
-- [GRID API Documentation](https://api-docs.grid.gg/)
+- [GRID API Documentation](https://portal.grid.gg/documentation)
+- [GRID GraphQL Playground](https://portal.grid.gg/gql-playground)
+- [Authentication Guide](https://portal.grid.gg/documentation/tutorials/developers/authenticating-your-api-requests)
+- [Fetching Series Guide](https://portal.grid.gg/documentation/tutorials/developers/fetching-lists-of-series-from-the-grid-api)
 - Hackathon Discord channel
 - Contact Cloud9 hackathon organizers
+
+## Additional Resources
+
+See `GRID_API_IMPLEMENTATION.md` for detailed technical documentation including:
+- Complete TypeScript implementation examples
+- GraphQL query templates
+- Error handling patterns
+- Authentication methods comparison
+- Game title ID reference

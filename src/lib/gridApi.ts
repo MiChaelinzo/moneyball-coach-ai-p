@@ -1,3 +1,4 @@
+import axios, { AxiosResponse, AxiosError } from 'axios'
 import type { Player, Match, LiveMatch, LiveMatchPlayer } from './types'
 
 const GRID_API_BASE = 'https://api.grid.gg/central-data/graphql'
@@ -17,6 +18,11 @@ export function isGridApiInitialized(): boolean {
   return gridConfig !== null && gridConfig.apiKey.length > 0
 }
 
+interface GraphQLResponse<T = any> {
+  data: T
+  errors?: Array<{ message: string; locations?: any[]; path?: string[] }>
+}
+
 async function gridFetch(query: string, variables: Record<string, any> = {}) {
   if (!gridConfig) {
     throw new Error('GRID API not initialized. Please call initializeGridApi() with your API key.')
@@ -24,36 +30,43 @@ async function gridFetch(query: string, variables: Record<string, any> = {}) {
 
   console.log('GRID API Request:', { endpoint: GRID_API_BASE, hasApiKey: !!gridConfig.apiKey })
 
-  const response = await fetch(GRID_API_BASE, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': gridConfig.apiKey,
-    },
-    body: JSON.stringify({
-      query,
-      variables,
-    }),
-  })
+  try {
+    const response: AxiosResponse<GraphQLResponse> = await axios.post(
+      GRID_API_BASE,
+      {
+        query,
+        variables,
+      },
+      {
+        headers: {
+          'x-api-key': gridConfig.apiKey,
+          'Content-Type': 'application/json',
+        },
+      }
+    )
 
-  console.log('GRID API Response Status:', response.status, response.statusText)
+    console.log('GRID API Response Status:', response.status)
 
-  if (!response.ok) {
-    const errorText = await response.text()
-    console.error('GRID API Error Response:', errorText)
-    throw new Error(`GRID API error (${response.status}): ${response.statusText}`)
+    if (response.data.errors) {
+      console.error('GRID API GraphQL errors:', response.data.errors)
+      throw new Error(`GRID API GraphQL error: ${response.data.errors[0]?.message || 'Unknown error'}`)
+    }
+
+    console.log('GRID API Success:', Object.keys(response.data.data || {}))
+
+    return response.data.data
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError
+      console.error('GRID API Error:', axiosError.response?.status, axiosError.response?.data)
+      throw new Error(
+        `GRID API error (${axiosError.response?.status || 'unknown'}): ${
+          axiosError.response?.statusText || axiosError.message
+        }`
+      )
+    }
+    throw error
   }
-
-  const data = await response.json()
-  
-  if (data.errors) {
-    console.error('GRID API GraphQL errors:', data.errors)
-    throw new Error(`GRID API GraphQL error: ${data.errors[0]?.message || 'Unknown error'}`)
-  }
-
-  console.log('GRID API Success:', Object.keys(data.data || {}))
-
-  return data.data
 }
 
 export async function fetchCloud9Players(): Promise<Player[]> {
