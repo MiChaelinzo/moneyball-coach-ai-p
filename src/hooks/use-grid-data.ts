@@ -18,8 +18,10 @@ interface GridDataState {
   isInitialized: boolean
 }
 
+const DEFAULT_API_KEY = 'GacqICJfwHbtteMEbQ8mUVztiBHCuKuzijh7m4N8'
+
 export function useGridData() {
-  const [apiKey, setApiKey] = useKV<string>('grid-api-key', '')
+  const [apiKey, setApiKey] = useKV<string>('grid-api-key', DEFAULT_API_KEY)
   const [cachedPlayers, setCachedPlayers] = useKV<Player[]>('grid-cached-players', [])
   const [cachedMatches, setCachedMatches] = useKV<Match[]>('grid-cached-matches', [])
   const [lastFetchTime, setLastFetchTime] = useKV<number>('grid-last-fetch', 0)
@@ -111,19 +113,22 @@ export function useGridData() {
   }, [lastFetchTime, cachedPlayers, cachedMatches, setCachedPlayers, setCachedMatches, setLastFetchTime])
 
   const clearApiKey = useCallback(() => {
-    setApiKey('')
-    setState({
-      players: [],
-      matches: [],
-      isLoading: false,
+    setApiKey(DEFAULT_API_KEY)
+    initializeGridApi(DEFAULT_API_KEY)
+    setState(prev => ({
+      ...prev,
+      isInitialized: true,
       error: null,
-      isInitialized: false,
-    })
+    }))
   }, [setApiKey])
 
   useEffect(() => {
-    if (apiKey && apiKey.length > 0 && !isGridApiInitialized()) {
-      initializeApi(apiKey)
+    if (apiKey && apiKey.length > 0) {
+      if (!isGridApiInitialized()) {
+        initializeApi(apiKey)
+      }
+    } else {
+      initializeApi(DEFAULT_API_KEY)
     }
   }, [apiKey, initializeApi])
 

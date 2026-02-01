@@ -2,28 +2,32 @@
 
 This application integrates with GRID's esports data API to fetch real Cloud9 match data and player statistics.
 
-## Getting Your GRID API Key
+## Pre-Configured API Key
 
-1. **Apply for Access**: Visit the hackathon resources page and apply for GRID API access
-2. **Receive Your Key**: Once approved, you'll receive your personal API key
-3. **Keep It Secure**: Never commit your API key to version control
+This application comes pre-configured with a GRID API key for immediate access to Cloud9 esports data. The API key is automatically initialized when the application loads.
 
 ## Setting Up the Integration
 
-### In the Application
+### Automatic Initialization
+
+The application automatically:
+- Initializes the GRID API with the pre-configured key
+- Connects to the GRID API endpoint: `https://api.grid.gg/central-data/graphql`
+- Uses the `x-api-key` header for authentication (secure method)
+- Is ready to fetch Cloud9 data immediately
+
+### Manual Data Fetching
 
 1. Launch the application
-2. On the dashboard, you'll see the "GRID API Integration" card
-3. Click the "Configure API" button
-4. Enter your API key in the dialog
-5. Click "Connect"
+2. On the dashboard, you'll see the "GRID API Connected" card
+3. Click "Refresh Data" to fetch the latest Cloud9 data
+4. The application will automatically fetch data on first load
 
 The application will:
-- Validate your API key
-- Fetch Cloud9 player roster
+- Fetch Cloud9 player roster with current statistics
 - Retrieve recent match history
 - Cache data locally for offline use
-- Auto-refresh data every 5 minutes
+- Auto-refresh data every 5 minutes when requested
 
 ### Data Sources
 
@@ -55,11 +59,13 @@ The application intelligently switches between data sources:
 
 ## API Endpoints Used
 
-The integration uses GRID's GraphQL API:
+The integration uses GRID's Central Data GraphQL API:
 
 ```
-https://api-op.grid.gg/central-data/graphql
+https://api.grid.gg/central-data/graphql
 ```
+
+Authentication is handled via the `x-api-key` request header, which is the secure method recommended by GRID's documentation.
 
 ### Queries
 

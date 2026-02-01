@@ -62,7 +62,7 @@ export function GridApiSetup({
                   <Check size={20} weight="bold" className="text-success" />
                 </CardTitle>
                 <CardDescription>
-                  Using live Cloud9 esports data
+                  Using live Cloud9 esports data from GRID API
                 </CardDescription>
               </div>
             </div>
@@ -75,16 +75,16 @@ export function GridApiSetup({
                 className="gap-2"
               >
                 <ArrowsClockwise size={16} weight="bold" className={isLoading ? 'animate-spin' : ''} />
-                Refresh Data
+                {isLoading ? 'Refreshing...' : 'Refresh Data'}
               </Button>
               <Button
-                onClick={handleClearAndReset}
-                variant="ghost"
+                onClick={() => setShowSetup(true)}
+                variant="outline"
                 size="sm"
-                className="gap-2 text-destructive hover:text-destructive"
+                className="gap-2"
               >
-                <X size={16} weight="bold" />
-                Disconnect
+                <Key size={16} weight="bold" />
+                Update Key
               </Button>
             </div>
           </div>

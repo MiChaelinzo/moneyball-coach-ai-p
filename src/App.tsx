@@ -25,10 +25,20 @@ function App() {
     const [selectedMatch, setSelectedMatch] = useState<string>('')
     const [aiInsight, setAiInsight] = useState<string>('')
     const [isGeneratingInsight, setIsGeneratingInsight] = useState(false)
+    const [hasAutoFetched, setHasAutoFetched] = useState(false)
     const { liveMatch, toggleTracking } = useLiveMatch()
 
     const players: Player[] = gridData.players.length > 0 ? gridData.players : PLAYERS
     const matches: Match[] = gridData.matches.length > 0 ? gridData.matches : MATCHES
+    
+    useEffect(() => {
+        if (gridData.isInitialized && !hasAutoFetched && !gridData.hasCachedData) {
+            setHasAutoFetched(true)
+            setTimeout(() => {
+                gridData.fetchData(false)
+            }, 1000)
+        }
+    }, [gridData.isInitialized, hasAutoFetched, gridData.hasCachedData])
     
     useEffect(() => {
         if (matches.length > 0 && !selectedMatch) {

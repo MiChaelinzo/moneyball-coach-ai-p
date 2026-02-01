@@ -1,15 +1,16 @@
 import type { Player, Match, LiveMatch, LiveMatchPlayer } from './types'
 
-const GRID_API_BASE = 'https://api-op.grid.gg/central-data/graphql'
+const GRID_API_BASE = 'https://api.grid.gg/central-data/graphql'
+const DEFAULT_API_KEY = 'GacqICJfwHbtteMEbQ8mUVztiBHCuKuzijh7m4N8'
 
 interface GridApiConfig {
   apiKey: string
 }
 
-let gridConfig: GridApiConfig | null = null
+let gridConfig: GridApiConfig | null = { apiKey: DEFAULT_API_KEY }
 
 export function initializeGridApi(apiKey: string) {
-  gridConfig = { apiKey }
+  gridConfig = { apiKey: apiKey || DEFAULT_API_KEY }
 }
 
 export function isGridApiInitialized(): boolean {
