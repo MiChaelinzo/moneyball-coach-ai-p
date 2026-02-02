@@ -93,10 +93,6 @@ export async function fetchCloud9Players(): Promise<Player[]> {
               id
               name
             }
-            homeCountry {
-              code
-              name
-            }
             activeSince
           }
         }
@@ -143,10 +139,10 @@ export async function fetchCloud9Players(): Promise<Player[]> {
         gamesPlayed: 0,
         title: titleIdToName(titleId),
         titleId: titleId,
-        biography: player.homeCountry ? {
-          nationality: player.homeCountry.name,
+        biography: player.activeSince ? {
+          nationality: 'Unknown',
           bio: '',
-          careerStart: player.activeSince ? parseInt(player.activeSince) : undefined,
+          careerStart: parseInt(player.activeSince),
         } : undefined,
       }
     })
@@ -1373,10 +1369,6 @@ export async function fetchPlayerDetails(playerId: string): Promise<any> {
           id
           name
         }
-        homeCountry {
-          code
-          name
-        }
         activeSince
       }
     }
@@ -1411,7 +1403,7 @@ export async function enrichPlayerWithBiography(player: Player): Promise<Player>
     const stats = await fetchPlayerStats(player.id)
     
     const titleName = player.title || 'esports'
-    const nationality = playerDetails?.homeCountry?.name || 'Unknown'
+    const nationality = 'Unknown'
     const careerStart = playerDetails?.activeSince || 2020
     
     const prompt = spark.llmPrompt`You are a professional esports biographer. Generate a concise, engaging 2-3 sentence biography for an esports player named ${player.name}. 
