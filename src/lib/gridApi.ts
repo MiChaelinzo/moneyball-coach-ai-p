@@ -93,7 +93,6 @@ export async function fetchCloud9Players(): Promise<Player[]> {
               id
               name
             }
-            activeSince
           }
         }
         pageInfo {
@@ -139,11 +138,6 @@ export async function fetchCloud9Players(): Promise<Player[]> {
         gamesPlayed: 0,
         title: titleIdToName(titleId),
         titleId: titleId,
-        biography: player.activeSince ? {
-          nationality: 'Unknown',
-          bio: '',
-          careerStart: parseInt(player.activeSince),
-        } : undefined,
       }
     })
 
