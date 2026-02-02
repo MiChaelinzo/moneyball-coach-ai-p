@@ -173,3 +173,34 @@ export interface Team {
     }
   }>
 }
+
+export interface TransferRecord {
+  id: string
+  playerId: string
+  playerName: string
+  fromTeam: string
+  toTeam: string
+  fromTeamId?: string
+  toTeamId?: string
+  transferDate: string
+  transferType: 'promotion' | 'demotion' | 'lateral' | 'return' | 'external'
+  gameTitle: GameTitle
+  reason?: string
+  performance?: {
+    before: {
+      winRate: number
+      kda: number
+      gamesPlayed: number
+    }
+    after?: {
+      winRate: number
+      kda: number
+      gamesPlayed: number
+    }
+  }
+  contractDetails?: {
+    duration?: string
+    value?: string
+  }
+  notes?: string
+}

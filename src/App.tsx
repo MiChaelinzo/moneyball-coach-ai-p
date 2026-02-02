@@ -26,7 +26,8 @@ import { CrossTitleComparisonView } from '@/components/CrossTitleComparisonView'
 import { TitleRecommendationView } from '@/components/TitleRecommendationView'
 import { ExportButton } from '@/components/ExportButton'
 import { BatchBiographyEnricher } from '@/components/BatchBiographyEnricher'
-import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise, MapPin, Trophy, ListBullets, CalendarBlank, GameController, ChartLineUp, ArrowsLeftRight, Lightbulb } from '@phosphor-icons/react'
+import { PlayerTransferHistoryView } from '@/components/PlayerTransferHistoryView'
+import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise, MapPin, Trophy, ListBullets, CalendarBlank, GameController, ChartLineUp, ArrowsLeftRight, Lightbulb, ArrowsClockwise } from '@phosphor-icons/react'
 import { PLAYERS, INSIGHTS, STRATEGIC_IMPACTS, getPlayerAnalytics, MATCHES, MISTAKES, generateAIInsight } from '@/lib/mockData'
 import { mergeEnrichedData } from '@/lib/biographyEnrichment'
 import { useLiveMatch } from '@/hooks/use-live-match'
@@ -314,7 +315,7 @@ function App() {
                         </div>
 
                         <Tabs defaultValue="dashboard" className="space-y-8">
-                            <TabsList className="grid w-full max-w-6xl grid-cols-16 mx-auto text-xs">
+                            <TabsList className="grid w-full max-w-6xl grid-cols-17 mx-auto text-xs">
                                 <TabsTrigger value="organization" className="flex items-center gap-1.5 px-2">
                                     <Cpu size={16} weight="duotone" />
                                     <span className="hidden sm:inline">Org</span>
@@ -322,6 +323,10 @@ function App() {
                                 <TabsTrigger value="teams" className="flex items-center gap-1.5 px-2">
                                     <Trophy size={16} weight="duotone" />
                                     <span className="hidden sm:inline">Teams</span>
+                                </TabsTrigger>
+                                <TabsTrigger value="transfers" className="flex items-center gap-1.5 px-2">
+                                    <ArrowsClockwise size={16} weight="duotone" />
+                                    <span className="hidden sm:inline">Transfers</span>
                                 </TabsTrigger>
                                 <TabsTrigger value="statistics" className="flex items-center gap-1.5 px-2">
                                     <ChartLineUp size={16} weight="duotone" />
@@ -397,6 +402,10 @@ function App() {
                                     teams={gridData.teams} 
                                     isLoading={gridData.isLoading}
                                 />
+                            </TabsContent>
+
+                            <TabsContent value="transfers" className="space-y-6">
+                                <PlayerTransferHistoryView players={players} />
                             </TabsContent>
 
                             <TabsContent value="statistics" className="space-y-6">
