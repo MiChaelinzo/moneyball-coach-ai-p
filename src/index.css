@@ -81,15 +81,6 @@
   --radius-full: 9999px;
 }
 
-@keyframes glow-pulse {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(0, 200, 255, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 30px rgba(0, 200, 255, 0.5);
-  }
-}
-
 @keyframes count-up {
   from {
     opacity: 0.5;
@@ -98,6 +89,24 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(114, 207, 237, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(114, 207, 237, 0.6);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
   }
 }
 
@@ -119,4 +128,13 @@
 .glow-border-destructive {
   border: 1px solid oklch(0.60 0.22 25 / 0.4);
   box-shadow: 0 0 15px oklch(0.60 0.22 25 / 0.2);
+}
+
+.hover-glow {
+  transition: all 0.3s ease;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 25px oklch(0.72 0.16 195 / 0.4);
+  transform: translateY(-2px);
 }

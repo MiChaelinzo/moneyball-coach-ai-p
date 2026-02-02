@@ -124,6 +124,15 @@ This is a sophisticated analytics platform that requires multiple interconnected
 ## Design Direction
 The design should evoke the feeling of a cutting-edge command center—intelligent, precise, and performance-oriented. Think "Moneyball meets esports war room": data-rich but not overwhelming, with a focus on clarity and actionable intelligence. The aesthetic should feel modern and technical, with a slight edge that resonates with competitive gaming culture while maintaining professional coaching credibility.
 
+**NEW: Dynamic Visual Effects** - The application features an immersive, animated background system inspired by Cloud9's esports brand identity and competitive gaming aesthetics. Includes:
+- **Particle Network System**: Animated particle field with interconnected nodes that pulse and move across the screen, creating a sense of data flow and connectivity
+- **Ambient Gradients**: Multiple animated radial gradients that shift and pulse to create atmospheric depth
+- **Energy Beams**: Subtle horizontal and vertical light beams that traverse the screen, evoking the energy of competitive gaming
+- **Mouse Trail Effect**: Interactive particle trail that follows cursor movement with fade and scale animations, enhancing user engagement
+- **Floating Particles**: Rising particle elements that drift upward with natural physics, adding life to the interface
+- **Animated Cloud9 Logo**: Subtle, pulsing C9 watermark with glow effects positioned in the corner as a branded element
+- All effects use Cloud9's signature cyan color palette with transparency and blend modes to avoid overwhelming content
+
 ## Color Selection
 A dark, high-contrast scheme with electric accents that emphasizes data clarity and creates focus.
 
@@ -158,6 +167,15 @@ Typography should balance technical precision with competitive energy, using dis
 
 ## Animations
 Animations should feel purposeful and performance-oriented, with snappy timing that reinforces the platform's analytical precision. Use motion to guide attention to new insights and emphasize data relationships. Key animation moments: (1) Smooth transitions when switching between views to maintain spatial context, (2) Staggered reveal of insight cards to create rhythm and digestibility, (3) Pulsing glow on critical insights to draw immediate attention, (4) Number counter animations when metrics update to emphasize changes, (5) Subtle hover states with scale and glow on interactive elements to reinforce interactivity.
+
+**NEW: Enhanced Background Animations** - The application features layered, performance-optimized animations that create an immersive esports environment:
+- **Particle Network Animation**: Canvas-based particle system with physics-based movement and connection lines between nearby particles, creating organic data-flow visualization
+- **Radial Gradient Pulses**: Multiple overlapping radial gradients that scale and fade in 8-15 second loops for ambient atmosphere
+- **Energy Beam Sweeps**: Linear gradients moving across the screen horizontally and vertically at varying speeds (4-7 seconds) creating scanning/tracking effects
+- **Mouse Trail Physics**: Real-time particle generation on cursor movement with smooth fade-out, scale animations (0.3s duration), and size progression
+- **Floating Particle Rise**: 20 particles continuously rising from bottom to top with randomized horizontal drift and opacity transitions
+- **Logo Pulse Animation**: Subtle rotation (-5° to 5°), scale (1.0 to 1.05), and glow intensity changes on C9 watermark (8s duration)
+- All animations use `framer-motion` and native CSS for optimal performance, with careful layering via z-index and blend modes to ensure content readability
 
 ## Component Selection
 - **Components**: 

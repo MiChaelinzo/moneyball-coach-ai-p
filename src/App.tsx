@@ -27,6 +27,11 @@ import { TitleRecommendationView } from '@/components/TitleRecommendationView'
 import { ExportButton } from '@/components/ExportButton'
 import { BatchBiographyEnricher } from '@/components/BatchBiographyEnricher'
 import { PlayerTransferHistoryView } from '@/components/PlayerTransferHistoryView'
+import { DynamicBackground } from '@/components/DynamicBackground'
+import { MouseTrail } from '@/components/MouseTrail'
+import { FloatingParticles } from '@/components/FloatingParticles'
+import { AnimatedCloud9Logo } from '@/components/AnimatedCloud9Logo'
+import { EnergyBeams } from '@/components/EnergyBeams'
 import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise, MapPin, Trophy, ListBullets, CalendarBlank, GameController, ChartLineUp, ArrowsLeftRight, Lightbulb, ArrowsClockwise } from '@phosphor-icons/react'
 import { PLAYERS, INSIGHTS, STRATEGIC_IMPACTS, getPlayerAnalytics, MATCHES, MISTAKES, generateAIInsight } from '@/lib/mockData'
 import { mergeEnrichedData } from '@/lib/biographyEnrichment'
@@ -170,20 +175,12 @@ function App() {
 
     return (
         <div className="min-h-screen bg-background text-foreground">
+            <DynamicBackground />
+            <MouseTrail />
+            <FloatingParticles />
+            <AnimatedCloud9Logo />
+            <EnergyBeams />
             <div className="relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5" />
-                <div 
-                    className="absolute inset-0 opacity-30"
-                    style={{
-                        backgroundImage: `repeating-linear-gradient(
-                            0deg,
-                            transparent,
-                            transparent 2px,
-                            oklch(0.72 0.16 195 / 0.03) 2px,
-                            oklch(0.72 0.16 195 / 0.03) 4px
-                        )`
-                    }}
-                />
                 
                 <div className="relative">
                     <header className="border-b border-border/50 backdrop-blur-sm bg-background/80">
