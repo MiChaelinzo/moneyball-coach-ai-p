@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { CalendarBlank, ArrowClockwise, Trophy, GameController } from '@phosphor-icons/react'
-import axios from 'axios'
 import { toast } from 'sonner'
 
 const CENTRAL_DATA_ENDPOINT = 'https://api-op.grid.gg/central-data/graphql'
@@ -87,28 +86,32 @@ export function SeriesFinder({ onSelectSeries }: SeriesFinderProps) {
     `
 
     try {
-      const response = await axios.post(
-        CENTRAL_DATA_ENDPOINT,
-        {
+      const response = await fetch(CENTRAL_DATA_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'x-api-key': DEFAULT_API_KEY,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           query,
           variables: {
             gte: now.toISOString(),
             lte: tomorrow.toISOString(),
           },
-        },
-        {
-          headers: {
-            'x-api-key': DEFAULT_API_KEY,
-            'Content-Type': 'application/json',
-          },
-        }
-      )
+        }),
+      })
 
-      if (response.data.errors) {
-        throw new Error(response.data.errors[0]?.message || 'Unknown error')
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status} ${response.statusText}`)
       }
 
-      const seriesData = response.data.data.allSeries.edges.map((edge: any) => edge.node)
+      const result = await response.json()
+
+      if (result.errors) {
+        throw new Error(result.errors[0]?.message || 'Unknown error')
+      }
+
+      const seriesData = result.data.allSeries.edges.map((edge: any) => edge.node)
       setSeries(seriesData)
       
       if (seriesData.length === 0) {
@@ -117,9 +120,7 @@ export function SeriesFinder({ onSelectSeries }: SeriesFinderProps) {
         toast.success(`Found ${seriesData.length} upcoming series`)
       }
     } catch (err) {
-      const errorMsg = axios.isAxiosError(err)
-        ? `Failed to fetch series: ${err.response?.status || err.message}`
-        : 'Unexpected error occurred'
+      const errorMsg = err instanceof Error ? err.message : 'Unexpected error occurred'
       setError(errorMsg)
       toast.error(errorMsg)
     } finally {

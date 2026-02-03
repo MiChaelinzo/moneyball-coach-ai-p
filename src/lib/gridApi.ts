@@ -1,4 +1,3 @@
-import axios, { AxiosResponse, AxiosError } from 'axios'
 import type { Player, Match, LiveMatch, LiveMatchPlayer, Tournament, Team, GameTitle, CareerMilestone } from './types'
 
 declare global {
@@ -43,39 +42,39 @@ async function gridFetch(query: string, variables: Record<string, any> = {}, end
   console.log('GRID API Request:', { endpoint, hasApiKey: !!gridConfig.apiKey })
 
   try {
-    const response: AxiosResponse<GraphQLResponse> = await axios.post(
-      endpoint,
-      {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': gridConfig.apiKey,
+      },
+      body: JSON.stringify({
         query,
         variables,
-      },
-      {
-        headers: {
-          'x-api-key': gridConfig.apiKey,
-          'Content-Type': 'application/json',
-        },
-      }
-    )
+      }),
+    })
 
     console.log('GRID API Response Status:', response.status)
 
-    if (response.data.errors) {
-      console.error('GRID API GraphQL errors:', response.data.errors)
-      throw new Error(`GRID API GraphQL error: ${response.data.errors[0]?.message || 'Unknown error'}`)
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('GRID API HTTP Error:', response.status, errorText)
+      throw new Error(`GRID API error (${response.status}): ${response.statusText}`)
     }
 
-    console.log('GRID API Success:', Object.keys(response.data.data || {}))
+    const data: GraphQLResponse = await response.json()
 
-    return response.data.data
+    if (data.errors) {
+      console.error('GRID API GraphQL errors:', data.errors)
+      throw new Error(`GRID API GraphQL error: ${data.errors[0]?.message || 'Unknown error'}`)
+    }
+
+    console.log('GRID API Success:', Object.keys(data.data || {}))
+
+    return data.data
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const axiosError = error as AxiosError
-      console.error('GRID API Error:', axiosError.response?.status, axiosError.response?.data)
-      throw new Error(
-        `GRID API error (${axiosError.response?.status || 'unknown'}): ${
-          axiosError.response?.statusText || axiosError.message
-        }`
-      )
+    if (error instanceof Error) {
+      console.error('GRID API Error:', error.message)
     }
     throw error
   }

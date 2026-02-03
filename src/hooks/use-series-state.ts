@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { toast } from 'sonner'
-import axios, { AxiosResponse } from 'axios'
 
 const SERIES_STATE_ENDPOINT = 'https://api-op.grid.gg/live-data-feed/series-state/graphql'
 const DEFAULT_API_KEY = 'GacqICJfwHbtteMEbQ8mUVztiBHCuKuzijh7m4N8'
@@ -102,49 +101,51 @@ export function useSeriesState() {
     `
 
     try {
-      const response: AxiosResponse<GraphQLResponse<{ seriesState: SeriesState }>> = await axios.post(
-        SERIES_STATE_ENDPOINT,
-        {
+      const response = await fetch(SERIES_STATE_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'x-api-key': DEFAULT_API_KEY,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           query,
           variables: {
             seriesId: id,
           },
-        },
-        {
-          headers: {
-            'x-api-key': DEFAULT_API_KEY,
-            'Content-Type': 'application/json',
-          },
-        }
-      )
+        }),
+      })
 
-      if (response.data.errors) {
-        const errorMsg = response.data.errors[0]?.message || 'Unknown error'
-        const errorType = response.data.errors[0]?.extensions?.errorType
+      if (!response.ok) {
+        const errorMsg = `Request failed: ${response.status} ${response.statusText}`
+        console.error('Series State API HTTP Error:', response.status)
+        setError(errorMsg)
+        return null
+      }
+
+      const result: GraphQLResponse<{ seriesState: SeriesState }> = await response.json()
+
+      if (result.errors) {
+        const errorMsg = result.errors[0]?.message || 'Unknown error'
+        const errorType = result.errors[0]?.extensions?.errorType
         
         if (errorType === 'PERMISSION_DENIED') {
           console.warn('Series State API: Permission denied for series ID:', id)
           setError('Access denied - This series may not have live data available')
         } else {
-          console.error('Series State API GraphQL errors:', response.data.errors)
+          console.error('Series State API GraphQL errors:', result.errors)
           setError(errorMsg)
         }
         return null
       }
 
-      const data = response.data.data.seriesState
+      const data = result.data.seriesState
       setError(null)
       setLastUpdate(new Date())
       return data
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        const errorMsg = `Request failed: ${err.response?.status || err.message}`
-        console.error('Series State API Error:', err.response?.status, err.response?.data)
-        setError(errorMsg)
-      } else {
-        console.error('Unexpected error:', err)
-        setError('Unexpected error occurred')
-      }
+      const errorMsg = err instanceof Error ? err.message : 'Unexpected error occurred'
+      console.error('Series State API Error:', err)
+      setError(errorMsg)
       return null
     }
   }, [])
