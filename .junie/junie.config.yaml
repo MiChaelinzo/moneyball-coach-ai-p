@@ -1,0 +1,195 @@
+# Junie AI Configuration
+# Assistant Coach - Esports Analytics Platform
+# Cloud9 x JetBrains Hackathon
+
+# =============================================================================
+# PROJECT METADATA
+# =============================================================================
+project:
+  name: "Assistant Coach - Esports Analytics Platform"
+  description: "AI-powered esports analytics platform for Cloud9"
+  version: "1.0.0"
+  repository: "https://github.com/MiChaelinzo/moneyball-coach-ai-p"
+  
+# =============================================================================
+# JUNIE AGENT CONFIGURATION
+# =============================================================================
+junie:
+  # Primary guidelines file
+  guidelines_file: "guidelines.md"
+  
+  # Additional documentation files
+  documentation:
+    - "SETUP.md"
+    - "WORKFLOWS.md"
+    - "EXTENDING.md"
+  
+  # Agent behavior settings
+  behavior:
+    # Code generation style
+    code_style: "typescript-react"
+    
+    # Strictness level (strict, moderate, lenient)
+    strictness: "strict"
+    
+    # Whether to enforce guidelines strictly
+    enforce_guidelines: true
+    
+    # Prefer explaining before implementing
+    explain_first: true
+
+# =============================================================================
+# LANGUAGE & FRAMEWORK SETTINGS
+# =============================================================================
+languages:
+  primary: "typescript"
+  secondary:
+    - "javascript"
+    - "css"
+    - "html"
+
+frameworks:
+  frontend:
+    - name: "react"
+      version: "19.x"
+    - name: "tailwindcss"
+      version: "4.x"
+  
+  ui_library: "shadcn-ui"
+  
+  state_management:
+    - "react-hooks"
+    - "tanstack-query"
+  
+  build_tool: "vite"
+
+# =============================================================================
+# CODE PATTERNS
+# =============================================================================
+patterns:
+  # Component patterns
+  components:
+    style: "functional"
+    naming: "PascalCase"
+    exports: "named"
+    props_interface: true
+    use_motion: true
+    
+  # Hook patterns
+  hooks:
+    naming: "use-kebab-case"
+    custom_prefix: "use"
+    
+  # File organization
+  files:
+    components_dir: "src/components"
+    hooks_dir: "src/hooks"
+    lib_dir: "src/lib"
+    types_file: "src/lib/types.ts"
+    utils_file: "src/lib/utils.ts"
+
+# =============================================================================
+# API INTEGRATION
+# =============================================================================
+api:
+  primary:
+    name: "GRID API"
+    type: "graphql"
+    client_file: "src/lib/gridApi.ts"
+    
+  ai:
+    name: "Spark LLM API"
+    model: "gpt-4"
+    
+  fallback:
+    enabled: true
+    mock_data_file: "src/lib/mockData.ts"
+
+# =============================================================================
+# STYLING CONFIGURATION
+# =============================================================================
+styling:
+  framework: "tailwindcss"
+  utility_function: "cn"
+  utility_import: "@/lib/utils"
+  
+  theme:
+    mode: "dark"
+    primary_color: "cyan"
+    font_primary: "Space Grotesk"
+    font_mono: "JetBrains Mono"
+  
+  # CSS variable usage
+  use_css_variables: true
+  avoid_inline_styles: true
+
+# =============================================================================
+# IMPORT RULES
+# =============================================================================
+imports:
+  # Path alias
+  alias: "@/"
+  alias_path: "./src"
+  
+  # Import order
+  order:
+    - "react"
+    - "external-libraries"
+    - "internal-components"
+    - "internal-hooks"
+    - "internal-utils"
+    - "types"
+
+# =============================================================================
+# TESTING CONFIGURATION
+# =============================================================================
+testing:
+  # Test approaches
+  approaches:
+    - "manual-verification"
+    - "api-connection-testing"
+    - "fallback-behavior"
+    - "responsive-design"
+  
+  # Mock data for development
+  use_mock_data: true
+  mock_data_location: "src/lib/mockData.ts"
+
+# =============================================================================
+# COMMANDS
+# =============================================================================
+commands:
+  dev: "npm run dev"
+  build: "npm run build"
+  lint: "npm run lint"
+  preview: "npm run preview"
+
+# =============================================================================
+# SECURITY RULES
+# =============================================================================
+security:
+  # Never expose these in code
+  sensitive_patterns:
+    - "api_key"
+    - "secret"
+    - "password"
+    - "token"
+    - "credential"
+  
+  # Storage rules
+  api_key_storage: "browser-local-storage"
+  
+  # Protocol requirements
+  require_https: true
+
+# =============================================================================
+# ANTIPATTERNS
+# =============================================================================
+antipatterns:
+  - "inline-styles"
+  - "deeply-nested-conditionals"
+  - "hardcoded-colors"
+  - "magic-numbers"
+  - "direct-state-mutation"
+  - "main-thread-blocking"
+  - "default-exports"
