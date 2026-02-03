@@ -312,78 +312,78 @@ function App() {
                         </div>
 
                         <Tabs defaultValue="dashboard" className="space-y-8">
-                            <TabsList className="grid w-full max-w-6xl grid-cols-17 mx-auto text-xs">
-                                <TabsTrigger value="organization" className="flex items-center gap-1.5 px-2">
-                                    <Cpu size={16} weight="duotone" />
-                                    <span className="hidden sm:inline">Org</span>
+                            <TabsList className="flex flex-wrap w-full mx-auto gap-1 h-auto p-1.5 bg-card/50 backdrop-blur-sm">
+                                <TabsTrigger value="dashboard" className="flex items-center gap-1.5 px-3 py-2">
+                                    <ChartBar size={18} weight="duotone" />
+                                    <span>Dashboard</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="teams" className="flex items-center gap-1.5 px-2">
-                                    <Trophy size={16} weight="duotone" />
-                                    <span className="hidden sm:inline">Teams</span>
+                                <TabsTrigger value="players" className="flex items-center gap-1.5 px-3 py-2">
+                                    <Users size={18} weight="duotone" />
+                                    <span>Players</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="transfers" className="flex items-center gap-1.5 px-2">
-                                    <ArrowsClockwise size={16} weight="duotone" />
-                                    <span className="hidden sm:inline">Transfers</span>
+                                <TabsTrigger value="teams" className="flex items-center gap-1.5 px-3 py-2">
+                                    <Trophy size={18} weight="duotone" />
+                                    <span>Teams</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="statistics" className="flex items-center gap-1.5 px-2">
-                                    <ChartLineUp size={16} weight="duotone" />
-                                    <span className="hidden sm:inline">Stats</span>
+                                <TabsTrigger value="organization" className="flex items-center gap-1.5 px-3 py-2">
+                                    <Cpu size={18} weight="duotone" />
+                                    <span>Organization</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="cross-title" className="flex items-center gap-1.5 px-2">
-                                    <ArrowsLeftRight size={16} weight="duotone" />
-                                    <span className="hidden sm:inline">Compare</span>
+                                <TabsTrigger value="statistics" className="flex items-center gap-1.5 px-3 py-2">
+                                    <ChartLineUp size={18} weight="duotone" />
+                                    <span>Statistics</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="recommendations" className="flex items-center gap-1.5 px-2">
-                                    <Lightbulb size={16} weight="duotone" />
-                                    <span className="hidden sm:inline">Recommend</span>
+                                <TabsTrigger value="insights" className="flex items-center gap-1.5 px-3 py-2">
+                                    <Sparkle size={18} weight="duotone" />
+                                    <span>Insights</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="live" className="flex items-center gap-1.5 px-2">
-                                    <Crosshair size={16} weight="duotone" />
-                                    <span className="hidden sm:inline">Live</span>
+                                <TabsTrigger value="live" className="flex items-center gap-1.5 px-3 py-2">
+                                    <Crosshair size={18} weight="duotone" />
+                                    <span>Live Match</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="series-state" className="flex items-center gap-1.5 px-2">
-                                    <GameController size={16} weight="duotone" />
-                                    <span className="hidden sm:inline">Series</span>
+                                <TabsTrigger value="trends" className="flex items-center gap-1.5 px-3 py-2">
+                                    <ChartLine size={18} weight="duotone" />
+                                    <span>Trends</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="upcoming" className="flex items-center gap-1.5 px-2">
-                                    <CalendarBlank size={16} weight="duotone" />
-                                    <span className="hidden sm:inline">Upcoming</span>
+                                <TabsTrigger value="heatmap" className="flex items-center gap-1.5 px-3 py-2">
+                                    <MapPin size={18} weight="duotone" />
+                                    <span>Heatmap</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="replay" className="flex items-center gap-1.5 px-2">
-                                    <ClockCounterClockwise size={16} weight="duotone" />
-                                    <span className="hidden sm:inline">Replay</span>
+                                <TabsTrigger value="replay" className="flex items-center gap-1.5 px-3 py-2">
+                                    <ClockCounterClockwise size={18} weight="duotone" />
+                                    <span>Replay</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="heatmap" className="flex items-center gap-1.5 px-2">
-                                    <MapPin size={16} weight="duotone" />
-                                    <span className="hidden sm:inline">Heatmap</span>
+                                <TabsTrigger value="cross-title" className="flex items-center gap-1.5 px-3 py-2">
+                                    <ArrowsLeftRight size={18} weight="duotone" />
+                                    <span>Cross-Title</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="dashboard" className="flex items-center gap-1.5 px-2">
-                                    <ChartBar size={16} weight="duotone" />
-                                    <span className="hidden sm:inline">Dashboard</span>
+                                <TabsTrigger value="recommendations" className="flex items-center gap-1.5 px-3 py-2">
+                                    <Lightbulb size={18} weight="duotone" />
+                                    <span>Recommendations</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="trends" className="flex items-center gap-1.5 px-2">
-                                    <ChartLine size={16} weight="duotone" />
-                                    <span className="hidden sm:inline">Trends</span>
+                                <TabsTrigger value="transfers" className="flex items-center gap-1.5 px-3 py-2">
+                                    <ArrowsClockwise size={18} weight="duotone" />
+                                    <span>Transfers</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="insights" className="flex items-center gap-1.5 px-2">
-                                    <Sparkle size={16} weight="duotone" />
-                                    <span className="hidden sm:inline">Insights</span>
+                                <TabsTrigger value="series-state" className="flex items-center gap-1.5 px-3 py-2">
+                                    <GameController size={18} weight="duotone" />
+                                    <span>Series State</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="players" className="flex items-center gap-1.5 px-2">
-                                    <Users size={16} weight="duotone" />
-                                    <span className="hidden sm:inline">Players</span>
+                                <TabsTrigger value="upcoming" className="flex items-center gap-1.5 px-3 py-2">
+                                    <CalendarBlank size={18} weight="duotone" />
+                                    <span>Upcoming</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="tournaments" className="flex items-center gap-1.5 px-2">
-                                    <Trophy size={16} weight="duotone" />
-                                    <span className="hidden sm:inline">Tournaments</span>
+                                <TabsTrigger value="tournaments" className="flex items-center gap-1.5 px-3 py-2">
+                                    <Trophy size={18} weight="duotone" />
+                                    <span>Tournaments</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="formats" className="flex items-center gap-1.5 px-2">
-                                    <ListBullets size={16} weight="duotone" />
-                                    <span className="hidden sm:inline">Formats</span>
+                                <TabsTrigger value="formats" className="flex items-center gap-1.5 px-3 py-2">
+                                    <ListBullets size={18} weight="duotone" />
+                                    <span>Formats</span>
                                 </TabsTrigger>
-                                <TabsTrigger value="strategic" className="flex items-center gap-1.5 px-2">
-                                    <Target size={16} weight="duotone" />
-                                    <span className="hidden sm:inline">Strategic</span>
+                                <TabsTrigger value="strategic" className="flex items-center gap-1.5 px-3 py-2">
+                                    <Target size={18} weight="duotone" />
+                                    <span>Strategic</span>
                                 </TabsTrigger>
                             </TabsList>
 
