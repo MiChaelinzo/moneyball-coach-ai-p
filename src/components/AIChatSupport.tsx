@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
@@ -15,7 +15,9 @@ import {
     Stop,
     Sparkle,
     User,
-    Cpu
+    Cpu,
+    ArrowDown,
+    ArrowUp
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
@@ -53,19 +55,67 @@ export function AIChatSupport() {
     const [isLoading, setIsLoading] = useState(false)
     const [isRecording, setIsRecording] = useState(false)
     const [mediaPreview, setMediaPreview] = useState<{ url: string; type: 'image' | 'video' } | null>(null)
+    const [showScrollButton, setShowScrollButton] = useState(false)
+    const [isAtBottom, setIsAtBottom] = useState(true)
     const scrollAreaRef = useRef<HTMLDivElement>(null)
     const fileInputRef = useRef<HTMLInputElement>(null)
     const mediaRecorderRef = useRef<MediaRecorder | null>(null)
     const audioChunksRef = useRef<Blob[]>([])
 
+    const scrollToBottom = useCallback((smooth = true) => {
+        if (scrollAreaRef.current) {
+            const scrollElement = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]')
+            if (scrollElement) {
+                scrollElement.scrollTo({
+                    top: scrollElement.scrollHeight,
+                    behavior: smooth ? 'smooth' : 'auto'
+                })
+            }
+        }
+    }, [])
+
+    const scrollToTop = useCallback(() => {
+        if (scrollAreaRef.current) {
+            const scrollElement = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]')
+            if (scrollElement) {
+                scrollElement.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                })
+            }
+        }
+    }, [])
+
+    const checkScrollPosition = useCallback(() => {
+        if (scrollAreaRef.current) {
+            const scrollElement = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]')
+            if (scrollElement) {
+                const { scrollTop, scrollHeight, clientHeight } = scrollElement
+                const distanceFromBottom = scrollHeight - scrollTop - clientHeight
+                const atBottom = distanceFromBottom < 50
+                const shouldShowButton = scrollTop > 100
+                
+                setIsAtBottom(atBottom)
+                setShowScrollButton(shouldShowButton)
+            }
+        }
+    }, [])
+
     useEffect(() => {
         if (scrollAreaRef.current) {
             const scrollElement = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]')
             if (scrollElement) {
-                scrollElement.scrollTop = scrollElement.scrollHeight
+                scrollElement.addEventListener('scroll', checkScrollPosition)
+                return () => scrollElement.removeEventListener('scroll', checkScrollPosition)
             }
         }
-    }, [messages])
+    }, [checkScrollPosition])
+
+    useEffect(() => {
+        if (isAtBottom) {
+            scrollToBottom(true)
+        }
+    }, [messages, isAtBottom, scrollToBottom])
 
     const handleSendMessage = async () => {
         if (!input.trim() && !mediaPreview) return
@@ -238,101 +288,136 @@ Provide a helpful, friendly, and concise response (2-3 paragraphs max). If the u
                                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
                                         Suggested Questions
                                     </p>
-                                    <div className="flex flex-wrap gap-2">
-                                        {SUGGESTED_PROMPTS.slice(0, 4).map((prompt, idx) => (
-                                            <Badge
-                                                key={idx}
-                                                variant="outline"
-                                                className="cursor-pointer hover:bg-primary/20 hover:border-primary transition-colors text-xs"
-                                                onClick={() => handleSuggestedPrompt(prompt)}
-                                            >
-                                                {prompt}
-                                            </Badge>
-                                        ))}
-                                    </div>
+                                    <ScrollArea className="max-h-16">
+                                        <div className="flex flex-wrap gap-2 pr-4">
+                                            {SUGGESTED_PROMPTS.map((prompt, idx) => (
+                                                <Badge
+                                                    key={idx}
+                                                    variant="outline"
+                                                    className="cursor-pointer hover:bg-primary/20 hover:border-primary transition-colors text-xs whitespace-nowrap"
+                                                    onClick={() => handleSuggestedPrompt(prompt)}
+                                                >
+                                                    {prompt}
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    </ScrollArea>
                                 </div>
 
-                                <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
-                                    <div className="space-y-4">
-                                        {messages.map((message) => (
-                                            <motion.div
-                                                key={message.id}
-                                                initial={{ opacity: 0, y: 10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                transition={{ duration: 0.3 }}
-                                                className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
-                                            >
-                                                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                                                    message.role === 'user' 
-                                                        ? 'bg-primary/20' 
-                                                        : 'bg-accent/20'
-                                                }`}>
-                                                    {message.role === 'user' ? (
-                                                        <User size={16} weight="duotone" className="text-primary" />
-                                                    ) : (
-                                                        <Cpu size={16} weight="duotone" className="text-accent" />
-                                                    )}
-                                                </div>
-                                                <div className={`flex-1 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
-                                                    {message.mediaUrl && (
-                                                        <div className="mb-2">
-                                                            {message.mediaType === 'image' ? (
-                                                                <img 
-                                                                    src={message.mediaUrl} 
-                                                                    alt="Uploaded" 
-                                                                    className="max-w-full h-auto rounded-lg border border-border"
-                                                                />
-                                                            ) : (
-                                                                <video 
-                                                                    src={message.mediaUrl} 
-                                                                    controls 
-                                                                    className="max-w-full h-auto rounded-lg border border-border"
-                                                                />
-                                                            )}
-                                                        </div>
-                                                    )}
-                                                    <div className={`inline-block p-3 rounded-lg ${
-                                                        message.role === 'user'
-                                                            ? 'bg-primary text-primary-foreground'
-                                                            : 'bg-muted text-foreground'
+                                <div className="relative flex-1">
+                                    <ScrollArea ref={scrollAreaRef} className="h-full p-4">
+                                        <div className="space-y-4 pr-4">
+                                            {messages.map((message) => (
+                                                <motion.div
+                                                    key={message.id}
+                                                    initial={{ opacity: 0, y: 10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ duration: 0.3 }}
+                                                    className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
+                                                >
+                                                    <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                                                        message.role === 'user' 
+                                                            ? 'bg-primary/20' 
+                                                            : 'bg-accent/20'
                                                     }`}>
-                                                        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                                                        <p className={`text-xs mt-1 ${
-                                                            message.role === 'user' 
-                                                                ? 'text-primary-foreground/70' 
-                                                                : 'text-muted-foreground'
-                                                        }`}>
-                                                            {message.timestamp.toLocaleTimeString([], { 
-                                                                hour: '2-digit', 
-                                                                minute: '2-digit' 
-                                                            })}
-                                                        </p>
+                                                        {message.role === 'user' ? (
+                                                            <User size={16} weight="duotone" className="text-primary" />
+                                                        ) : (
+                                                            <Cpu size={16} weight="duotone" className="text-accent" />
+                                                        )}
                                                     </div>
-                                                </div>
-                                            </motion.div>
-                                        ))}
-                                        {isLoading && (
-                                            <motion.div
-                                                initial={{ opacity: 0 }}
-                                                animate={{ opacity: 1 }}
-                                                className="flex gap-3"
-                                            >
-                                                <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-accent/20">
-                                                    <Cpu size={16} weight="duotone" className="text-accent" />
-                                                </div>
-                                                <div className="flex-1">
-                                                    <div className="inline-block p-3 rounded-lg bg-muted">
-                                                        <div className="flex gap-1">
-                                                            <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '0ms' }} />
-                                                            <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '150ms' }} />
-                                                            <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '300ms' }} />
+                                                    <div className={`flex-1 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
+                                                        {message.mediaUrl && (
+                                                            <div className="mb-2">
+                                                                {message.mediaType === 'image' ? (
+                                                                    <img 
+                                                                        src={message.mediaUrl} 
+                                                                        alt="Uploaded" 
+                                                                        className="max-w-full h-auto rounded-lg border border-border"
+                                                                    />
+                                                                ) : (
+                                                                    <video 
+                                                                        src={message.mediaUrl} 
+                                                                        controls 
+                                                                        className="max-w-full h-auto rounded-lg border border-border"
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                        <div className={`inline-block p-3 rounded-lg ${
+                                                            message.role === 'user'
+                                                                ? 'bg-primary text-primary-foreground'
+                                                                : 'bg-muted text-foreground'
+                                                        }`}>
+                                                            <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                                                            <p className={`text-xs mt-1 ${
+                                                                message.role === 'user' 
+                                                                    ? 'text-primary-foreground/70' 
+                                                                    : 'text-muted-foreground'
+                                                            }`}>
+                                                                {message.timestamp.toLocaleTimeString([], { 
+                                                                    hour: '2-digit', 
+                                                                    minute: '2-digit' 
+                                                                })}
+                                                            </p>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                </motion.div>
+                                            ))}
+                                            {isLoading && (
+                                                <motion.div
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                    className="flex gap-3"
+                                                >
+                                                    <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-accent/20">
+                                                        <Cpu size={16} weight="duotone" className="text-accent" />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <div className="inline-block p-3 rounded-lg bg-muted">
+                                                            <div className="flex gap-1">
+                                                                <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '0ms' }} />
+                                                                <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '150ms' }} />
+                                                                <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '300ms' }} />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </div>
+                                    </ScrollArea>
+
+                                    <AnimatePresence>
+                                        {showScrollButton && (
+                                            <motion.div
+                                                initial={{ opacity: 0, scale: 0.8 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                exit={{ opacity: 0, scale: 0.8 }}
+                                                className="absolute bottom-4 right-4 flex flex-col gap-2 z-10"
+                                            >
+                                                <Button
+                                                    size="icon"
+                                                    variant="secondary"
+                                                    className="h-10 w-10 rounded-full shadow-lg hover:shadow-xl transition-shadow"
+                                                    onClick={scrollToTop}
+                                                    title="Scroll to top"
+                                                >
+                                                    <ArrowUp size={18} weight="bold" />
+                                                </Button>
+                                                {!isAtBottom && (
+                                                    <Button
+                                                        size="icon"
+                                                        className="h-10 w-10 rounded-full shadow-lg hover:shadow-xl transition-shadow bg-primary hover:bg-primary/90"
+                                                        onClick={() => scrollToBottom(true)}
+                                                        title="Scroll to bottom"
+                                                    >
+                                                        <ArrowDown size={18} weight="bold" />
+                                                    </Button>
+                                                )}
                                             </motion.div>
                                         )}
-                                    </div>
-                                </ScrollArea>
+                                    </AnimatePresence>
+                                </div>
 
                                 <div className="p-4 border-t border-border/50 space-y-3">
                                     {mediaPreview && (
