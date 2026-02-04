@@ -35,6 +35,7 @@ import { EnergyBeams } from '@/components/EnergyBeams'
 import { TabSearch, type TabItem } from '@/components/TabSearch'
 import { TabFilter } from '@/components/TabFilter'
 import { AIChatSupport } from '@/components/AIChatSupport'
+import { FileUploadGuide } from '@/components/FileUploadGuide'
 import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise, MapPin, Trophy, ListBullets, CalendarBlank, GameController, ChartLineUp, ArrowsLeftRight, Lightbulb, ArrowsClockwise } from '@phosphor-icons/react'
 import { PLAYERS, INSIGHTS, STRATEGIC_IMPACTS, getPlayerAnalytics, MATCHES, MISTAKES, generateAIInsight } from '@/lib/mockData'
 import { mergeEnrichedData } from '@/lib/biographyEnrichment'
@@ -497,10 +498,13 @@ function App() {
                             </TabsContent>
 
                             <TabsContent value="dashboard" className="space-y-8">
-                                <BatchBiographyEnricher 
-                                    players={players}
-                                    onEnrichmentComplete={handleEnrichmentComplete}
-                                />
+                                <div className="grid lg:grid-cols-2 gap-6">
+                                    <BatchBiographyEnricher 
+                                        players={players}
+                                        onEnrichmentComplete={handleEnrichmentComplete}
+                                    />
+                                    <FileUploadGuide />
+                                </div>
 
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}

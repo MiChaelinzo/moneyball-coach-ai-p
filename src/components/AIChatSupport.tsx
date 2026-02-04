@@ -63,7 +63,7 @@ export function AIChatSupport({ onDataImport }: AIChatSupportProps = {}) {
         {
             id: '1',
             role: 'assistant',
-            content: "👋 Hi! I'm your Assistant Coach AI helper. I can help you understand player analytics, interpret match data, explain features, and answer questions about the platform.\n\n📁 You can also upload data files (JSON, CSV) to import player, team, tournament, or match data directly into the system.\n\nHow can I assist you today?",
+            content: "👋 Hi! I'm your Assistant Coach AI helper. I can help you:\n\n💡 **Understand Features** - Explain player analytics, match tracking, heatmaps, and insights\n📊 **Interpret Data** - Help you make sense of statistics and trends\n📁 **Import Data** - Upload CSV or JSON files to add players, teams, matches, or tournaments\n🎯 **Answer Questions** - Get guidance on using the platform\n\n**To upload data:** Click the upload button below and select your CSV or JSON file. I'll import it automatically!\n\n**Sample files:** Check sample-players.csv or sample-players.json in the repository for format examples.\n\nHow can I assist you today?",
             timestamp: new Date()
         }
     ])
@@ -211,6 +211,12 @@ Provide a helpful, friendly, and concise response (2-3 paragraphs max). If the u
         const isJSON = file.type === 'application/json' || file.name.endsWith('.json')
         const isCSV = file.type === 'text/csv' || file.name.endsWith('.csv')
 
+        const maxFileSize = 10 * 1024 * 1024
+        if (file.size > maxFileSize) {
+            toast.error(`File too large. Maximum size is 10MB. Your file is ${(file.size / 1024 / 1024).toFixed(2)}MB`)
+            return
+        }
+
         if (isImage || isVideo) {
             const reader = new FileReader()
             reader.onload = (event) => {
@@ -223,21 +229,38 @@ Provide a helpful, friendly, and concise response (2-3 paragraphs max). If the u
             }
             reader.readAsDataURL(file)
         } else if (isJSON || isCSV) {
+            toast.info(`Processing ${isCSV ? 'CSV' : 'JSON'} file...`)
+            
             const reader = new FileReader()
             reader.onload = async (event) => {
                 const content = event.target?.result as string
+                
+                if (!content || content.trim().length === 0) {
+                    toast.error('File is empty. Please upload a file with data.')
+                    return
+                }
                 
                 try {
                     let parsedData: any
                     
                     if (isJSON) {
-                        parsedData = JSON.parse(content)
+                        try {
+                            parsedData = JSON.parse(content)
+                        } catch (jsonError) {
+                            toast.error('Invalid JSON format. Please check your file syntax.')
+                            console.error('JSON parsing error:', jsonError)
+                            return
+                        }
                     } else {
                         parsedData = parseCSV(content)
+                        if (parsedData.length === 0) {
+                            toast.error('No valid data rows found in CSV file.')
+                            return
+                        }
                     }
 
                     const importedData = {
-                        players: parsedData.players || (Array.isArray(parsedData) && parsedData[0]?.name ? parsedData : undefined),
+                        players: parsedData.players || (Array.isArray(parsedData) && parsedData.length > 0 && (parsedData[0]?.name || parsedData[0]?.nickname) ? parsedData : undefined),
                         matches: parsedData.matches,
                         tournaments: parsedData.tournaments,
                         teams: parsedData.teams
@@ -262,26 +285,73 @@ Provide a helpful, friendly, and concise response (2-3 paragraphs max). If the u
                             mediaType: 'file'
                         }
                         
+                        const detectedEntities = Object.entries(importedData)
+                            .filter(([_, value]) => value && value.length > 0)
+                            .map(([key]) => key)
+                        
                         const assistantMessage: Message = {
                             id: (Date.now() + 1).toString(),
                             role: 'assistant',
-                            content: `✅ Successfully imported ${dataTypes} from ${file.name}.\n\nThe data has been added to the system and is now available in the analytics dashboard. You can view the imported data in the respective tabs (Players, Teams, Tournaments, etc.).`,
+                            content: `✅ Successfully imported ${dataTypes} from ${file.name}!\n\n📊 **Import Summary:**\n${detectedEntities.map(entity => `• ${entity.charAt(0).toUpperCase() + entity.slice(1)}: ${importedData[entity as keyof typeof importedData]?.length || 0} records`).join('\n')}\n\nThe data has been added to the system and is now available in the analytics dashboard. You can view the imported data in the respective tabs.`,
                             timestamp: new Date()
                         }
                         
                         setMessages(prev => [...prev, userMessage, assistantMessage])
                         toast.success(`Data imported: ${dataTypes}`)
                     } else {
-                        throw new Error('No valid data found in file')
+                        const errorMessage: Message = {
+                            id: Date.now().toString(),
+                            role: 'user',
+                            content: `Uploaded data file: ${file.name}`,
+                            timestamp: new Date(),
+                            fileName: file.name,
+                            mediaType: 'file'
+                        }
+                        
+                        const assistantErrorMessage: Message = {
+                            id: (Date.now() + 1).toString(),
+                            role: 'assistant',
+                            content: `❌ No valid data found in ${file.name}.\n\n**Expected format:**\n• For players: CSV with columns (id, name, role, title, kda, winRate, gamesPlayed) or JSON array with player objects\n• For multi-entity: JSON object with "players", "teams", "matches", and/or "tournaments" properties\n\nPlease check the file format and try again.`,
+                            timestamp: new Date()
+                        }
+                        
+                        setMessages(prev => [...prev, errorMessage, assistantErrorMessage])
+                        toast.error('No valid data found in file')
                     }
                 } catch (error) {
-                    toast.error('Failed to parse data file. Please check the format.')
+                    const errorMessage: Message = {
+                        id: Date.now().toString(),
+                        role: 'user',
+                        content: `Uploaded data file: ${file.name}`,
+                        timestamp: new Date(),
+                        fileName: file.name,
+                        mediaType: 'file'
+                    }
+                    
+                    const assistantErrorMessage: Message = {
+                        id: (Date.now() + 1).toString(),
+                        role: 'assistant',
+                        content: `❌ Failed to process ${file.name}.\n\n**Error:** ${error instanceof Error ? error.message : 'Unknown error'}\n\nPlease check that your file:\n• Is properly formatted (valid JSON or CSV)\n• Contains the expected data structure\n• Has all required fields (name/nickname, role, kda, etc.)\n\nYou can download sample files from the repository for reference.`,
+                        timestamp: new Date()
+                    }
+                    
+                    setMessages(prev => [...prev, errorMessage, assistantErrorMessage])
+                    toast.error('Failed to parse data file')
                     console.error('File parsing error:', error)
                 }
             }
+            
+            reader.onerror = () => {
+                toast.error('Failed to read file. Please try again.')
+            }
+            
             reader.readAsText(file)
         } else {
             toast.error('Please upload an image, video, JSON, or CSV file')
+        }
+        
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ''
         }
     }
 
@@ -289,16 +359,43 @@ Provide a helpful, friendly, and concise response (2-3 paragraphs max). If the u
         const lines = csvContent.split('\n').filter(line => line.trim())
         if (lines.length < 2) return []
         
-        const headers = lines[0].split(',').map(h => h.trim())
+        const headers = lines[0].split(',').map(h => h.trim().replace(/['"]/g, ''))
         const data: any[] = []
         
         for (let i = 1; i < lines.length; i++) {
-            const values = lines[i].split(',').map(v => v.trim())
+            const line = lines[i].trim()
+            if (!line) continue
+            
+            const values: string[] = []
+            let currentValue = ''
+            let inQuotes = false
+            
+            for (let char of line) {
+                if (char === '"') {
+                    inQuotes = !inQuotes
+                } else if (char === ',' && !inQuotes) {
+                    values.push(currentValue.trim())
+                    currentValue = ''
+                } else {
+                    currentValue += char
+                }
+            }
+            values.push(currentValue.trim())
+            
             const row: any = {}
             headers.forEach((header, index) => {
-                row[header] = values[index]
+                const value = values[index] || ''
+                
+                if (!isNaN(Number(value)) && value !== '') {
+                    row[header] = Number(value)
+                } else {
+                    row[header] = value
+                }
             })
-            data.push(row)
+            
+            if (Object.keys(row).length > 0) {
+                data.push(row)
+            }
         }
         
         return data
