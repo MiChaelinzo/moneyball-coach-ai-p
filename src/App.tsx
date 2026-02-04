@@ -16,6 +16,7 @@ import { GridApiTestPanel } from '@/components/GridApiTestPanel'
 import { MatchReplayManager } from '@/components/MatchReplayManager'
 import { MistakeHeatmap } from '@/components/MistakeHeatmap'
 import { TournamentsView } from '@/components/TournamentsView'
+import { TournamentHistoryView } from '@/components/TournamentHistoryView'
 import { SeriesFormatsView } from '@/components/SeriesFormatsView'
 import { UpcomingSeriesView } from '@/components/UpcomingSeriesView'
 import { OrganizationView } from '@/components/OrganizationView'
@@ -37,7 +38,7 @@ import { TabFilter } from '@/components/TabFilter'
 import { AIChatSupport } from '@/components/AIChatSupport'
 import { FileUploadGuide } from '@/components/FileUploadGuide'
 import { MultiEntityImportDemo } from '@/components/MultiEntityImportDemo'
-import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise, MapPin, Trophy, ListBullets, CalendarBlank, GameController, ChartLineUp, ArrowsLeftRight, Lightbulb, ArrowsClockwise } from '@phosphor-icons/react'
+import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise, MapPin, Trophy, ListBullets, CalendarBlank, GameController, ChartLineUp, ArrowsLeftRight, Lightbulb, ArrowsClockwise, Medal } from '@phosphor-icons/react'
 import { PLAYERS, INSIGHTS, STRATEGIC_IMPACTS, getPlayerAnalytics, MATCHES, MISTAKES, generateAIInsight } from '@/lib/mockData'
 import { mergeEnrichedData } from '@/lib/biographyEnrichment'
 import { useLiveMatch } from '@/hooks/use-live-match'
@@ -243,6 +244,7 @@ function App() {
         { value: 'series-state', label: 'Series State', icon: <GameController size={18} weight="duotone" />, keywords: ['match state', 'series', 'games'] },
         { value: 'upcoming', label: 'Upcoming', icon: <CalendarBlank size={18} weight="duotone" />, keywords: ['schedule', 'future', 'calendar'] },
         { value: 'tournaments', label: 'Tournaments', icon: <Trophy size={18} weight="duotone" />, keywords: ['competitions', 'events'] },
+        { value: 'tournament-history', label: 'History', icon: <Medal size={18} weight="duotone" />, keywords: ['champions', 'results', 'winners', 'past', 'historical'] },
         { value: 'formats', label: 'Formats', icon: <ListBullets size={18} weight="duotone" />, keywords: ['series formats', 'match types'] },
         { value: 'strategic', label: 'Strategic', icon: <Target size={18} weight="duotone" />, keywords: ['impact', 'strategy', 'macro'] },
     ]
@@ -751,6 +753,10 @@ function App() {
 
                             <TabsContent value="tournaments">
                                 <TournamentsView tournaments={gridData.tournaments} />
+                            </TabsContent>
+
+                            <TabsContent value="tournament-history">
+                                <TournamentHistoryView />
                             </TabsContent>
 
                             <TabsContent value="formats">
