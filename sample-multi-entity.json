@@ -1,0 +1,85 @@
+{
+  "players": [
+    {
+      "id": "multi-player-1",
+      "name": "Jojo",
+      "role": "Mid Lane",
+      "title": "LoL",
+      "kda": 4.3,
+      "winRate": 66,
+      "gamesPlayed": 54
+    },
+    {
+      "id": "multi-player-2",
+      "name": "wippie",
+      "role": "Controller",
+      "title": "Valorant",
+      "kda": 1.19,
+      "winRate": 53,
+      "gamesPlayed": 72
+    }
+  ],
+  "teams": [
+    {
+      "id": "multi-team-1",
+      "name": "Cloud9 White",
+      "title": "Valorant",
+      "colorPrimary": "#72CFED",
+      "colorSecondary": "#FFFFFF"
+    },
+    {
+      "id": "multi-team-2",
+      "name": "Cloud9 Academy",
+      "title": "LoL",
+      "colorPrimary": "#72CFED",
+      "colorSecondary": "#000000"
+    }
+  ],
+  "matches": [
+    {
+      "id": "multi-match-1",
+      "date": "2024-01-25",
+      "opponent": "FlyQuest",
+      "result": "win",
+      "duration": 1923,
+      "score": "2-0",
+      "gameTitle": "LoL"
+    },
+    {
+      "id": "multi-match-2",
+      "date": "2024-01-26",
+      "opponent": "NRG Esports",
+      "result": "loss",
+      "duration": 2487,
+      "score": "1-2",
+      "gameTitle": "Valorant"
+    },
+    {
+      "id": "multi-match-3",
+      "date": "2024-01-27",
+      "opponent": "Team Liquid",
+      "result": "win",
+      "duration": 1845,
+      "score": "2-1",
+      "gameTitle": "LoL"
+    }
+  ],
+  "tournaments": [
+    {
+      "id": "multi-tournament-1",
+      "name": "LCS Spring 2024",
+      "nameShortened": "LCS Spring",
+      "startDate": "2024-01-15",
+      "endDate": "2024-04-20",
+      "seriesCount": 48
+    },
+    {
+      "id": "multi-tournament-2",
+      "name": "VCT Americas Stage 1",
+      "nameShortened": "VCT Americas",
+      "startDate": "2024-02-01",
+      "endDate": "2024-03-31",
+      "seriesCount": 36
+    }
+  ]
+}

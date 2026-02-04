@@ -17,9 +17,13 @@ import {
     User,
     Cpu,
     ArrowDown,
-    ArrowUp
+    ArrowUp,
+    FileArrowUp,
+    FileCsv,
+    FileJs
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
+import type { Player, Match, Tournament, Team } from '@/lib/types'
 
 interface Message {
     id: string
@@ -27,7 +31,17 @@ interface Message {
     content: string
     timestamp: Date
     mediaUrl?: string
-    mediaType?: 'image' | 'video'
+    mediaType?: 'image' | 'video' | 'file'
+    fileName?: string
+}
+
+interface AIChatSupportProps {
+    onDataImport?: (data: {
+        players?: Player[]
+        matches?: Match[]
+        tournaments?: Tournament[]
+        teams?: Team[]
+    }) => void
 }
 
 const SUGGESTED_PROMPTS = [
@@ -38,16 +52,18 @@ const SUGGESTED_PROMPTS = [
     "How do I export reports?",
     "What's the difference between titles?",
     "How to use the replay feature?",
-    "Show me player transfer history"
+    "Show me player transfer history",
+    "How do I upload player data?",
+    "What file formats are supported?"
 ]
 
-export function AIChatSupport() {
+export function AIChatSupport({ onDataImport }: AIChatSupportProps = {}) {
     const [isOpen, setIsOpen] = useState(false)
     const [messages, setMessages] = useState<Message[]>([
         {
             id: '1',
             role: 'assistant',
-            content: "👋 Hi! I'm your Assistant Coach AI helper. I can help you understand player analytics, interpret match data, explain features, and answer questions about the platform. How can I assist you today?",
+            content: "👋 Hi! I'm your Assistant Coach AI helper. I can help you understand player analytics, interpret match data, explain features, and answer questions about the platform.\n\n📁 You can also upload data files (JSON, CSV) to import player, team, tournament, or match data directly into the system.\n\nHow can I assist you today?",
             timestamp: new Date()
         }
     ])
@@ -140,7 +156,7 @@ export function AIChatSupport() {
                 if (mediaPreview.type === 'image') {
                     prompt = `[User uploaded an image] ${input || 'Can you analyze this image?'}`
                     toast.info('Analyzing image...')
-                } else {
+                } else if (mediaPreview.type === 'video') {
                     prompt = `[User uploaded a video] ${input || 'Can you analyze this video?'}`
                     toast.info('Analyzing video...')
                 }
@@ -155,10 +171,12 @@ Context about the platform:
 - The platform integrates with Grid.gg API for real-time data
 - Supports exporting reports in JSON, CSV, and markdown formats
 - Has replay features, transfer history, and cross-title comparisons
+- Users can import player, team, tournament, and match data via JSON or CSV file upload
+- Data import supports both single entity arrays and multi-entity objects with nested data
 
 User question: ${prompt}
 
-Provide a helpful, friendly, and concise response (2-3 paragraphs max). If the user uploaded media, acknowledge it and provide relevant insights about analyzing esports data visually.`
+Provide a helpful, friendly, and concise response (2-3 paragraphs max). If the user uploaded media, acknowledge it and provide relevant insights about analyzing esports data visually. If asked about data import, explain the supported formats.`
 
             const response = await window.spark.llm(aiPrompt)
 
@@ -184,28 +202,106 @@ Provide a helpful, friendly, and concise response (2-3 paragraphs max). If the u
         setInput(prompt)
     }
 
-    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (!file) return
 
         const isImage = file.type.startsWith('image/')
         const isVideo = file.type.startsWith('video/')
+        const isJSON = file.type === 'application/json' || file.name.endsWith('.json')
+        const isCSV = file.type === 'text/csv' || file.name.endsWith('.csv')
 
-        if (!isImage && !isVideo) {
-            toast.error('Please upload an image or video file')
-            return
+        if (isImage || isVideo) {
+            const reader = new FileReader()
+            reader.onload = (event) => {
+                const url = event.target?.result as string
+                setMediaPreview({
+                    url,
+                    type: isImage ? 'image' : 'video'
+                })
+                toast.success(`${isImage ? 'Image' : 'Video'} uploaded successfully`)
+            }
+            reader.readAsDataURL(file)
+        } else if (isJSON || isCSV) {
+            const reader = new FileReader()
+            reader.onload = async (event) => {
+                const content = event.target?.result as string
+                
+                try {
+                    let parsedData: any
+                    
+                    if (isJSON) {
+                        parsedData = JSON.parse(content)
+                    } else {
+                        parsedData = parseCSV(content)
+                    }
+
+                    const importedData = {
+                        players: parsedData.players || (Array.isArray(parsedData) && parsedData[0]?.name ? parsedData : undefined),
+                        matches: parsedData.matches,
+                        tournaments: parsedData.tournaments,
+                        teams: parsedData.teams
+                    }
+
+                    const dataTypes = Object.entries(importedData)
+                        .filter(([_, value]) => value && value.length > 0)
+                        .map(([key, value]) => `${(value as any[]).length} ${key}`)
+                        .join(', ')
+
+                    if (dataTypes) {
+                        if (onDataImport) {
+                            onDataImport(importedData)
+                        }
+                        
+                        const userMessage: Message = {
+                            id: Date.now().toString(),
+                            role: 'user',
+                            content: `Uploaded data file: ${file.name}`,
+                            timestamp: new Date(),
+                            fileName: file.name,
+                            mediaType: 'file'
+                        }
+                        
+                        const assistantMessage: Message = {
+                            id: (Date.now() + 1).toString(),
+                            role: 'assistant',
+                            content: `✅ Successfully imported ${dataTypes} from ${file.name}.\n\nThe data has been added to the system and is now available in the analytics dashboard. You can view the imported data in the respective tabs (Players, Teams, Tournaments, etc.).`,
+                            timestamp: new Date()
+                        }
+                        
+                        setMessages(prev => [...prev, userMessage, assistantMessage])
+                        toast.success(`Data imported: ${dataTypes}`)
+                    } else {
+                        throw new Error('No valid data found in file')
+                    }
+                } catch (error) {
+                    toast.error('Failed to parse data file. Please check the format.')
+                    console.error('File parsing error:', error)
+                }
+            }
+            reader.readAsText(file)
+        } else {
+            toast.error('Please upload an image, video, JSON, or CSV file')
         }
+    }
 
-        const reader = new FileReader()
-        reader.onload = (event) => {
-            const url = event.target?.result as string
-            setMediaPreview({
-                url,
-                type: isImage ? 'image' : 'video'
+    const parseCSV = (csvContent: string): any[] => {
+        const lines = csvContent.split('\n').filter(line => line.trim())
+        if (lines.length < 2) return []
+        
+        const headers = lines[0].split(',').map(h => h.trim())
+        const data: any[] = []
+        
+        for (let i = 1; i < lines.length; i++) {
+            const values = lines[i].split(',').map(v => v.trim())
+            const row: any = {}
+            headers.forEach((header, index) => {
+                row[header] = values[index]
             })
-            toast.success(`${isImage ? 'Image' : 'Video'} uploaded successfully`)
+            data.push(row)
         }
-        reader.readAsDataURL(file)
+        
+        return data
     }
 
     const startVoiceRecording = async () => {
@@ -329,7 +425,7 @@ Provide a helpful, friendly, and concise response (2-3 paragraphs max). If the u
                                                         )}
                                                     </div>
                                                     <div className={`flex-1 min-w-0 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
-                                                        {message.mediaUrl && (
+                                                        {message.mediaUrl && message.mediaType !== 'file' && (
                                                             <div className="mb-2">
                                                                 {message.mediaType === 'image' ? (
                                                                     <img 
@@ -344,6 +440,18 @@ Provide a helpful, friendly, and concise response (2-3 paragraphs max). If the u
                                                                         className="max-w-full h-auto rounded-lg border border-border"
                                                                     />
                                                                 )}
+                                                            </div>
+                                                        )}
+                                                        {message.fileName && (
+                                                            <div className={`mb-2 flex items-center gap-2 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                                                <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-muted border border-border">
+                                                                    {message.fileName.endsWith('.json') ? (
+                                                                        <FileJs size={16} weight="duotone" className="text-primary" />
+                                                                    ) : (
+                                                                        <FileCsv size={16} weight="duotone" className="text-success" />
+                                                                    )}
+                                                                    <span className="text-xs font-mono">{message.fileName}</span>
+                                                                </div>
                                                             </div>
                                                         )}
                                                         <div className={`inline-block p-3 rounded-lg max-w-[85%] ${
@@ -449,11 +557,11 @@ Provide a helpful, friendly, and concise response (2-3 paragraphs max). If the u
                                         </div>
                                     )}
 
-                                    <div className="flex gap-2">
+                                    <div className="flex gap-2 flex-wrap">
                                         <input
                                             ref={fileInputRef}
                                             type="file"
-                                            accept="image/*,video/*"
+                                            accept="image/*,video/*,.json,.csv"
                                             className="hidden"
                                             onChange={handleFileUpload}
                                         />
@@ -462,6 +570,7 @@ Provide a helpful, friendly, and concise response (2-3 paragraphs max). If the u
                                             size="icon"
                                             onClick={() => fileInputRef.current?.click()}
                                             title="Upload image"
+                                            className="flex-shrink-0"
                                         >
                                             <ImageIcon size={18} />
                                         </Button>
@@ -470,14 +579,25 @@ Provide a helpful, friendly, and concise response (2-3 paragraphs max). If the u
                                             size="icon"
                                             onClick={() => fileInputRef.current?.click()}
                                             title="Upload video"
+                                            className="flex-shrink-0"
                                         >
                                             <VideoCamera size={18} />
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="icon"
+                                            onClick={() => fileInputRef.current?.click()}
+                                            title="Upload data file (JSON/CSV)"
+                                            className="flex-shrink-0"
+                                        >
+                                            <FileArrowUp size={18} />
                                         </Button>
                                         <Button
                                             variant={isRecording ? "destructive" : "outline"}
                                             size="icon"
                                             onClick={isRecording ? stopVoiceRecording : startVoiceRecording}
                                             title={isRecording ? "Stop recording" : "Voice chat"}
+                                            className="flex-shrink-0"
                                         >
                                             {isRecording ? <Stop size={18} /> : <Microphone size={18} />}
                                         </Button>

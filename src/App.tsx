@@ -40,6 +40,7 @@ import { PLAYERS, INSIGHTS, STRATEGIC_IMPACTS, getPlayerAnalytics, MATCHES, MIST
 import { mergeEnrichedData } from '@/lib/biographyEnrichment'
 import { useLiveMatch } from '@/hooks/use-live-match'
 import { useGridData } from '@/hooks/use-grid-data'
+import { useKV } from '@github/spark/hooks'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -63,6 +64,7 @@ function App() {
     const [enrichedPlayers, setEnrichedPlayers] = useState<Player[]>([])
     const [activeTab, setActiveTab] = useState('dashboard')
     const [filteredTabsList, setFilteredTabsList] = useState<TabItem[]>([])
+    const [importedPlayers, setImportedPlayers] = useKV<Player[]>('imported-players', [])
     const { 
         liveMatch, 
         toggleTracking, 
@@ -76,8 +78,8 @@ function App() {
     } = useLiveMatch()
 
     const players: Player[] = enrichedPlayers.length > 0 
-        ? enrichedPlayers 
-        : (gridData.players.length > 0 ? gridData.players : PLAYERS)
+        ? [...enrichedPlayers, ...(importedPlayers || [])]
+        : (gridData.players.length > 0 ? [...gridData.players, ...(importedPlayers || [])] : [...PLAYERS, ...(importedPlayers || [])])
     const matches: Match[] = gridData.matches.length > 0 ? gridData.matches : MATCHES
     
     const filteredPlayers = titleFilter === 'All' 
@@ -165,6 +167,40 @@ function App() {
     const handleEnrichmentComplete = (updatedPlayers: Player[]) => {
         setEnrichedPlayers(updatedPlayers)
         toast.success('Player biographies have been updated!')
+    }
+
+    const handleDataImport = async (importedData: {
+        players?: Player[]
+        matches?: Match[]
+        tournaments?: any[]
+        teams?: any[]
+    }) => {
+        try {
+            if (importedData.players && importedData.players.length > 0) {
+                const existingPlayers = enrichedPlayers.length > 0 ? enrichedPlayers : players
+                const newPlayers: Player[] = importedData.players.map((p, idx) => ({
+                    id: p.id || `imported-player-${Date.now()}-${idx}`,
+                    name: p.name || (p as any).nickname || 'Unknown',
+                    title: p.title || 'LoL',
+                    role: p.role || 'Player',
+                    kda: typeof p.kda === 'number' ? p.kda : 0,
+                    winRate: typeof p.winRate === 'number' ? p.winRate : 0,
+                    gamesPlayed: typeof p.gamesPlayed === 'number' ? p.gamesPlayed : 0,
+                    biography: p.biography,
+                    careerHistory: p.careerHistory
+                }))
+                
+                const mergedPlayers = [...existingPlayers, ...newPlayers]
+                setEnrichedPlayers(mergedPlayers)
+                
+                setImportedPlayers((current) => [...(current || []), ...newPlayers])
+            }
+
+            toast.success('Data imported successfully!')
+        } catch (error) {
+            toast.error('Failed to import data')
+            console.error('Import error:', error)
+        }
     }
 
     const selectedPlayerAnalytics = selectedPlayer ? getPlayerAnalytics(selectedPlayer) : null
@@ -703,7 +739,7 @@ function App() {
                     </main>
                 </div>
             </div>
-            <AIChatSupport />
+            <AIChatSupport onDataImport={handleDataImport} />
         </div>
     )
 }
