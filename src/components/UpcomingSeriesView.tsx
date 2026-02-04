@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { CalendarBlank, Warning, Clock, Trophy, ListBullets, ArrowsClockwise } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 import { fetchSeriesInTimeRange } from '@/lib/gridApi'
@@ -31,28 +32,61 @@ interface SeriesData {
   }>
 }
 
+type DateRangeOption = 'next24h' | 'nextWeek' | 'nextMonth' | '2025' | '2026' | 'all2025-2026'
+
 export function UpcomingSeriesView() {
   const [series, setSeries] = useState<SeriesData[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [dateRange, setDateRange] = useState<DateRangeOption>('all2025-2026')
 
-  const loadUpcomingSeries = async () => {
+  const getDateRange = (option: DateRangeOption): { start: string; end: string } => {
+    const now = new Date()
+    
+    switch (option) {
+      case 'next24h': {
+        const tomorrow = new Date(now)
+        tomorrow.setHours(now.getHours() + 24)
+        return { start: now.toISOString(), end: tomorrow.toISOString() }
+      }
+      case 'nextWeek': {
+        const nextWeek = new Date(now)
+        nextWeek.setDate(now.getDate() + 7)
+        return { start: now.toISOString(), end: nextWeek.toISOString() }
+      }
+      case 'nextMonth': {
+        const nextMonth = new Date(now)
+        nextMonth.setMonth(now.getMonth() + 1)
+        return { start: now.toISOString(), end: nextMonth.toISOString() }
+      }
+      case '2025':
+        return { start: '2025-01-01T00:00:00Z', end: '2025-12-31T23:59:59Z' }
+      case '2026':
+        return { start: '2026-01-01T00:00:00Z', end: '2026-12-31T23:59:59Z' }
+      case 'all2025-2026':
+        return { start: '2025-01-01T00:00:00Z', end: '2026-12-31T23:59:59Z' }
+      default:
+        return { start: now.toISOString(), end: now.toISOString() }
+    }
+  }
+
+  const loadUpcomingSeries = async (rangeOption: DateRangeOption = dateRange) => {
     setIsLoading(true)
     setError(null)
     
     try {
-      const now = new Date()
-      const tomorrow = new Date(now)
-      tomorrow.setHours(now.getHours() + 24)
+      const { start, end } = getDateRange(rangeOption)
       
-      const startTime = now.toISOString()
-      const endTime = tomorrow.toISOString()
+      console.log('Fetching series from', start, 'to', end)
       
-      console.log('Fetching series from', startTime, 'to', endTime)
-      
-      const data = await fetchSeriesInTimeRange(startTime, endTime, 3, 50)
+      const data = await fetchSeriesInTimeRange(start, end, 3, 100)
       setSeries(data)
-      toast.success(`Loaded ${data.length} upcoming series`)
+      
+      if (data.length === 0) {
+        toast.info('No series found in this date range')
+      } else {
+        toast.success(`Loaded ${data.length} series`)
+      }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to load upcoming series'
       setError(errorMsg)
@@ -88,13 +122,23 @@ export function UpcomingSeriesView() {
     return new Date(isoString).getTime() - new Date().getTime()
   }
 
+  const handleRefresh = () => {
+    loadUpcomingSeries(dateRange)
+  }
+
+  const handleDateRangeChange = (value: string) => {
+    const newRange = value as DateRangeOption
+    setDateRange(newRange)
+    loadUpcomingSeries(newRange)
+  }
+
   if (error) {
     return (
       <Card className="glow-border-warning">
         <CardContent className="py-12 text-center">
           <Warning size={48} weight="duotone" className="text-warning mx-auto mb-4" />
           <p className="text-muted-foreground mb-4">{error}</p>
-          <Button onClick={loadUpcomingSeries} disabled={isLoading}>
+          <Button onClick={handleRefresh} disabled={isLoading}>
             <ArrowsClockwise size={18} weight="duotone" className="mr-2" />
             Try Again
           </Button>
@@ -118,17 +162,30 @@ export function UpcomingSeriesView() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold">Upcoming Series (Next 24 Hours)</h2>
+          <h2 className="text-2xl font-semibold">Upcoming Series</h2>
           <p className="text-sm text-muted-foreground">
             Scheduled matches and series
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <Select value={dateRange} onValueChange={handleDateRangeChange}>
+            <SelectTrigger className="w-48">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="next24h">Next 24 Hours</SelectItem>
+              <SelectItem value="nextWeek">Next Week</SelectItem>
+              <SelectItem value="nextMonth">Next Month</SelectItem>
+              <SelectItem value="2025">Year 2025</SelectItem>
+              <SelectItem value="2026">Year 2026</SelectItem>
+              <SelectItem value="all2025-2026">2025-2026</SelectItem>
+            </SelectContent>
+          </Select>
           <Badge variant="outline" className="gap-2 px-4 py-2">
             <CalendarBlank size={18} weight="duotone" />
             {series.length} Series
           </Badge>
-          <Button onClick={loadUpcomingSeries} disabled={isLoading} variant="outline" size="sm">
+          <Button onClick={handleRefresh} disabled={isLoading} variant="outline" size="sm">
             <ArrowsClockwise size={18} weight="duotone" />
           </Button>
         </div>
