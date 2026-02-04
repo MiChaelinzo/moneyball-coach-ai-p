@@ -284,11 +284,13 @@ Provide a helpful, friendly, and concise response (2-3 paragraphs max). If the u
                             </CardHeader>
 
                             <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
-                                <div className="p-4 border-b border-border/50 bg-muted/30">
-                                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                                        Suggested Questions
-                                    </p>
-                                    <ScrollArea className="max-h-16">
+                                <div className="border-b border-border/50 bg-muted/30 max-h-40 overflow-hidden">
+                                    <div className="p-4 pb-2">
+                                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                                            Suggested Questions
+                                        </p>
+                                    </div>
+                                    <ScrollArea className="h-24 px-4 pb-4">
                                         <div className="flex flex-wrap gap-2 pr-4">
                                             {SUGGESTED_PROMPTS.map((prompt, idx) => (
                                                 <Badge
