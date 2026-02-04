@@ -120,17 +120,16 @@ export function MultiMatchAnalysisView({ matches, mistakes, players }: MultiMatc
   const [aiInsight, setAiInsight] = useState<string>('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [hasInitialAnalysis, setHasInitialAnalysis] = useState(false)
 
   useEffect(() => {
-    if (matches.length > 0 && mistakes.length > 0 && players.length > 0 && !hasInitialAnalysis) {
+    if (matches.length > 0 && mistakes.length > 0 && players.length > 0 && !analysis) {
       performAnalysis()
-      setHasInitialAnalysis(true)
     }
-  }, [matches.length, mistakes.length, players.length, hasInitialAnalysis])
+  }, [])
 
   const performAnalysis = () => {
     setIsAnalyzing(true)
+    setAiInsight('')
     setTimeout(() => {
       const result = analyzeLongTermTrends(matches, mistakes, players)
       setAnalysis(result)
