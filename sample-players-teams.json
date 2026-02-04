@@ -1,0 +1,47 @@
+{
+  "players": [
+    {
+      "id": "test-player-1",
+      "name": "Blaber",
+      "role": "Jungler",
+      "title": "LoL",
+      "kda": 4.8,
+      "winRate": 62,
+      "gamesPlayed": 98
+    },
+    {
+      "id": "test-player-2",
+      "name": "Fudge",
+      "role": "Top Laner",
+      "title": "LoL",
+      "kda": 3.9,
+      "winRate": 58,
+      "gamesPlayed": 98
+    },
+    {
+      "id": "test-player-3",
+      "name": "Emenes",
+      "role": "Mid Laner",
+      "title": "LoL",
+      "kda": 4.2,
+      "winRate": 60,
+      "gamesPlayed": 95
+    }
+  ],
+  "teams": [
+    {
+      "id": "test-team-1",
+      "name": "Cloud9 LoL",
+      "colorPrimary": "#0FA8E0",
+      "colorSecondary": "#FFFFFF",
+      "title": "LoL"
+    },
+    {
+      "id": "test-team-2",
+      "name": "Cloud9 Academy",
+      "colorPrimary": "#0FA8E0",
+      "colorSecondary": "#1A1A1A",
+      "title": "LoL"
+    }
+  ]
+}

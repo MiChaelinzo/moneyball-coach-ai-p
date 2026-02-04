@@ -1,6 +1,7 @@
 id,name,role,title,kda,winRate,gamesPlayed
-sample-csv-1,CoreJJ,Support,LoL,5.2,67,82
-sample-csv-2,leaf,Duelist,Valorant,1.48,59,94
-sample-csv-3,HObbit,Support,CS2,1.15,52,118
-sample-csv-4,Jensen,Mid Lane,LoL,3.9,61,76
-sample-csv-5,mitch,Controller,Valorant,1.21,55,89
+csv-player-1,Berserker,ADC,LoL,5.1,65,102
+csv-player-2,Vulcan,Support,LoL,3.8,64,102
+csv-player-3,xeta,IGL,Valorant,1.28,56,88
+csv-player-4,mitch,Flex,Valorant,1.31,58,88
+csv-player-5,OXY,Duelist,Valorant,1.52,61,90
+csv-player-6,Jakee,Initiator,Valorant,1.24,59,90

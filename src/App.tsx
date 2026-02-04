@@ -36,6 +36,7 @@ import { TabSearch, type TabItem } from '@/components/TabSearch'
 import { TabFilter } from '@/components/TabFilter'
 import { AIChatSupport } from '@/components/AIChatSupport'
 import { FileUploadGuide } from '@/components/FileUploadGuide'
+import { MultiEntityImportDemo } from '@/components/MultiEntityImportDemo'
 import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise, MapPin, Trophy, ListBullets, CalendarBlank, GameController, ChartLineUp, ArrowsLeftRight, Lightbulb, ArrowsClockwise } from '@phosphor-icons/react'
 import { PLAYERS, INSIGHTS, STRATEGIC_IMPACTS, getPlayerAnalytics, MATCHES, MISTAKES, generateAIInsight } from '@/lib/mockData'
 import { mergeEnrichedData } from '@/lib/biographyEnrichment'
@@ -177,6 +178,8 @@ function App() {
         teams?: any[]
     }) => {
         try {
+            const importSummary: string[] = []
+            
             if (importedData.players && importedData.players.length > 0) {
                 const existingPlayers = enrichedPlayers.length > 0 ? enrichedPlayers : players
                 const newPlayers: Player[] = importedData.players.map((p, idx) => ({
@@ -195,9 +198,26 @@ function App() {
                 setEnrichedPlayers(mergedPlayers)
                 
                 setImportedPlayers((current) => [...(current || []), ...newPlayers])
+                importSummary.push(`${newPlayers.length} players`)
             }
 
-            toast.success('Data imported successfully!')
+            if (importedData.teams && importedData.teams.length > 0) {
+                importSummary.push(`${importedData.teams.length} teams`)
+            }
+
+            if (importedData.matches && importedData.matches.length > 0) {
+                importSummary.push(`${importedData.matches.length} matches`)
+            }
+
+            if (importedData.tournaments && importedData.tournaments.length > 0) {
+                importSummary.push(`${importedData.tournaments.length} tournaments`)
+            }
+
+            if (importSummary.length > 0) {
+                toast.success(`Successfully imported: ${importSummary.join(', ')}`)
+            } else {
+                toast.warning('No valid data found in import')
+            }
         } catch (error) {
             toast.error('Failed to import data')
             console.error('Import error:', error)
@@ -498,11 +518,12 @@ function App() {
                             </TabsContent>
 
                             <TabsContent value="dashboard" className="space-y-8">
-                                <div className="grid lg:grid-cols-2 gap-6">
+                                <div className="grid lg:grid-cols-3 gap-6">
                                     <BatchBiographyEnricher 
                                         players={players}
                                         onEnrichmentComplete={handleEnrichmentComplete}
                                     />
+                                    <MultiEntityImportDemo />
                                     <FileUploadGuide />
                                 </div>
 

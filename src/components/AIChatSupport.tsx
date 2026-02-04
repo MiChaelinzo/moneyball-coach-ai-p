@@ -63,7 +63,7 @@ export function AIChatSupport({ onDataImport }: AIChatSupportProps = {}) {
         {
             id: '1',
             role: 'assistant',
-            content: "👋 Hi! I'm your Assistant Coach AI helper. I can help you:\n\n💡 **Understand Features** - Explain player analytics, match tracking, heatmaps, and insights\n📊 **Interpret Data** - Help you make sense of statistics and trends\n📁 **Import Data** - Upload CSV or JSON files to add players, teams, matches, or tournaments\n🎯 **Answer Questions** - Get guidance on using the platform\n\n**To upload data:** Click the upload button below and select your CSV or JSON file. I'll import it automatically!\n\n**Sample files:** Check sample-players.csv or sample-players.json in the repository for format examples.\n\nHow can I assist you today?",
+            content: "👋 Hi! I'm your Assistant Coach AI helper. I can help you:\n\n💡 **Understand Features** - Explain player analytics, match tracking, heatmaps, and insights\n📊 **Interpret Data** - Help you make sense of statistics and trends\n📁 **Import Data** - Upload CSV or JSON files to add players, teams, matches, or tournaments\n🎯 **Answer Questions** - Get guidance on using the platform\n\n**✨ Multi-Entity Import Support:**\nUpload a single JSON file containing players, teams, matches, AND tournaments together! Or use CSV for quick player roster updates.\n\n**To upload data:** Click the 📄 upload button below and select your file.\n\n**Sample files available:**\n• `sample-multi-entity.json` - Complete dataset example\n• `sample-players-teams.json` - Players + teams\n• `sample-players.csv` - Simple CSV format\n\nDownload samples from the Data Import Guide card on the dashboard.\n\nHow can I assist you today?",
             timestamp: new Date()
         }
     ])
@@ -171,12 +171,23 @@ Context about the platform:
 - The platform integrates with Grid.gg API for real-time data
 - Supports exporting reports in JSON, CSV, and markdown formats
 - Has replay features, transfer history, and cross-title comparisons
-- Users can import player, team, tournament, and match data via JSON or CSV file upload
-- Data import supports both single entity arrays and multi-entity objects with nested data
+
+**Data Import Capabilities:**
+- Users can import data via JSON or CSV file upload through the AI chat
+- CSV format: Best for single-entity imports (players only) with columns: id, name, role, title, kda, winRate, gamesPlayed
+- JSON Single Entity: Array of players with same structure as CSV
+- JSON Multi-Entity: MOST POWERFUL - A single object containing "players", "teams", "matches", and "tournaments" arrays
+  * Allows importing complete datasets in one file
+  * Maintains relationships between entities
+  * Supports rich metadata like player biographies, career histories, team colors, match objectives
+  * All entity arrays are optional - include only what you need
+- Sample files available: sample-multi-entity.json (comprehensive), sample-players-teams.json (players + teams), sample-players.csv
+- Max file size: 10MB
+- System auto-validates, converts types, and provides detailed import summaries
 
 User question: ${prompt}
 
-Provide a helpful, friendly, and concise response (2-3 paragraphs max). If the user uploaded media, acknowledge it and provide relevant insights about analyzing esports data visually. If asked about data import, explain the supported formats.`
+Provide a helpful, friendly, and concise response (2-3 paragraphs max). If the user uploaded media, acknowledge it and provide relevant insights about analyzing esports data visually. If asked about data import, emphasize the multi-entity JSON capability for comprehensive imports.`
 
             const response = await window.spark.llm(aiPrompt)
 
