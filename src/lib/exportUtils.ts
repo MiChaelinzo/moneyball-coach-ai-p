@@ -59,16 +59,18 @@ export function exportPlayersToCSV(players: Player[]): string {
 }
 
 export function exportMatchesToCSV(matches: Match[]): string {
-  const headers = ['Match ID', 'Date', 'Opponent', 'Result', 'Duration (min)', 'Dragons', 'Barons', 'Towers', 'Tournament']
+  const headers = ['Match ID', 'Date', 'Opponent', 'Result', 'Score', 'Duration (min)', 'Dragons', 'Barons', 'Towers', 'Format', 'Tournament']
   const rows = matches.map(m => [
     m.id,
     m.date,
     m.opponent,
     m.result.toUpperCase(),
+    m.score || 'N/A',
     Math.round(m.duration / 60),
     m.objectives.dragons,
     m.objectives.barons,
     m.objectives.towers,
+    m.format?.nameShortened || 'N/A',
     m.tournament?.nameShortened || 'N/A'
   ])
   return arrayToCSV(headers, rows)
@@ -388,6 +390,7 @@ export function generatePDFContent(data: TeamAnalyticsExport | PlayerAnalyticsEx
         <th>Date</th>
         <th>Opponent</th>
         <th>Result</th>
+        <th>Score</th>
         <th>Duration</th>
         <th>Dragons</th>
         <th>Barons</th>
@@ -400,6 +403,7 @@ export function generatePDFContent(data: TeamAnalyticsExport | PlayerAnalyticsEx
           <td>${m.date}</td>
           <td>${m.opponent}</td>
           <td><span class="badge badge-${m.result}">${m.result.toUpperCase()}</span></td>
+          <td>${m.score || 'N/A'}</td>
           <td>${Math.round(m.duration / 60)} min</td>
           <td>${m.objectives.dragons}</td>
           <td>${m.objectives.barons}</td>

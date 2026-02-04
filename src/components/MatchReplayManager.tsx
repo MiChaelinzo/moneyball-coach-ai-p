@@ -171,6 +171,11 @@ export function MatchReplayManager({ matches, mistakes }: MatchReplayManagerProp
                           >
                             {isWin ? 'Victory' : 'Defeat'}
                           </Badge>
+                          {match.score && (
+                            <Badge variant="outline" className="font-mono text-xs font-bold">
+                              {match.score}
+                            </Badge>
+                          )}
                           {match.format && (
                             <Badge variant="outline" className="font-mono text-xs">
                               {match.format.nameShortened}

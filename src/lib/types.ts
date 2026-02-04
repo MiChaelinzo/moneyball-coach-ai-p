@@ -56,6 +56,7 @@ export interface Match {
   opponent: string
   result: 'win' | 'loss'
   duration: number
+  score?: string
   objectives: {
     dragons: number
     barons: number
@@ -70,6 +71,7 @@ export interface Match {
     name: string
     nameShortened: string
   }
+  gameTitle?: GameTitle
 }
 
 export interface Insight {

@@ -499,7 +499,7 @@ function App() {
                                                         <SelectContent>
                                                             {matches.map(match => (
                                                                 <SelectItem key={match.id} value={match.id}>
-                                                                    {match.date} - vs {match.opponent} ({match.result.toUpperCase()})
+                                                                    {match.date} - vs {match.opponent} ({match.result.toUpperCase()}) {match.score ? `${match.score}` : ''}
                                                                 </SelectItem>
                                                             ))}
                                                         </SelectContent>
