@@ -32,6 +32,8 @@ import { MouseTrail } from '@/components/MouseTrail'
 import { FloatingParticles } from '@/components/FloatingParticles'
 import { AnimatedCloud9Logo } from '@/components/AnimatedCloud9Logo'
 import { EnergyBeams } from '@/components/EnergyBeams'
+import { TabSearch, type TabItem } from '@/components/TabSearch'
+import { TabFilter } from '@/components/TabFilter'
 import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise, MapPin, Trophy, ListBullets, CalendarBlank, GameController, ChartLineUp, ArrowsLeftRight, Lightbulb, ArrowsClockwise } from '@phosphor-icons/react'
 import { PLAYERS, INSIGHTS, STRATEGIC_IMPACTS, getPlayerAnalytics, MATCHES, MISTAKES, generateAIInsight } from '@/lib/mockData'
 import { mergeEnrichedData } from '@/lib/biographyEnrichment'
@@ -58,6 +60,8 @@ function App() {
     const [hasAutoFetched, setHasAutoFetched] = useState(false)
     const [titleFilter, setTitleFilter] = useState<string>('All')
     const [enrichedPlayers, setEnrichedPlayers] = useState<Player[]>([])
+    const [activeTab, setActiveTab] = useState('dashboard')
+    const [filteredTabsList, setFilteredTabsList] = useState<TabItem[]>([])
     const { 
         liveMatch, 
         toggleTracking, 
@@ -163,6 +167,33 @@ function App() {
     }
 
     const selectedPlayerAnalytics = selectedPlayer ? getPlayerAnalytics(selectedPlayer) : null
+
+    const availableTabs: TabItem[] = [
+        { value: 'dashboard', label: 'Dashboard', icon: <ChartBar size={18} weight="duotone" />, keywords: ['home', 'overview', 'main'] },
+        { value: 'players', label: 'Players', icon: <Users size={18} weight="duotone" />, keywords: ['roster', 'team members', 'athletes'] },
+        { value: 'teams', label: 'Teams', icon: <Trophy size={18} weight="duotone" />, keywords: ['squads', 'rosters'] },
+        { value: 'organization', label: 'Organization', icon: <Cpu size={18} weight="duotone" />, keywords: ['cloud9', 'org', 'company'] },
+        { value: 'statistics', label: 'Statistics', icon: <ChartLineUp size={18} weight="duotone" />, keywords: ['stats', 'numbers', 'data', 'metrics'] },
+        { value: 'insights', label: 'Insights', icon: <Sparkle size={18} weight="duotone" />, keywords: ['ai', 'analysis', 'recommendations'] },
+        { value: 'live', label: 'Live Match', icon: <Crosshair size={18} weight="duotone" />, keywords: ['current', 'ongoing', 'real-time', 'active'] },
+        { value: 'trends', label: 'Trends', icon: <ChartLine size={18} weight="duotone" />, keywords: ['patterns', 'analysis', 'multi-match'] },
+        { value: 'heatmap', label: 'Heatmap', icon: <MapPin size={18} weight="duotone" />, keywords: ['mistakes', 'visualization', 'map'] },
+        { value: 'replay', label: 'Replay', icon: <ClockCounterClockwise size={18} weight="duotone" />, keywords: ['history', 'review', 'past matches'] },
+        { value: 'cross-title', label: 'Cross-Title', icon: <ArrowsLeftRight size={18} weight="duotone" />, keywords: ['comparison', 'games', 'lol', 'valorant', 'cs2'] },
+        { value: 'recommendations', label: 'Recommendations', icon: <Lightbulb size={18} weight="duotone" />, keywords: ['suggestions', 'ai', 'advice'] },
+        { value: 'transfers', label: 'Transfers', icon: <ArrowsClockwise size={18} weight="duotone" />, keywords: ['history', 'movement', 'roster changes'] },
+        { value: 'series-state', label: 'Series State', icon: <GameController size={18} weight="duotone" />, keywords: ['match state', 'series', 'games'] },
+        { value: 'upcoming', label: 'Upcoming', icon: <CalendarBlank size={18} weight="duotone" />, keywords: ['schedule', 'future', 'calendar'] },
+        { value: 'tournaments', label: 'Tournaments', icon: <Trophy size={18} weight="duotone" />, keywords: ['competitions', 'events'] },
+        { value: 'formats', label: 'Formats', icon: <ListBullets size={18} weight="duotone" />, keywords: ['series formats', 'match types'] },
+        { value: 'strategic', label: 'Strategic', icon: <Target size={18} weight="duotone" />, keywords: ['impact', 'strategy', 'macro'] },
+    ]
+
+    const displayedTabs = filteredTabsList.length > 0 ? filteredTabsList : availableTabs
+
+    useEffect(() => {
+        setFilteredTabsList(availableTabs)
+    }, [])
 
     const teamStats = {
         avgWinRate: players.length > 0 
@@ -311,81 +342,39 @@ function App() {
                             </Card>
                         </div>
 
-                        <Tabs defaultValue="dashboard" className="space-y-8">
-                            <TabsList className="flex flex-wrap w-full mx-auto gap-1 h-auto p-1.5 bg-card/50 backdrop-blur-sm">
-                                <TabsTrigger value="dashboard" className="flex items-center gap-1.5 px-3 py-2">
-                                    <ChartBar size={18} weight="duotone" />
-                                    <span>Dashboard</span>
-                                </TabsTrigger>
-                                <TabsTrigger value="players" className="flex items-center gap-1.5 px-3 py-2">
-                                    <Users size={18} weight="duotone" />
-                                    <span>Players</span>
-                                </TabsTrigger>
-                                <TabsTrigger value="teams" className="flex items-center gap-1.5 px-3 py-2">
-                                    <Trophy size={18} weight="duotone" />
-                                    <span>Teams</span>
-                                </TabsTrigger>
-                                <TabsTrigger value="organization" className="flex items-center gap-1.5 px-3 py-2">
-                                    <Cpu size={18} weight="duotone" />
-                                    <span>Organization</span>
-                                </TabsTrigger>
-                                <TabsTrigger value="statistics" className="flex items-center gap-1.5 px-3 py-2">
-                                    <ChartLineUp size={18} weight="duotone" />
-                                    <span>Statistics</span>
-                                </TabsTrigger>
-                                <TabsTrigger value="insights" className="flex items-center gap-1.5 px-3 py-2">
-                                    <Sparkle size={18} weight="duotone" />
-                                    <span>Insights</span>
-                                </TabsTrigger>
-                                <TabsTrigger value="live" className="flex items-center gap-1.5 px-3 py-2">
-                                    <Crosshair size={18} weight="duotone" />
-                                    <span>Live Match</span>
-                                </TabsTrigger>
-                                <TabsTrigger value="trends" className="flex items-center gap-1.5 px-3 py-2">
-                                    <ChartLine size={18} weight="duotone" />
-                                    <span>Trends</span>
-                                </TabsTrigger>
-                                <TabsTrigger value="heatmap" className="flex items-center gap-1.5 px-3 py-2">
-                                    <MapPin size={18} weight="duotone" />
-                                    <span>Heatmap</span>
-                                </TabsTrigger>
-                                <TabsTrigger value="replay" className="flex items-center gap-1.5 px-3 py-2">
-                                    <ClockCounterClockwise size={18} weight="duotone" />
-                                    <span>Replay</span>
-                                </TabsTrigger>
-                                <TabsTrigger value="cross-title" className="flex items-center gap-1.5 px-3 py-2">
-                                    <ArrowsLeftRight size={18} weight="duotone" />
-                                    <span>Cross-Title</span>
-                                </TabsTrigger>
-                                <TabsTrigger value="recommendations" className="flex items-center gap-1.5 px-3 py-2">
-                                    <Lightbulb size={18} weight="duotone" />
-                                    <span>Recommendations</span>
-                                </TabsTrigger>
-                                <TabsTrigger value="transfers" className="flex items-center gap-1.5 px-3 py-2">
-                                    <ArrowsClockwise size={18} weight="duotone" />
-                                    <span>Transfers</span>
-                                </TabsTrigger>
-                                <TabsTrigger value="series-state" className="flex items-center gap-1.5 px-3 py-2">
-                                    <GameController size={18} weight="duotone" />
-                                    <span>Series State</span>
-                                </TabsTrigger>
-                                <TabsTrigger value="upcoming" className="flex items-center gap-1.5 px-3 py-2">
-                                    <CalendarBlank size={18} weight="duotone" />
-                                    <span>Upcoming</span>
-                                </TabsTrigger>
-                                <TabsTrigger value="tournaments" className="flex items-center gap-1.5 px-3 py-2">
-                                    <Trophy size={18} weight="duotone" />
-                                    <span>Tournaments</span>
-                                </TabsTrigger>
-                                <TabsTrigger value="formats" className="flex items-center gap-1.5 px-3 py-2">
-                                    <ListBullets size={18} weight="duotone" />
-                                    <span>Formats</span>
-                                </TabsTrigger>
-                                <TabsTrigger value="strategic" className="flex items-center gap-1.5 px-3 py-2">
-                                    <Target size={18} weight="duotone" />
-                                    <span>Strategic</span>
-                                </TabsTrigger>
-                            </TabsList>
+                        <div className="mb-6 flex items-center justify-between">
+                            <h2 className="text-2xl font-bold">Analytics Dashboard</h2>
+                            <TabSearch 
+                                tabs={availableTabs}
+                                currentTab={activeTab}
+                                onTabSelect={setActiveTab}
+                            />
+                        </div>
+
+                        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+                            <div className="space-y-4">
+                                <TabFilter 
+                                    tabs={availableTabs}
+                                    onFilterChange={setFilteredTabsList}
+                                />
+                                <TabsList className="flex flex-wrap w-full mx-auto gap-1 h-auto p-1.5 bg-card/50 backdrop-blur-sm">
+                                    {displayedTabs.map((tab) => (
+                                        <TabsTrigger 
+                                            key={tab.value} 
+                                            value={tab.value} 
+                                            className="flex items-center gap-1.5 px-3 py-2"
+                                        >
+                                            {tab.icon}
+                                            <span>{tab.label}</span>
+                                        </TabsTrigger>
+                                    ))}
+                                </TabsList>
+                                {displayedTabs.length === 0 && (
+                                    <div className="text-center py-8 text-muted-foreground">
+                                        No tabs found. Clear the filter to see all tabs.
+                                    </div>
+                                )}
+                            </div>
 
                             <TabsContent value="organization" className="space-y-6">
                                 <OrganizationView 
