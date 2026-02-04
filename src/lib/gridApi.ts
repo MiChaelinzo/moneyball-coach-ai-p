@@ -767,6 +767,8 @@ export async function fetchSeriesInTimeRange(
               nameShortened
             }
             tournament {
+              id
+              name
               nameShortened
             }
             startTimeScheduled
@@ -792,13 +794,106 @@ export async function fetchSeriesInTimeRange(
     const series = data.allSeries?.edges || []
     console.log(`Received ${series.length} series in time range`)
     
-    return series.slice(0, limit).map((edge: any) => ({
-      cursor: edge.cursor,
-      ...edge.node,
-    }))
+    const enrichedSeries = await Promise.all(
+      series.slice(0, limit).map(async (edge: any) => {
+        const tournamentDetails = edge.node.tournament?.id 
+          ? await fetchTournamentWithDetails(edge.node.tournament.id)
+          : null
+        
+        return {
+          cursor: edge.cursor,
+          ...edge.node,
+          tournament: tournamentDetails || edge.node.tournament,
+        }
+      })
+    )
+    
+    return enrichedSeries
   } catch (error) {
     console.error('Failed to fetch series in time range:', error)
     throw error
+  }
+}
+
+export async function fetchTournamentWithDetails(tournamentId: string): Promise<Tournament | null> {
+  const query = `
+    query GetTournament($id: ID!) {
+      tournament(id: $id) {
+        id
+        name
+        nameShortened
+      }
+    }
+  `
+
+  try {
+    console.log(`Fetching tournament ${tournamentId} with details...`)
+    const data = await gridFetch(query, { id: tournamentId })
+    
+    if (!data.tournament) {
+      console.warn(`No tournament found for ID ${tournamentId}`)
+      return null
+    }
+
+    const tournament = data.tournament
+    const enrichedTournament = await enrichTournamentWithAIDetails({
+      id: tournament.id.toString(),
+      name: tournament.name,
+      nameShortened: tournament.nameShortened,
+    })
+
+    return enrichedTournament
+  } catch (error) {
+    console.error(`Failed to fetch tournament ${tournamentId}:`, error)
+    return null
+  }
+}
+
+async function enrichTournamentWithAIDetails(tournament: Tournament): Promise<Tournament> {
+  try {
+    if (!spark) {
+      console.warn('Spark SDK not available, returning tournament without enrichment')
+      return tournament
+    }
+
+    const prompt = spark.llmPrompt`You are an esports data expert. Based on the tournament name "${tournament.name}", provide realistic details about this esports tournament. Return ONLY a JSON object with this exact structure:
+
+{
+  "prizePool": "Prize pool amount (e.g., $100,000, $1,000,000, TBD if unknown)",
+  "venue": "Venue name or Online if it's online",
+  "location": "City, Region/State",
+  "country": "Country name"
+}
+
+Guidelines:
+- For major tournaments (Worlds, Internationals, Masters), use larger prize pools ($1M+)
+- For regional leagues (LCS, LEC, VCT), use moderate pools ($100K-$500K)
+- For online qualifiers/minor events, use smaller pools or "TBD"
+- Major events usually have physical venues, smaller events are often "Online"
+- Use realistic esports venues (e.g., "Arena Berlin", "Riot Games Arena", "Online")
+- If the tournament name suggests it's online (Kickoff, Qualifiers), mark as "Online"
+
+Tournament name: ${tournament.name}`
+
+    const response = await spark.llm(prompt, 'gpt-4o-mini', true)
+    const details = JSON.parse(response)
+    
+    return {
+      ...tournament,
+      prizePool: details.prizePool || 'TBD',
+      venue: details.venue || 'TBD',
+      location: details.location || 'TBD',
+      country: details.country || 'TBD',
+    }
+  } catch (error) {
+    console.error(`Failed to enrich tournament details for ${tournament.name}:`, error)
+    return {
+      ...tournament,
+      prizePool: 'TBD',
+      venue: 'TBD',
+      location: 'TBD',
+      country: 'TBD',
+    }
   }
 }
 

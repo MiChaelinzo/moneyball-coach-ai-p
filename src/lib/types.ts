@@ -156,6 +156,10 @@ export interface Tournament {
   startDate?: string
   endDate?: string
   teams?: string[]
+  prizePool?: string
+  venue?: string
+  location?: string
+  country?: string
 }
 
 export interface Team {
