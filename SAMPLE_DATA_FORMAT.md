@@ -2,38 +2,38 @@
 
 This guide explains the format for importing player, team, tournament, and match data through the AI Chat Assistant.
 
-## Supported File Formats
 
-- **JSON** (.json files)
-- **CSV** (.csv files)
 
-## File Upload Methods
+2. Click the "Upload Fil
+4. The system will aut
 
-1. Click the AI Chat icon in the bottom-right corner
-2. Click the "Upload File" button (document icon)
-3. Select your JSON or CSV file
-4. The system will automatically parse and import the data
+### Single Entity Arra
 
-## JSON Format Examples
-
-### Single Entity Array (Players Only)
-
-```json
-[
   {
-    "id": "player-1",
     "name": "Berserker",
-    "role": "ADC",
     "title": "LoL",
-    "kda": 4.5,
     "winRate": 65,
-    "gamesPlayed": 120,
-    "biography": {
-      "realName": "Kim Min-cheol",
-      "nationality": "South Korea",
-      "birthDate": "2003-01-15",
-      "bio": "Young mechanical prodigy known for aggressive laning"
+
+      "nationality": "S
+
+  },
+
+    "ro
+ 
+   
+]
+
+
+{
+    {
+      "name": "Bla
+      "title": "LoL",
+      "winRate": 6
     }
+  "teams": [
+      "id": "team-1",
+      "title": "LoL",
+     
   },
   {
     "id": "player-2",
@@ -61,78 +61,78 @@ This guide explains the format for importing player, team, tournament, and match
       "winRate": 60,
       "gamesPlayed": 95
     }
-  ],
-  "teams": [
-    {
-      "id": "team-1",
-      "name": "Cloud9 Academy",
-      "title": "LoL",
-      "colorPrimary": "#72CFED",
-      "colorSecondary": "#FFFFFF"
-    }
-  ],
-  "matches": [
-    {
-      "id": "match-1",
-      "date": "2024-01-20",
-      "opponent": "Team Liquid",
-      "result": "win",
-      "duration": 1845,
-      "score": "2-1",
-      "gameTitle": "LoL"
-    }
-  ],
-  "tournaments": [
-    {
-      "id": "tournament-1",
-      "name": "LCS Spring 2024",
-      "nameShortened": "LCS Spring",
-      "startDate": "2024-01-15",
-      "endDate": "2024-04-20"
-    }
-  ]
-}
-```
-
-## CSV Format Examples
-
-### Player CSV
-
-```csv
-id,name,role,title,kda,winRate,gamesPlayed
-player-1,Berserker,ADC,LoL,4.5,65,120
-player-2,Zellsis,Duelist,Valorant,1.45,58,85
-player-3,Blaber,Jungle,LoL,3.8,60,95
-```
-
-### Match CSV
-
-```csv
-id,date,opponent,result,duration,score,gameTitle
-match-1,2024-01-20,Team Liquid,win,1845,2-1,LoL
-match-2,2024-01-21,100 Thieves,loss,1920,1-2,LoL
-match-3,2024-01-22,Sentinels,win,2100,2-0,Valorant
-```
-
-## Field Descriptions
-
-### Player Fields
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| id | string | Yes | Unique player identifier |
-| name | string | Yes | Player nickname/gamertag |
-| role | string | Yes | Player position (ADC, Support, Jungle, etc.) |
-| title | string | No | Game title (LoL, Valorant, CS2) - defaults to "LoL" |
-| kda | number | No | Kill/Death/Assist ratio - defaults to 0 |
-| winRate | number | No | Win percentage (0-100) - defaults to 0 |
-| gamesPlayed | number | No | Total games played - defaults to 0 |
-| biography | object | No | Detailed player biography (see below) |
-| careerHistory | array | No | Career milestones array |
-
-### Player Biography Object (Optional)
-
+| kd
+| gamesPlaye
+| car
+### Player Biography 
 ```json
+  "realName": "John S
+  "birthDate": "2001-05-10",
+  "bio": "Aggressive player known
+  "si
+}
+
+
+|-------|------|------
+| date | string | Yes | Mat
+| result | string | Yes | Match 
+| score | string | No 
+
+
+|-------|------|--------
+| nam
+| co
+| logoUrl | string
+### T
+| Field | Type | Required |
+| id | string | Yes | Unique tou
+| nameShortened | string | No | Shor
+| endDate | string | No | End da
+
+
+- T
+-
+###
+
+### Data Persistence
+
+
+
+
+
+2. **Validate JSON**: Use a JSON vali
+4. **Date Format**: Use ISO 8601 format (YYY
+6. **Numbers**: Don't include units 
+## 
+
+| "Failed to 
+
+## Exa
+### Importing a Full Roster
+
+Import a CSV of past match results to enable tre
+### Custom Tournament Data
+
+
+## Need Help?
+
+- "What file form
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 {
   "realName": "John Smith",
   "nationality": "United States",
