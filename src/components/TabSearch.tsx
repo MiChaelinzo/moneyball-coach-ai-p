@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/butto
+import { MagnifyingGlass, X } from '@phosphor-i
+
 import { MagnifyingGlass, X } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -30,102 +30,102 @@ export function TabSearch({ tabs, currentTab, onTabSelect }: TabSearchProps) {
     const labelMatch = tab.label.toLowerCase().includes(query)
     const keywordMatch = tab.keywords?.some(keyword => 
       keyword.toLowerCase().includes(query)
-    )
-    return labelMatch || keywordMatch
-  })
+  use
+      if ((e.metaKey || e.ctrlKey) &&
+    
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault()
-        setIsOpen(true)
-        setTimeout(() => inputRef.current?.focus(), 50)
-      }
-
-      if (e.key === 'Escape' && isOpen) {
-        setIsOpen(false)
+      if (e.key ===
         setSearchQuery('')
+
+        if (e.key === 'Arr
+          setSelectedIn
+          )
+       
+
+          )
+        if (e.key === 'E
+          handleSelectTab(
       }
 
-      if (isOpen && filteredTabs.length > 0) {
-        if (e.key === 'ArrowDown') {
-          e.preventDefault()
-          setSelectedIndex(prev => 
-            prev < filteredTabs.length - 1 ? prev + 1 : 0
-          )
-        }
-        if (e.key === 'ArrowUp') {
-          e.preventDefault()
-          setSelectedIndex(prev => 
-            prev > 0 ? prev - 1 : filteredTabs.length - 1
-          )
-        }
-        if (e.key === 'Enter' && filteredTabs[selectedIndex]) {
-          e.preventDefault()
-          handleSelectTab(filteredTabs[selectedIndex].value)
-        }
-      }
-    }
+    return () => window.removeEventListener('k
 
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, filteredTabs, selectedIndex])
-
-  useEffect(() => {
     setSelectedIndex(0)
-  }, [searchQuery])
 
-  useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setIsOpen(false)
-      }
+        set
     }
-
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-      return () => document.removeEventListener('mousedown', handleClickOutside)
-    }
+      return () => document.
   }, [isOpen])
-
   const handleSelectTab = (tabValue: string) => {
-    onTabSelect(tabValue)
-    setIsOpen(false)
-    setSearchQuery('')
+    setIsOp
   }
-
   return (
-    <div className="relative" ref={containerRef}>
       <Button
-        variant="outline"
         onClick={() => {
-          setIsOpen(!isOpen)
-          setTimeout(() => inputRef.current?.focus(), 50)
-        }}
-        className="gap-2 min-w-[240px] justify-between text-muted-foreground hover:text-foreground"
-      >
-        <div className="flex items-center gap-2">
-          <MagnifyingGlass size={16} weight="bold" />
-          <span className="text-sm">Search tabs...</span>
-        </div>
-        <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
-          <span className="text-xs">⌘</span>K
-        </kbd>
-      </Button>
+         
+       
+     
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.95 }}
-            transition={{ duration: 0.15 }}
-            className="absolute top-full mt-2 left-0 right-0 z-50"
-          >
-            <Card className="glow-border overflow-hidden">
-              <div className="p-3 border-b border-border/50">
-                <div className="relative">
-                  <MagnifyingGlass 
+        <kbd className="pointer-events-none inline-fl
+        </kbd>
+
+
+            initial
+            exit={{ opa
+            classNa
+
+                <di
+                    size={18} 
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-fo
+                  <Input
+       
+     
+
+                 
+                      size="sm"
+                      className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w
+     
+              
+
+              <div className="max-h-[400px] overf
+                  <div cl
+                  </
+                  <div
+   
+
+          
+                            : tab.value === curre
+             
+                      >
+                        
+                            
+                          {tab.icon}
+          
+                          <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-primary/20 t
+       
+                      </button>
+                  </div>
+              </div>
+              
+                  <div className="flex items-center justify-between text-xs text-muted-foreground px-2">
+                      <div className="flex it
+              
+               
+
+                      <
+                    
+                    <
+                  </div>
+              )}
+          </motion.div>
+      </AnimatePresence>
+  )
+
+
+
+
+
                     size={18} 
                     weight="bold" 
                     className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" 
