@@ -34,6 +34,7 @@ import { AnimatedCloud9Logo } from '@/components/AnimatedCloud9Logo'
 import { EnergyBeams } from '@/components/EnergyBeams'
 import { TabSearch, type TabItem } from '@/components/TabSearch'
 import { TabFilter } from '@/components/TabFilter'
+import { AIChatSupport } from '@/components/AIChatSupport'
 import { ChartBar, Users, Target, Cpu, Sparkle, Crosshair, ChartLine, ClockCounterClockwise, MapPin, Trophy, ListBullets, CalendarBlank, GameController, ChartLineUp, ArrowsLeftRight, Lightbulb, ArrowsClockwise } from '@phosphor-icons/react'
 import { PLAYERS, INSIGHTS, STRATEGIC_IMPACTS, getPlayerAnalytics, MATCHES, MISTAKES, generateAIInsight } from '@/lib/mockData'
 import { mergeEnrichedData } from '@/lib/biographyEnrichment'
@@ -702,6 +703,7 @@ function App() {
                     </main>
                 </div>
             </div>
+            <AIChatSupport />
         </div>
     )
 }

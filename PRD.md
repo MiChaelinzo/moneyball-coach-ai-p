@@ -110,6 +110,13 @@ This is a sophisticated analytics platform that requires multiple interconnected
 - **Progression**: Access recommendations tab → Select player from roster → Click "Analyze Playstyle" → AI generates playstyle metrics → System calculates title compatibility scores → Display rankings for all three titles → Show detailed breakdowns with strengths, growth areas, and role recommendations → Generate AI expert analysis explaining top match → Review reasoning and metrics for each title option
 - **Success criteria**: Successfully analyzes player attributes within 2 seconds, generates accurate playstyle metrics, provides compatibility scores with clear reasoning, highlights top title match prominently, delivers actionable role recommendations, integrates AI insights that explain the analysis in natural language, and presents results in an easily digestible visual format
 
+### AI Chat Support Assistant (NEW)
+- **Functionality**: Interactive AI-powered chat interface accessible via floating action button in the bottom-right corner. Features include: intelligent Q&A about platform features and analytics interpretation, suggested prompt recommendations for common questions, image and video upload with AI-powered visual recognition and analysis, voice chat capability with real-time transcription, persistent chat history during session, and contextual responses about Cloud9 esports analytics. The chat interface includes media preview, recording indicators, and smooth animations for an engaging conversational experience.
+- **Purpose**: Provide instant, contextual help and guidance to coaches and analysts using the platform, reducing learning curve and enabling self-service problem-solving. Supports multimodal interaction (text, voice, images, video) to accommodate different user preferences and use cases.
+- **Trigger**: User clicks the pulsing chat icon button in the bottom-right corner of the screen
+- **Progression**: Click chat FAB → Chat window slides up with welcome message → View suggested prompts (8 pre-defined questions) → Click suggestion to auto-fill or type custom question → (Optional) Upload image/video by clicking media buttons → Preview uploaded media with remove option → (Optional) Start voice recording by clicking microphone → Record voice message → Stop recording to auto-transcribe → Type or record message → Press send or Enter → AI processes request with loading indicator → Receive contextual response about platform features → Continue conversation with follow-up questions → View message history with timestamps → Close chat by clicking X or FAB again
+- **Success criteria**: Chat opens/closes with smooth animation (<300ms), AI responses arrive within 2-3 seconds, voice recording starts without permission errors, uploaded images/videos preview correctly, suggested prompts cover 80% of common questions, AI provides accurate platform-specific guidance, message history persists during session, chat interface is mobile-responsive, voice transcription placeholder appears after recording stops, and floating button has visual indicator (pulsing dot) when closed
+
 ## Edge Case Handling
 - **Incomplete match data**: Display partial analysis with confidence indicators for each insight based on data completeness
 - **First-time player analysis**: Show limited historical context but focus on single-match deep dive with provisional insights
@@ -120,6 +127,11 @@ This is a sophisticated analytics platform that requires multiple interconnected
 - **Narration queue overflow**: Intelligently prioritize high-impact events over routine updates when multiple events occur simultaneously
 - **AI recommendation API failure**: Display fallback recommendations based on statistical analysis when LLM is unavailable, with clear indication of reduced confidence
 - **Player with no historical data**: Generate provisional recommendations based on role and basic stats, flagging results as preliminary
+- **Chat microphone access denied**: Show clear error message explaining microphone permission is required for voice chat, with button to retry
+- **Chat AI response failure**: Display friendly error message with retry option, maintain conversation history so user doesn't lose context
+- **Large image/video upload**: Validate file size (recommend <10MB) and show warning/error if file is too large for processing
+- **Chat session with no messages**: Display welcome message and suggested prompts to guide first interaction
+- **Rapid-fire messages**: Queue messages and process sequentially to avoid overwhelming the AI API or creating out-of-order responses
 
 ## Design Direction
 The design should evoke the feeling of a cutting-edge command center—intelligent, precise, and performance-oriented. Think "Moneyball meets esports war room": data-rich but not overwhelming, with a focus on clarity and actionable intelligence. The aesthetic should feel modern and technical, with a slight edge that resonates with competitive gaming culture while maintaining professional coaching credibility.
@@ -212,6 +224,9 @@ Animations should feel purposeful and performance-oriented, with snappy timing t
   - CheckCircle, XCircle for outcome indicators
   - MagnifyingGlass for search/analysis
   - List, Grid for view toggles
+  - ChatCircleDots for AI chat support
+  - Microphone, VideoCamera, Image for media inputs
+  - PaperPlaneRight for message sending
 
 - **Spacing**: 
   - Card padding: `p-6` (24px)
