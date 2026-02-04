@@ -304,9 +304,9 @@ Provide a helpful, friendly, and concise response (2-3 paragraphs max). If the u
                                     </ScrollArea>
                                 </div>
 
-                                <div className="relative flex-1">
-                                    <ScrollArea ref={scrollAreaRef} className="h-full p-4">
-                                        <div className="space-y-4 pr-4">
+                                <div className="relative flex-1 overflow-hidden">
+                                    <ScrollArea ref={scrollAreaRef} className="h-full chat-scroll-area">
+                                        <div className="space-y-4 p-4">
                                             {messages.map((message) => (
                                                 <motion.div
                                                     key={message.id}
@@ -326,7 +326,7 @@ Provide a helpful, friendly, and concise response (2-3 paragraphs max). If the u
                                                             <Cpu size={16} weight="duotone" className="text-accent" />
                                                         )}
                                                     </div>
-                                                    <div className={`flex-1 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
+                                                    <div className={`flex-1 min-w-0 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
                                                         {message.mediaUrl && (
                                                             <div className="mb-2">
                                                                 {message.mediaType === 'image' ? (
@@ -344,15 +344,17 @@ Provide a helpful, friendly, and concise response (2-3 paragraphs max). If the u
                                                                 )}
                                                             </div>
                                                         )}
-                                                        <div className={`inline-block p-3 rounded-lg ${
+                                                        <div className={`inline-block p-3 rounded-lg max-w-[85%] ${
                                                             message.role === 'user'
                                                                 ? 'bg-primary text-primary-foreground'
-                                                                : 'bg-muted text-foreground'
+                                                                : 'bg-card border border-border text-foreground'
                                                         }`}>
-                                                            <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                                                            <p className={`text-xs mt-1 ${
+                                                            <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+                                                                {message.content}
+                                                            </p>
+                                                            <p className={`text-xs mt-2 ${
                                                                 message.role === 'user' 
-                                                                    ? 'text-primary-foreground/70' 
+                                                                    ? 'text-primary-foreground/80' 
                                                                     : 'text-muted-foreground'
                                                             }`}>
                                                                 {message.timestamp.toLocaleTimeString([], { 
@@ -374,11 +376,11 @@ Provide a helpful, friendly, and concise response (2-3 paragraphs max). If the u
                                                         <Cpu size={16} weight="duotone" className="text-accent" />
                                                     </div>
                                                     <div className="flex-1">
-                                                        <div className="inline-block p-3 rounded-lg bg-muted">
+                                                        <div className="inline-block p-3 rounded-lg bg-card border border-border">
                                                             <div className="flex gap-1">
-                                                                <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '0ms' }} />
-                                                                <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '150ms' }} />
-                                                                <div className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '300ms' }} />
+                                                                <div className="w-2 h-2 rounded-full bg-foreground/50 animate-bounce" style={{ animationDelay: '0ms' }} />
+                                                                <div className="w-2 h-2 rounded-full bg-foreground/50 animate-bounce" style={{ animationDelay: '150ms' }} />
+                                                                <div className="w-2 h-2 rounded-full bg-foreground/50 animate-bounce" style={{ animationDelay: '300ms' }} />
                                                             </div>
                                                         </div>
                                                     </div>
