@@ -822,243 +822,363 @@ export const PLAYERS: Player[] = [
 export const MATCHES: Match[] = [
   {
     id: 'm1',
-    date: '2024-01-15',
+    date: '2024-03-15',
     opponent: 'Team Liquid',
     result: 'win',
+    score: '2-1',
     duration: 2145,
-    objectives: { dragons: 3, barons: 1, towers: 9 }
+    objectives: { dragons: 3, barons: 1, towers: 9 },
+    gameTitle: 'LoL',
+    tournament: { id: 't1', name: 'LCS Spring 2024', nameShortened: 'LCS' },
+    format: { name: 'Best of 3', nameShortened: 'Bo3' }
   },
   {
     id: 'm2',
-    date: '2024-01-14',
+    date: '2024-03-12',
     opponent: 'FlyQuest',
     result: 'loss',
+    score: '1-2',
     duration: 2567,
-    objectives: { dragons: 1, barons: 0, towers: 4 }
+    objectives: { dragons: 1, barons: 0, towers: 4 },
+    gameTitle: 'LoL',
+    tournament: { id: 't1', name: 'LCS Spring 2024', nameShortened: 'LCS' },
+    format: { name: 'Best of 3', nameShortened: 'Bo3' }
   },
   {
     id: 'm3',
-    date: '2024-01-13',
+    date: '2024-03-08',
     opponent: '100 Thieves',
     result: 'win',
+    score: '2-0',
     duration: 1987,
-    objectives: { dragons: 4, barons: 2, towers: 11 }
+    objectives: { dragons: 4, barons: 2, towers: 11 },
+    gameTitle: 'LoL',
+    tournament: { id: 't1', name: 'LCS Spring 2024', nameShortened: 'LCS' },
+    format: { name: 'Best of 3', nameShortened: 'Bo3' }
   },
   {
     id: 'm4',
-    date: '2024-01-12',
-    opponent: 'TSM',
+    date: '2024-03-05',
+    opponent: 'Dignitas',
     result: 'win',
+    score: '1-0',
     duration: 2234,
-    objectives: { dragons: 2, barons: 1, towers: 8 }
+    objectives: { dragons: 2, barons: 1, towers: 8 },
+    gameTitle: 'LoL',
+    tournament: { id: 't1', name: 'LCS Spring 2024', nameShortened: 'LCS' },
+    format: { name: 'Best of 1', nameShortened: 'Bo1' }
   },
   {
     id: 'm5',
-    date: '2024-01-11',
+    date: '2024-03-02',
     opponent: 'Evil Geniuses',
     result: 'loss',
+    score: '0-2',
     duration: 2789,
-    objectives: { dragons: 2, barons: 0, towers: 5 }
+    objectives: { dragons: 2, barons: 0, towers: 5 },
+    gameTitle: 'LoL',
+    tournament: { id: 't1', name: 'LCS Spring 2024', nameShortened: 'LCS' },
+    format: { name: 'Best of 3', nameShortened: 'Bo3' }
   },
   {
     id: 'm6',
-    date: '2024-01-10',
-    opponent: 'Dignitas',
+    date: '2024-02-28',
+    opponent: 'Shopify Rebellion',
     result: 'win',
+    score: '2-1',
     duration: 2456,
-    objectives: { dragons: 3, barons: 1, towers: 10 }
+    objectives: { dragons: 3, barons: 1, towers: 10 },
+    gameTitle: 'LoL',
+    tournament: { id: 't1', name: 'LCS Spring 2024', nameShortened: 'LCS' },
+    format: { name: 'Best of 3', nameShortened: 'Bo3' }
   },
   {
     id: 'm7',
-    date: '2024-01-09',
-    opponent: 'Golden Guardians',
+    date: '2024-02-24',
+    opponent: 'Immortals',
     result: 'win',
+    score: '1-0',
     duration: 2098,
-    objectives: { dragons: 4, barons: 1, towers: 9 }
+    objectives: { dragons: 4, barons: 1, towers: 9 },
+    gameTitle: 'LoL',
+    tournament: { id: 't1', name: 'LCS Spring 2024', nameShortened: 'LCS' },
+    format: { name: 'Best of 1', nameShortened: 'Bo1' }
   },
   {
     id: 'm8',
-    date: '2024-01-08',
-    opponent: 'Immortals',
+    date: '2024-02-20',
+    opponent: 'Golden Guardians',
     result: 'loss',
+    score: '1-2',
     duration: 2834,
-    objectives: { dragons: 1, barons: 0, towers: 3 }
+    objectives: { dragons: 1, barons: 0, towers: 3 },
+    gameTitle: 'LoL',
+    tournament: { id: 't1', name: 'LCS Spring 2024', nameShortened: 'LCS' },
+    format: { name: 'Best of 3', nameShortened: 'Bo3' }
   },
   {
     id: 'm9',
-    date: '2024-01-20',
+    date: '2024-03-18',
     opponent: 'Sentinels',
     result: 'win',
+    score: '13-7',
     duration: 2340,
-    objectives: { dragons: 0, barons: 0, towers: 0 }
+    objectives: { dragons: 0, barons: 0, towers: 0 },
+    gameTitle: 'Valorant',
+    tournament: { id: 't2', name: 'VCT Americas 2024', nameShortened: 'VCT' },
+    format: { name: 'Best of 3', nameShortened: 'Bo3' }
   },
   {
     id: 'm10',
-    date: '2024-01-19',
+    date: '2024-03-14',
     opponent: 'NRG Esports',
     result: 'loss',
+    score: '9-13',
     duration: 2680,
-    objectives: { dragons: 0, barons: 0, towers: 0 }
+    objectives: { dragons: 0, barons: 0, towers: 0 },
+    gameTitle: 'Valorant',
+    tournament: { id: 't2', name: 'VCT Americas 2024', nameShortened: 'VCT' },
+    format: { name: 'Best of 3', nameShortened: 'Bo3' }
   },
   {
     id: 'm11',
-    date: '2024-01-18',
+    date: '2024-03-10',
     opponent: 'Evil Geniuses',
     result: 'win',
+    score: '2-1',
     duration: 2120,
-    objectives: { dragons: 0, barons: 0, towers: 0 }
+    objectives: { dragons: 0, barons: 0, towers: 0 },
+    gameTitle: 'Valorant',
+    tournament: { id: 't2', name: 'VCT Americas 2024', nameShortened: 'VCT' },
+    format: { name: 'Best of 3', nameShortened: 'Bo3' }
   },
   {
     id: 'm12',
-    date: '2024-01-17',
+    date: '2024-03-06',
     opponent: '100 Thieves',
     result: 'win',
+    score: '13-11',
     duration: 2450,
-    objectives: { dragons: 0, barons: 0, towers: 0 }
+    objectives: { dragons: 0, barons: 0, towers: 0 },
+    gameTitle: 'Valorant',
+    tournament: { id: 't2', name: 'VCT Americas 2024', nameShortened: 'VCT' },
+    format: { name: 'Best of 3', nameShortened: 'Bo3' }
   },
   {
     id: 'm13',
-    date: '2024-01-22',
+    date: '2024-03-22',
     opponent: 'FaZe Clan',
     result: 'loss',
+    score: '13-16',
     duration: 3120,
-    objectives: { dragons: 0, barons: 0, towers: 0 }
+    objectives: { dragons: 0, barons: 0, towers: 0 },
+    gameTitle: 'CS2',
+    tournament: { id: 't3', name: 'ESL Pro League Season 19', nameShortened: 'EPL' },
+    format: { name: 'Best of 1', nameShortened: 'Bo1' }
   },
   {
     id: 'm14',
-    date: '2024-01-21',
+    date: '2024-03-20',
     opponent: 'NAVI',
     result: 'win',
+    score: '16-12',
     duration: 2890,
-    objectives: { dragons: 0, barons: 0, towers: 0 }
+    objectives: { dragons: 0, barons: 0, towers: 0 },
+    gameTitle: 'CS2',
+    tournament: { id: 't3', name: 'ESL Pro League Season 19', nameShortened: 'EPL' },
+    format: { name: 'Best of 1', nameShortened: 'Bo1' }
   },
   {
     id: 'm15',
-    date: '2024-01-20',
+    date: '2024-03-18',
     opponent: 'Vitality',
     result: 'loss',
+    score: '1-2',
     duration: 3340,
-    objectives: { dragons: 0, barons: 0, towers: 0 }
+    objectives: { dragons: 0, barons: 0, towers: 0 },
+    gameTitle: 'CS2',
+    tournament: { id: 't3', name: 'ESL Pro League Season 19', nameShortened: 'EPL' },
+    format: { name: 'Best of 3', nameShortened: 'Bo3' }
   },
   {
     id: 'm16',
-    date: '2024-01-25',
-    opponent: 'OpTic Gaming',
+    date: '2024-02-25',
+    opponent: 'Leviatán',
     result: 'win',
+    score: '13-8',
     duration: 2180,
-    objectives: { dragons: 0, barons: 0, towers: 0 }
+    objectives: { dragons: 0, barons: 0, towers: 0 },
+    gameTitle: 'Valorant',
+    tournament: { id: 't2', name: 'VCT Americas 2024', nameShortened: 'VCT' },
+    format: { name: 'Best of 3', nameShortened: 'Bo3' }
   },
   {
     id: 'm17',
-    date: '2024-01-24',
-    opponent: 'Leviatán',
-    result: 'win',
+    date: '2024-02-22',
+    opponent: 'LOUD',
+    result: 'loss',
+    score: '10-13',
     duration: 2560,
-    objectives: { dragons: 0, barons: 0, towers: 0 }
+    objectives: { dragons: 0, barons: 0, towers: 0 },
+    gameTitle: 'Valorant',
+    tournament: { id: 't2', name: 'VCT Americas 2024', nameShortened: 'VCT' },
+    format: { name: 'Best of 3', nameShortened: 'Bo3' }
   },
   {
     id: 'm18',
-    date: '2024-01-23',
-    opponent: 'LOUD',
-    result: 'loss',
+    date: '2024-02-18',
+    opponent: 'KRÜ Esports',
+    result: 'win',
+    score: '2-0',
     duration: 2890,
-    objectives: { dragons: 0, barons: 0, towers: 0 }
+    objectives: { dragons: 0, barons: 0, towers: 0 },
+    gameTitle: 'Valorant',
+    tournament: { id: 't2', name: 'VCT Americas 2024', nameShortened: 'VCT' },
+    format: { name: 'Best of 3', nameShortened: 'Bo3' }
   },
   {
     id: 'm19',
-    date: '2024-01-26',
-    opponent: 'KRÜ Esports',
+    date: '2024-02-15',
+    opponent: 'MIBR',
     result: 'win',
+    score: '13-5',
     duration: 2240,
-    objectives: { dragons: 0, barons: 0, towers: 0 }
+    objectives: { dragons: 0, barons: 0, towers: 0 },
+    gameTitle: 'Valorant',
+    tournament: { id: 't2', name: 'VCT Americas 2024', nameShortened: 'VCT' },
+    format: { name: 'Best of 3', nameShortened: 'Bo3' }
   },
   {
     id: 'm20',
-    date: '2024-01-27',
-    opponent: 'MIBR',
+    date: '2024-02-12',
+    opponent: 'FURIA Esports',
     result: 'win',
+    score: '13-9',
     duration: 2100,
-    objectives: { dragons: 0, barons: 0, towers: 0 }
+    objectives: { dragons: 0, barons: 0, towers: 0 },
+    gameTitle: 'Valorant',
+    tournament: { id: 't2', name: 'VCT Americas 2024', nameShortened: 'VCT' },
+    format: { name: 'Best of 3', nameShortened: 'Bo3' }
   },
   {
     id: 'm21',
-    date: '2024-01-28',
+    date: '2024-03-16',
     opponent: 'Astralis',
     result: 'loss',
+    score: '14-16',
     duration: 3520,
-    objectives: { dragons: 0, barons: 0, towers: 0 }
+    objectives: { dragons: 0, barons: 0, towers: 0 },
+    gameTitle: 'CS2',
+    tournament: { id: 't3', name: 'ESL Pro League Season 19', nameShortened: 'EPL' },
+    format: { name: 'Best of 1', nameShortened: 'Bo1' }
   },
   {
     id: 'm22',
-    date: '2024-01-27',
+    date: '2024-03-14',
     opponent: 'G2 Esports',
     result: 'win',
+    score: '2-1',
     duration: 2980,
-    objectives: { dragons: 0, barons: 0, towers: 0 }
+    objectives: { dragons: 0, barons: 0, towers: 0 },
+    gameTitle: 'CS2',
+    tournament: { id: 't3', name: 'ESL Pro League Season 19', nameShortened: 'EPL' },
+    format: { name: 'Best of 3', nameShortened: 'Bo3' }
   },
   {
     id: 'm23',
-    date: '2024-01-26',
+    date: '2024-03-12',
     opponent: 'ENCE',
     result: 'win',
+    score: '16-13',
     duration: 2750,
-    objectives: { dragons: 0, barons: 0, towers: 0 }
+    objectives: { dragons: 0, barons: 0, towers: 0 },
+    gameTitle: 'CS2',
+    tournament: { id: 't3', name: 'ESL Pro League Season 19', nameShortened: 'EPL' },
+    format: { name: 'Best of 1', nameShortened: 'Bo1' }
   },
   {
     id: 'm24',
-    date: '2024-01-25',
+    date: '2024-03-10',
     opponent: 'Complexity',
     result: 'loss',
+    score: '0-2',
     duration: 3180,
-    objectives: { dragons: 0, barons: 0, towers: 0 }
+    objectives: { dragons: 0, barons: 0, towers: 0 },
+    gameTitle: 'CS2',
+    tournament: { id: 't3', name: 'ESL Pro League Season 19', nameShortened: 'EPL' },
+    format: { name: 'Best of 3', nameShortened: 'Bo3' }
   },
   {
     id: 'm25',
-    date: '2024-01-30',
-    opponent: 'MAD Lions',
+    date: '2024-02-08',
+    opponent: 'TSM',
     result: 'win',
+    score: '1-0',
     duration: 2015,
-    objectives: { dragons: 3, barons: 2, towers: 11 }
+    objectives: { dragons: 3, barons: 2, towers: 11 },
+    gameTitle: 'LoL',
+    tournament: { id: 't1', name: 'LCS Spring 2024', nameShortened: 'LCS' },
+    format: { name: 'Best of 1', nameShortened: 'Bo1' }
   },
   {
     id: 'm26',
-    date: '2024-01-29',
-    opponent: 'Rogue',
+    date: '2024-02-05',
+    opponent: 'Team Liquid',
     result: 'win',
+    score: '2-1',
     duration: 2345,
-    objectives: { dragons: 4, barons: 1, towers: 10 }
+    objectives: { dragons: 4, barons: 1, towers: 10 },
+    gameTitle: 'LoL',
+    tournament: { id: 't1', name: 'LCS Spring 2024', nameShortened: 'LCS' },
+    format: { name: 'Best of 3', nameShortened: 'Bo3' }
   },
   {
     id: 'm27',
-    date: '2024-01-28',
-    opponent: 'Fnatic',
+    date: '2024-02-02',
+    opponent: 'FlyQuest',
     result: 'loss',
+    score: '1-2',
     duration: 2890,
-    objectives: { dragons: 2, barons: 0, towers: 6 }
+    objectives: { dragons: 2, barons: 0, towers: 6 },
+    gameTitle: 'LoL',
+    tournament: { id: 't1', name: 'LCS Spring 2024', nameShortened: 'LCS' },
+    format: { name: 'Best of 3', nameShortened: 'Bo3' }
   },
   {
     id: 'm28',
-    date: '2024-02-01',
-    opponent: 'SK Gaming',
+    date: '2024-01-30',
+    opponent: '100 Thieves',
     result: 'win',
+    score: '1-0',
     duration: 2220,
-    objectives: { dragons: 3, barons: 1, towers: 9 }
+    objectives: { dragons: 3, barons: 1, towers: 9 },
+    gameTitle: 'LoL',
+    tournament: { id: 't1', name: 'LCS Spring 2024', nameShortened: 'LCS' },
+    format: { name: 'Best of 1', nameShortened: 'Bo1' }
   },
   {
     id: 'm29',
-    date: '2024-02-02',
-    opponent: 'FURIA Esports',
+    date: '2024-01-28',
+    opponent: 'Sentinels',
     result: 'win',
+    score: '13-6',
     duration: 2450,
-    objectives: { dragons: 0, barons: 0, towers: 0 }
+    objectives: { dragons: 0, barons: 0, towers: 0 },
+    gameTitle: 'Valorant',
+    tournament: { id: 't4', name: 'VCT Americas Kickoff', nameShortened: 'Kickoff' },
+    format: { name: 'Best of 3', nameShortened: 'Bo3' }
   },
   {
     id: 'm30',
-    date: '2024-02-03',
-    opponent: 'Paper Rex',
+    date: '2024-01-25',
+    opponent: 'G2 Esports',
     result: 'loss',
+    score: '11-13',
     duration: 2760,
-    objectives: { dragons: 0, barons: 0, towers: 0 }
+    objectives: { dragons: 0, barons: 0, towers: 0 },
+    gameTitle: 'Valorant',
+    tournament: { id: 't4', name: 'VCT Americas Kickoff', nameShortened: 'Kickoff' },
+    format: { name: 'Best of 3', nameShortened: 'Bo3' }
   },
 ]
 

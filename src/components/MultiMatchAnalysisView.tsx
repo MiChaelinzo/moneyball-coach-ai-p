@@ -91,6 +91,7 @@ function generateTrendAnalysisPDF(matches: Match[], mistakes: Mistake[], analysi
         <th>Date</th>
         <th>Opponent</th>
         <th>Result</th>
+        <th>Score</th>
         <th>Duration</th>
       </tr>
     </thead>
@@ -100,6 +101,7 @@ function generateTrendAnalysisPDF(matches: Match[], mistakes: Mistake[], analysi
           <td>${m.date}</td>
           <td>${m.opponent}</td>
           <td>${m.result.toUpperCase()}</td>
+          <td>${m.score || 'N/A'}</td>
           <td>${Math.round(m.duration / 60)} min</td>
         </tr>
       `).join('')}
@@ -120,13 +122,14 @@ export function MultiMatchAnalysisView({ matches, mistakes, players }: MultiMatc
   const [isAnalyzing, setIsAnalyzing] = useState(false)
 
   useEffect(() => {
-    if (matches.length > 0 && mistakes.length > 0 && players.length > 0) {
+    if (matches.length > 0 && mistakes.length > 0 && players.length > 0 && !analysis) {
       performAnalysis()
     }
-  }, [matches, mistakes, players])
+  }, [])
 
   const performAnalysis = () => {
     setIsAnalyzing(true)
+    setAiInsight('')
     setTimeout(() => {
       const result = analyzeLongTermTrends(matches, mistakes, players)
       setAnalysis(result)

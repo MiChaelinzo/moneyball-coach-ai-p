@@ -76,6 +76,7 @@ export function CrossTitleComparisonView({ players }: CrossTitleComparisonViewPr
   })
 
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [hasLoadedInitially, setHasLoadedInitially] = useState(false)
 
   const lolPlayers = players.filter(p => p.title === 'LoL')
   const valorantPlayers = players.filter(p => p.title === 'Valorant')
@@ -125,12 +126,40 @@ export function CrossTitleComparisonView({ players }: CrossTitleComparisonViewPr
     }
   }
 
+  const handleLoadStatistics = async () => {
+    setIsRefreshing(true)
+    setHasLoadedInitially(true)
+    const titles: Array<Exclude<GameTitle, 'All'>> = ['LoL', 'Valorant', 'CS2']
+    
+    try {
+      const promises = titles
+        .filter(title => selectedPlayers[title])
+        .map(title => fetchStatsForTitle(title))
+      
+      await Promise.all(promises)
+      toast.success('Statistics loaded successfully')
+    } catch (error) {
+      toast.error('Some statistics failed to load')
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
+
   const handleRefreshAll = async () => {
+    if (!hasLoadedInitially) {
+      handleLoadStatistics()
+      return
+    }
+
     setIsRefreshing(true)
     const titles: Array<Exclude<GameTitle, 'All'>> = ['LoL', 'Valorant', 'CS2']
     
     try {
-      await Promise.all(titles.map(title => fetchStatsForTitle(title)))
+      const promises = titles
+        .filter(title => selectedPlayers[title])
+        .map(title => fetchStatsForTitle(title))
+      
+      await Promise.all(promises)
       toast.success('All statistics refreshed')
     } catch (error) {
       toast.error('Some statistics failed to refresh')
@@ -138,15 +167,6 @@ export function CrossTitleComparisonView({ players }: CrossTitleComparisonViewPr
       setIsRefreshing(false)
     }
   }
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (selectedPlayers.LoL || selectedPlayers.Valorant || selectedPlayers.CS2) {
-        handleRefreshAll()
-      }
-    }, 500)
-    return () => clearTimeout(timer)
-  }, [selectedPlayers.LoL, selectedPlayers.Valorant, selectedPlayers.CS2])
 
   const getComparisonMetrics = (): ComparisonMetric[] => {
     const lolStats = titleStats.LoL.stats
@@ -710,9 +730,25 @@ export function CrossTitleComparisonView({ players }: CrossTitleComparisonViewPr
             <p className="text-muted-foreground mb-4">
               Select players from each title to start comparing performance
             </p>
-            <Button onClick={handleRefreshAll} disabled={!selectedPlayers.LoL && !selectedPlayers.Valorant && !selectedPlayers.CS2}>
+            <Button 
+              onClick={handleLoadStatistics} 
+              disabled={!selectedPlayers.LoL && !selectedPlayers.Valorant && !selectedPlayers.CS2}
+              className="gap-2"
+            >
+              <ChartBar size={18} weight="duotone" />
               Load Statistics
             </Button>
+          </CardContent>
+        </Card>
+      )}
+      
+      {!hasAnyStats && isRefreshing && (
+        <Card className="border-dashed">
+          <CardContent className="py-12 text-center">
+            <ArrowsClockwise size={48} weight="duotone" className="text-primary mx-auto mb-4 animate-spin" />
+            <p className="text-muted-foreground">
+              Loading statistics from GRID API...
+            </p>
           </CardContent>
         </Card>
       )}

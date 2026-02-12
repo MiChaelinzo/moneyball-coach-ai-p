@@ -1,0 +1,331 @@
+{
+  "players": [
+    {
+      "id": "import-player-1",
+      "name": "Faker",
+      "role": "Mid Laner",
+      "title": "LoL",
+      "kda": 5.2,
+      "winRate": 68,
+      "gamesPlayed": 150,
+      "biography": {
+        "realName": "Lee Sang-hyeok",
+        "nationality": "South Korea",
+        "birthDate": "1996-05-07",
+        "hometown": "Seoul",
+        "bio": "Widely regarded as the greatest League of Legends player of all time. Known for exceptional mechanics and game sense.",
+        "playstyle": "Aggressive, calculated risk-taker with unmatched mechanical prowess",
+        "signature": "LeBlanc, Zed, Azir",
+        "careerStart": 2013
+      },
+      "careerHistory": [
+        {
+          "year": 2013,
+          "event": "Worlds Championship",
+          "achievement": "World Champion",
+          "team": "SK Telecom T1",
+          "title": "LoL"
+        },
+        {
+          "year": 2015,
+          "event": "Worlds Championship",
+          "achievement": "World Champion",
+          "team": "SK Telecom T1",
+          "title": "LoL"
+        },
+        {
+          "year": 2016,
+          "event": "Worlds Championship",
+          "achievement": "World Champion",
+          "team": "SK Telecom T1",
+          "title": "LoL"
+        }
+      ]
+    },
+    {
+      "id": "import-player-2",
+      "name": "TenZ",
+      "role": "Duelist",
+      "title": "Valorant",
+      "kda": 1.45,
+      "winRate": 72,
+      "gamesPlayed": 120,
+      "biography": {
+        "realName": "Tyson Ngo",
+        "nationality": "Canada",
+        "birthDate": "2001-05-05",
+        "hometown": "Vancouver",
+        "bio": "Professional Valorant player known for incredible aim and aggressive playstyle. Former CS:GO player who transitioned to Valorant.",
+        "playstyle": "Hyper-aggressive entry fragger with exceptional aim",
+        "signature": "Jett, Reyna, Omen",
+        "careerStart": 2020
+      },
+      "careerHistory": [
+        {
+          "year": 2021,
+          "event": "VCT Masters",
+          "achievement": "Masters Champion",
+          "team": "Sentinels",
+          "title": "Valorant"
+        }
+      ]
+    },
+    {
+      "id": "import-player-3",
+      "name": "s1mple",
+      "role": "AWPer",
+      "title": "CS2",
+      "kda": 1.32,
+      "winRate": 65,
+      "gamesPlayed": 200,
+      "biography": {
+        "realName": "Oleksandr Kostyliev",
+        "nationality": "Ukraine",
+        "birthDate": "1997-10-02",
+        "hometown": "Kyiv",
+        "bio": "Considered one of the best Counter-Strike players in history. Known for incredible AWP skills and game-changing plays.",
+        "playstyle": "Aggressive AWPer with exceptional positioning and game sense",
+        "signature": "AWP, AK-47",
+        "careerStart": 2013
+      },
+      "careerHistory": [
+        {
+          "year": 2021,
+          "event": "PGL Major Stockholm",
+          "achievement": "Major Champion",
+          "team": "Natus Vincere",
+          "title": "CS2"
+        }
+      ]
+    },
+    {
+      "id": "import-player-4",
+      "name": "Jojopyun",
+      "role": "Mid Laner",
+      "title": "LoL",
+      "kda": 4.1,
+      "winRate": 58,
+      "gamesPlayed": 85,
+      "biography": {
+        "realName": "Joseph Pyun",
+        "nationality": "United States",
+        "birthDate": "2003-11-18",
+        "hometown": "Los Angeles",
+        "bio": "Rising North American mid laner with strong mechanical skills and aggressive laning phase.",
+        "playstyle": "Lane-dominant player who excels in team fights",
+        "signature": "Sylas, Viktor, Orianna",
+        "careerStart": 2021
+      }
+    },
+    {
+      "id": "import-player-5",
+      "name": "Zekken",
+      "role": "Duelist",
+      "title": "Valorant",
+      "kda": 1.38,
+      "winRate": 69,
+      "gamesPlayed": 95,
+      "biography": {
+        "realName": "Zachary Patrone",
+        "nationality": "United States",
+        "birthDate": "2005-05-05",
+        "hometown": "California",
+        "bio": "Young and talented duelist known for aggressive entry fragging and consistent performance.",
+        "playstyle": "Entry fragger with excellent timing and positioning",
+        "signature": "Jett, Raze, Neon",
+        "careerStart": 2022
+      }
+    }
+  ],
+  "teams": [
+    {
+      "id": "import-team-1",
+      "name": "T1",
+      "colorPrimary": "#E4002B",
+      "colorSecondary": "#000000",
+      "title": "LoL"
+    },
+    {
+      "id": "import-team-2",
+      "name": "Sentinels",
+      "colorPrimary": "#FF4654",
+      "colorSecondary": "#000000",
+      "title": "Valorant"
+    },
+    {
+      "id": "import-team-3",
+      "name": "Natus Vincere",
+      "colorPrimary": "#FFCC00",
+      "colorSecondary": "#000000",
+      "title": "CS2"
+    },
+    {
+      "id": "import-team-4",
+      "name": "Evil Geniuses",
+      "colorPrimary": "#0052CC",
+      "colorSecondary": "#FFFFFF",
+      "title": "LoL"
+    },
+    {
+      "id": "import-team-5",
+      "name": "Sentinels Academy",
+      "colorPrimary": "#FF4654",
+      "colorSecondary": "#1A1A1A",
+      "title": "Valorant"
+    }
+  ],
+  "matches": [
+    {
+      "id": "import-match-1",
+      "date": "2024-01-15",
+      "opponent": "Gen.G",
+      "result": "win",
+      "duration": 32,
+      "score": "2-1",
+      "gameTitle": "LoL",
+      "objectives": {
+        "dragons": 3,
+        "barons": 2,
+        "towers": 9
+      },
+      "tournament": {
+        "id": "lck-spring-2024",
+        "name": "LCK Spring 2024",
+        "nameShortened": "LCK Spring"
+      }
+    },
+    {
+      "id": "import-match-2",
+      "date": "2024-01-18",
+      "opponent": "DRX",
+      "result": "loss",
+      "duration": 28,
+      "score": "1-2",
+      "gameTitle": "LoL",
+      "objectives": {
+        "dragons": 2,
+        "barons": 1,
+        "towers": 6
+      },
+      "tournament": {
+        "id": "lck-spring-2024",
+        "name": "LCK Spring 2024",
+        "nameShortened": "LCK Spring"
+      }
+    },
+    {
+      "id": "import-match-3",
+      "date": "2024-01-20",
+      "opponent": "LOUD",
+      "result": "win",
+      "duration": 45,
+      "score": "13-10",
+      "gameTitle": "Valorant",
+      "objectives": {
+        "dragons": 0,
+        "barons": 0,
+        "towers": 0
+      },
+      "tournament": {
+        "id": "vct-americas-2024",
+        "name": "VCT Americas 2024",
+        "nameShortened": "VCT Americas"
+      }
+    },
+    {
+      "id": "import-match-4",
+      "date": "2024-01-22",
+      "opponent": "FaZe Clan",
+      "result": "win",
+      "duration": 52,
+      "score": "16-12",
+      "gameTitle": "CS2",
+      "objectives": {
+        "dragons": 0,
+        "barons": 0,
+        "towers": 0
+      },
+      "tournament": {
+        "id": "iem-katowice-2024",
+        "name": "IEM Katowice 2024",
+        "nameShortened": "IEM Katowice"
+      }
+    },
+    {
+      "id": "import-match-5",
+      "date": "2024-01-25",
+      "opponent": "100 Thieves",
+      "result": "win",
+      "duration": 30,
+      "score": "2-0",
+      "gameTitle": "LoL",
+      "objectives": {
+        "dragons": 4,
+        "barons": 1,
+        "towers": 11
+      },
+      "tournament": {
+        "id": "lcs-spring-2024",
+        "name": "LCS Spring 2024",
+        "nameShortened": "LCS Spring"
+      }
+    },
+    {
+      "id": "import-match-6",
+      "date": "2024-01-28",
+      "opponent": "NRG",
+      "result": "loss",
+      "duration": 38,
+      "score": "11-13",
+      "gameTitle": "Valorant",
+      "objectives": {
+        "dragons": 0,
+        "barons": 0,
+        "towers": 0
+      },
+      "tournament": {
+        "id": "vct-americas-2024",
+        "name": "VCT Americas 2024",
+        "nameShortened": "VCT Americas"
+      }
+    }
+  ],
+  "tournaments": [
+    {
+      "id": "lck-spring-2024",
+      "name": "LCK Spring 2024",
+      "nameShortened": "LCK Spring",
+      "seriesCount": 45,
+      "startDate": "2024-01-10",
+      "endDate": "2024-04-15",
+      "teams": ["T1", "Gen.G", "DRX", "KT Rolster"]
+    },
+    {
+      "id": "vct-americas-2024",
+      "name": "VCT Americas 2024",
+      "nameShortened": "VCT Americas",
+      "seriesCount": 30,
+      "startDate": "2024-01-15",
+      "endDate": "2024-03-30",
+      "teams": ["Sentinels", "LOUD", "NRG", "100 Thieves"]
+    },
+    {
+      "id": "iem-katowice-2024",
+      "name": "IEM Katowice 2024",
+      "nameShortened": "IEM Katowice",
+      "seriesCount": 20,
+      "startDate": "2024-01-20",
+      "endDate": "2024-02-10",
+      "teams": ["Natus Vincere", "FaZe Clan", "Vitality", "G2"]
+    },
+    {
+      "id": "lcs-spring-2024",
+      "name": "LCS Spring 2024",
+      "nameShortened": "LCS Spring",
+      "seriesCount": 40,
+      "startDate": "2024-01-20",
+      "endDate": "2024-04-20",
+      "teams": ["Cloud9", "Evil Geniuses", "100 Thieves", "Team Liquid"]
+    }
+  ]
+}

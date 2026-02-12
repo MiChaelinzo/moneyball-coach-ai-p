@@ -15,6 +15,7 @@ A comprehensive AI-powered esports analytics platform that integrates with GRID 
 - **AI-Powered Insights**: GPT-4 powered match analysis and strategic recommendations
 - **Live Match Tracking**: Real-time KDA updates and objective monitoring
 - **Strategic Impact Dashboard**: Connect individual mistakes to team outcomes
+- **Data Import**: Upload custom player rosters via CSV or JSON files through AI Chat
 
 ## 📖 Getting Started
 
@@ -67,6 +68,29 @@ For real Cloud9 esports data:
 - Correlate micro-level errors with macro outcomes
 - Understand objective loss patterns
 
+**AI Chat Support**
+- Ask questions about platform features
+- Get help with data interpretation
+- Upload CSV or JSON files to import custom data
+- View file format guide and examples
+
+## 📤 Data Import Feature
+
+Upload your own player roster data via the AI Chat interface:
+
+1. **Click the chat icon** in the bottom-right corner
+2. **Click the upload button** (📁) in the chat toolbar
+3. **Select your file** - CSV or JSON format (max 10MB)
+4. **Automatic import** - System parses and adds data instantly
+
+**Supported Formats:**
+- CSV: Player roster with headers (id, name, role, title, kda, winRate, gamesPlayed)
+- JSON: Single entity (player array) or multi-entity (players, teams, matches, tournaments)
+
+**Sample Files:** See `sample-players.csv`, `sample-players.json`, and `sample-multi-entity.json`
+
+**Full Guide:** [DATA_UPLOAD_GUIDE.md](./DATA_UPLOAD_GUIDE.md)
+
 ## 🔧 Technical Details
 
 ### Technology Stack
@@ -98,6 +122,7 @@ src/
 
 ## 📚 Documentation
 
+- **[Data Upload Guide](./DATA_UPLOAD_GUIDE.md)**: CSV/JSON file upload instructions
 - **[GRID Integration Guide](./GRID_INTEGRATION.md)**: Detailed API setup and usage
 - **[PRD.md](./PRD.md)**: Product requirements and design decisions
 

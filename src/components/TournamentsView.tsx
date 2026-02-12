@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Trophy, MagnifyingGlass } from '@phosphor-icons/react'
+import { Trophy, MagnifyingGlass, CurrencyDollar, MapPin, Globe } from '@phosphor-icons/react'
 import type { Tournament } from '@/lib/types'
 import { motion } from 'framer-motion'
 
@@ -82,11 +82,54 @@ export function TournamentsView({ tournaments }: TournamentsViewProps) {
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-3">
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-muted-foreground">Tournament ID</span>
                     <span className="font-mono text-foreground">{tournament.id}</span>
                   </div>
+                  
+                  {(tournament.prizePool || tournament.venue || tournament.location) && (
+                    <div className="pt-3 border-t border-border/50 space-y-2">
+                      {tournament.prizePool && tournament.prizePool !== 'TBD' && (
+                        <div className="flex items-center gap-2">
+                          <div className="p-1 rounded bg-primary/10">
+                            <CurrencyDollar size={14} weight="duotone" className="text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs text-muted-foreground">Prize Pool</div>
+                            <div className="text-xs font-semibold text-foreground truncate">{tournament.prizePool}</div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {tournament.venue && tournament.venue !== 'TBD' && (
+                        <div className="flex items-center gap-2">
+                          <div className="p-1 rounded bg-accent/10">
+                            <MapPin size={14} weight="duotone" className="text-accent" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs text-muted-foreground">Venue</div>
+                            <div className="text-xs font-semibold text-foreground truncate">{tournament.venue}</div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {tournament.location && tournament.location !== 'TBD' && (
+                        <div className="flex items-center gap-2">
+                          <div className="p-1 rounded bg-success/10">
+                            <Globe size={14} weight="duotone" className="text-success" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs text-muted-foreground">Location</div>
+                            <div className="text-xs font-semibold text-foreground truncate">
+                              {tournament.location}
+                              {tournament.country && tournament.country !== 'TBD' && `, ${tournament.country}`}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>

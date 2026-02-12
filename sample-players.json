@@ -1,0 +1,92 @@
+[
+  {
+    "id": "sample-player-1",
+    "name": "Fudge",
+    "role": "Top Lane",
+    "title": "LoL",
+    "kda": 3.2,
+    "winRate": 58,
+    "gamesPlayed": 45,
+    "biography": {
+      "realName": "Ibrahim Allami",
+      "nationality": "Australia",
+      "birthDate": "2002-03-14",
+      "bio": "Versatile top laner known for champion pool depth and strong team fighting",
+      "playstyle": "Flexible and team-oriented with excellent macro understanding",
+      "signature": "Tank initiations and split-push pressure",
+      "careerStart": 2019
+    }
+  },
+  {
+    "id": "sample-player-2",
+    "name": "xeta",
+    "role": "Controller",
+    "title": "Valorant",
+    "kda": 1.35,
+    "winRate": 62,
+    "gamesPlayed": 78,
+    "biography": {
+      "realName": "Son Seon-ho",
+      "nationality": "South Korea",
+      "birthDate": "1995-07-21",
+      "bio": "Veteran IGL with exceptional game sense and strategic calling",
+      "playstyle": "Supportive controller who enables aggressive plays",
+      "signature": "Clutch smoke timings and post-plant setups",
+      "careerStart": 2020
+    }
+  },
+  {
+    "id": "sample-player-3",
+    "name": "Ax1Le",
+    "role": "Rifler",
+    "title": "CS2",
+    "kda": 1.28,
+    "winRate": 55,
+    "gamesPlayed": 92,
+    "biography": {
+      "realName": "Sergey Rykhtorov",
+      "nationality": "Russia",
+      "birthDate": "2002-11-08",
+      "bio": "Aggressive rifler with exceptional aim and clutch potential",
+      "playstyle": "Entry fragging with strong positioning and game sense",
+      "signature": "Multi-kill rounds and eco round victories",
+      "careerStart": 2020
+    }
+  },
+  {
+    "id": "sample-player-4",
+    "name": "Emenes",
+    "role": "Mid Lane",
+    "title": "LoL",
+    "kda": 4.1,
+    "winRate": 64,
+    "gamesPlayed": 38,
+    "biography": {
+      "realName": "Mads Jensen",
+      "nationality": "Denmark",
+      "birthDate": "2003-05-19",
+      "bio": "Mechanical prodigy with aggressive laning and roaming pressure",
+      "playstyle": "Lane dominant with excellent map awareness",
+      "signature": "Assassination plays and side-lane pressure",
+      "careerStart": 2021
+    }
+  },
+  {
+    "id": "sample-player-5",
+    "name": "vanity",
+    "role": "Initiator",
+    "title": "Valorant",
+    "kda": 1.12,
+    "winRate": 51,
+    "gamesPlayed": 105,
+    "biography": {
+      "realName": "Anthony Malaspina",
+      "nationality": "United States",
+      "birthDate": "1998-12-03",
+      "bio": "Experienced IGL known for innovative strategies and team cohesion",
+      "playstyle": "Information-gathering initiator with strong mid-round calls",
+      "signature": "Flash timings and site executes",
+      "careerStart": 2020
+    }
+  }
+]

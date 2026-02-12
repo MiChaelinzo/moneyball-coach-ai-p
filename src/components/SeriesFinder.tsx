@@ -41,10 +41,6 @@ export function SeriesFinder({ onSelectSeries }: SeriesFinderProps) {
     setIsLoading(true)
     setError(null)
 
-    const now = new Date()
-    const tomorrow = new Date(now)
-    tomorrow.setDate(tomorrow.getDate() + 1)
-
     const query = `
       query GetUpcomingSeries($gte: DateTime!, $lte: DateTime!) {
         allSeries(
@@ -58,7 +54,7 @@ export function SeriesFinder({ onSelectSeries }: SeriesFinderProps) {
           }
           orderBy: StartTimeScheduled
           orderDirection: ASC
-          first: 10
+          first: 50
         ) {
           edges {
             node {
@@ -95,8 +91,8 @@ export function SeriesFinder({ onSelectSeries }: SeriesFinderProps) {
         body: JSON.stringify({
           query,
           variables: {
-            gte: now.toISOString(),
-            lte: tomorrow.toISOString(),
+            gte: '2025-01-01T00:00:00Z',
+            lte: '2026-12-31T23:59:59Z',
           },
         }),
       })
@@ -115,9 +111,9 @@ export function SeriesFinder({ onSelectSeries }: SeriesFinderProps) {
       setSeries(seriesData)
       
       if (seriesData.length === 0) {
-        toast.info('No upcoming DOTA 2 series found in the next 24 hours')
+        toast.info('No DOTA 2 series found for 2025-2026')
       } else {
-        toast.success(`Found ${seriesData.length} upcoming series`)
+        toast.success(`Found ${seriesData.length} series in 2025-2026`)
       }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Unexpected error occurred'
@@ -151,7 +147,7 @@ export function SeriesFinder({ onSelectSeries }: SeriesFinderProps) {
               <CalendarBlank size={24} weight="duotone" className="text-primary" />
             </div>
             <div>
-              <CardTitle className="text-xl">Upcoming DOTA 2 Series</CardTitle>
+              <CardTitle className="text-xl">DOTA 2 Series (2025-2026)</CardTitle>
               <p className="text-sm text-muted-foreground">
                 Select a series to track live state
               </p>
